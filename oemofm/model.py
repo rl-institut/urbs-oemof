@@ -26,8 +26,8 @@ def create_model(data, timesteps=None):
                                     freq='H')
 
     # Create Energy System
-    energysystem = solph.EnergySystem(timeindex=date_time_index)
-    Node.registry = energysystem
+    m = solph.EnergySystem(timeindex=date_time_index)
+    Node.registry = m
 
     ##########################################################################
     # Create oemof object
@@ -53,6 +53,31 @@ def create_model(data, timesteps=None):
     sbio = solph.Source(label='sbio',
                         outputs={bbio: solph.Flow(
                             variable_costs=6*weight)})
+
+    # Renewable Sources
+    awind = economics.annuity(1500000, 25, 0.07)
+    swind = solph.Source(label='swind',
+                         outputs={bel: solph.Flow(
+                            actual_value=data['wind'], fixed=True,
+                            investment=solph.Investment(ep_costs=awind,
+                                    maximum=13000,
+                                    existing=0))})
+
+    apv = economics.annuity(600000, 25, 0.07)
+    spv = solph.Source(label='spv',
+                       outputs={bel: solph.Flow(
+                            actual_value=data['pv'], fixed=True,
+                            investment=solph.Investment(ep_costs=apv,
+                                    maximum=160000,
+                                    existing=0))})
+
+    ahydro = economics.annuity(1600000, 50, 0.07)
+    shydro = solph.Source(label='shydro',
+                          outputs={bel: solph.Flow(
+                            actual_value=data['hydro'], fixed=True,
+                            investment=solph.Investment(ep_costs=ahydro,
+                                    maximum=1400,
+                                    existing=0))})
 
     # Sink
     demand = solph.Sink(label='demand',
@@ -107,13 +132,4 @@ def create_model(data, timesteps=None):
                outputs={bel: solph.Flow()},
                conversion_factors={bel: 0.35})
 
-    return energysystem
-"""
-    swind = solph.Source(label='rwind', outputs={bel: solph.Flow(
-                         actual_value=data['wind_m'], nominal_value=1000000, fixed=True)}))
-    spv = solph.Source(label='rpv', outputs={bel: solph.Flow(
-                       actual_value=data['pv_m'], nominal_value=1000000, fixed=True)}))
-    shydro = solph.Source(label='rhydro', outputs={bel: solph.Flow(
-                          actual_value=data['hydro_m'], nominal_value=1000000, fixed=True)}))
-"""
-
+    return m

@@ -134,7 +134,7 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 1)  # time step selection
+    (offset, length) = (0, 1000)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

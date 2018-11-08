@@ -25,9 +25,26 @@ from datetime import datetime
 ##########################################################################
 # Helper Functions
 ##########################################################################
-#
-#
-#
+
+
+def comparison(u_model, o_model):
+    """
+    Function for comparing urbs & oemof
+
+    Args:
+        u_model: urbs model instance use create_um() to generate
+        o_model: oemof model instance use create_om() to generate
+
+    Returns:
+        None
+    """
+
+    # check objective difference
+    if u_model.obj() != o_model.objective():
+        print('urbs\t', u_model.obj())
+        print('oemof\t', o_model.objective())
+        print('Diff\t', u_model.obj() - o_model.objective())
+
 ##########################################################################
 
 
@@ -56,7 +73,7 @@ def create_um(input_file, timesteps):
 
     # solve model and read results
     optim = SolverFactory('glpk')
-    result = optim.solve(prob, tee=True)
+    result = optim.solve(prob, tee=False)
 
     return prob
 
@@ -80,7 +97,7 @@ def create_om(input_file, timesteps):
 
     # Init
     solver = 'glpk'
-    weight = 8760/(len(timesteps))
+    weight = float(8760)/(len(timesteps))
     timesteps = timesteps[-1]
 
     # Time Index
@@ -128,21 +145,14 @@ def create_om(input_file, timesteps):
     # Transformers
     # annu() & fix costs
     acoal = economics.annuity(600000, 40, 0.07)
-    fcoal = 18000
-
     alig = economics.annuity(600000, 40, 0.07)
-    flig = 18000
-
     agas = economics.annuity(450000, 30, 0.07)
-    fgas = 6000
-
     abio = economics.annuity(875000, 25, 0.07)
-    fbio = 28000
 
     tcoal = solph.Transformer(
                 label="pp_coal",
                 inputs={bcoal: solph.Flow(investment=
-                               solph.Investment(ep_costs=acoal+fcoal,
+                               solph.Investment(ep_costs=acoal,
                                                 maximum=100000,
                                                 existing=0),
                         variable_costs=0.6*weight)},
@@ -152,7 +162,7 @@ def create_om(input_file, timesteps):
     tlig = solph.Transformer(
                label="pp_lignite",
                inputs={blig: solph.Flow(investment=
-                             solph.Investment(ep_costs=alig+flig,
+                             solph.Investment(ep_costs=alig,
                                               maximum=60000,
                                               existing=0),
                        variable_costs=0.6*weight)},
@@ -162,7 +172,7 @@ def create_om(input_file, timesteps):
     tgas = solph.Transformer(
                label="pp_gas",
                inputs={bgas: solph.Flow(investment=
-                             solph.Investment(ep_costs=agas+fgas,
+                             solph.Investment(ep_costs=agas,
                                               maximum=80000,
                                               existing=0),
                        variable_costs=1.6*weight)},
@@ -172,7 +182,7 @@ def create_om(input_file, timesteps):
     tbio = solph.Transformer(
                label="pp_biomass",
                inputs={bbio: solph.Flow(investment=
-                             solph.Investment(ep_costs=abio+fbio,
+                             solph.Investment(ep_costs=abio,
                                               maximum=5000,
                                               existing=0),
                        variable_costs=1.4*weight)},
@@ -185,7 +195,7 @@ def create_om(input_file, timesteps):
 
     # initialise the operational model
     model = solph.Model(energysystem)
-    model.solve(solver=solver, solve_kwargs={'tee': True})
+    model.solve(solver=solver, solve_kwargs={'tee': False})
 
     # write LP file
     filename = os.path.join(os.path.dirname(__file__), 'mimo_oemof.lp')
@@ -221,7 +231,7 @@ def create_om(input_file, timesteps):
                           actual_value=data['hydro_m'], nominal_value=1000000, fixed=True)}))
     '''
 
-    return energysystem
+    return model
 
 if __name__ == '__main__':
     # Input Files
@@ -229,14 +239,15 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 100)  # time step selection
+    (offset, length) = (0, 8760)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models
-    print('----------------------------------------------------\n')
-    print('CREATING urbs MODEL\n')
+    print('----------------------------------------------------')
+    print('CREATING urbs MODEL')
     urbs_model = create_um(input_file_urbs, timesteps)
-    print('\n----------------------------------------------------\n')
-    print('CREATING oemof MODEL\n')
+    print('CREATING oemof MODEL')
     oemof_model = create_om(input_file_oemof, timesteps)
-    print('\n----------------------------------------------------')
+    print('----------------------------------------------------')
+
+    comparison(urbs_model, oemof_model)

@@ -7,6 +7,88 @@ import pandas as pd
 import pprint as pp
 import matplotlib.pyplot as plt
 
+class Site:
+    """Energy model for a site
+    
+    Attributes:
+        weight: A float number
+        bus: A list of buses
+        source: A dict of sources
+        rsource: A dict of renewable sources
+        transformer: A dict of transformers
+        sink: A dict of sinks
+    """
+
+    def __init__(self, name, data, weight, **kwargs):
+        self.name = name
+        self.data = data
+        self.weight = weight
+        self.bus = kwargs['bus']
+        self.source = kwargs['source']
+        self.rsource = kwargs['rsource']
+        self.transformer = kwargs['transformer']
+        self.sink = kwargs['sink']
+
+    def _create_components(self):
+        # create empty dictionaries
+        bus = {}
+        source = {}
+        rsource = {}
+        transformer = {}
+        sink = {}
+
+        # create buses
+        for b in self.bus:
+            bus['b_'+b+self.name] = solph.Bus(label='b_'+b)
+
+        # create sources
+        for s in self.source.keys():
+            source['s_'+s+self.name] = solph.Source(
+                            label='s_'+s,
+                            outputs={bus['b_'+s+self.name]:
+                                solph.Flow(
+                                    variable_costs=self.source[s]*self.weight)})
+
+        # create renewable sources
+        for rs in self.rsource.keys():
+            rsource['rs_'+rs+self.name] = solph.Source(
+                            label='rs_'+rs,
+                            outputs={bus['b_el'+self.name]:
+                                solph.Flow(
+                                    actual_value=self.data[rs+self.name],
+                                    fixed=True,
+                                    investment=solph.Investment(
+                                        ep_costs=self.rsource[rs][0],
+                                        maximum=self.rsource[rs][1],
+                                        existing=self.rsource[rs][2]))})
+
+        # create transformer (output: elec only)
+        for t in self.transformer.keys():
+            transformer['t_'+t+self.name] = solph.Transformer(
+                            label="pp_"+t,
+                            inputs={bus['b_'+t+self.name]:
+                                solph.Flow(
+                                    investment=solph.Investment(
+                                        ep_costs=self.transformer[t][0],
+                                        maximum=self.transformer[t][1],
+                                        existing=self.transformer[t][2]),
+                                    variable_costs=self.transformer[t][3]*self.weight)},
+                            outputs={bus['b_el'+self.name]: solph.Flow()},
+                            conversion_factors={bus['b_el'+self.name]:
+                                                    self.transformer[t][4]})
+
+        # create sink (input: elec only)
+        for sn in self.sink.keys():
+            sink[sn+self.name] = solph.Sink(
+                            label=sn,
+                            inputs={bus['b_el'+self.name]:
+                                solph.Flow(
+                                    actual_value=self.data[sn+self.name],
+                                    fixed=True, nominal_value=self.sink[sn])})
+            
+        return bus, source, rsource, transformer, sink
+
+
 def create_model(data, timesteps=None):
     """Creates an oemof model for given input, time steps
 
@@ -29,107 +111,29 @@ def create_model(data, timesteps=None):
     m = solph.EnergySystem(timeindex=date_time_index)
     Node.registry = m
 
-    ##########################################################################
-    # Create oemof object
-    ##########################################################################
-
-    # Buses
-    bcoal = solph.Bus(label="coal")
-    blig = solph.Bus(label="lignite")
-    bgas = solph.Bus(label="gas")
-    bbio = solph.Bus(label="biomass")
-    bel = solph.Bus(label="electricity")
-
-    # Sources
-    scoal = solph.Source(label='scoal',
-                         outputs={bcoal: solph.Flow(
-                            variable_costs=7*weight)})
-    slig = solph.Source(label='slignite',
-                        outputs={blig: solph.Flow(
-                            variable_costs=4*weight)})
-    sgas = solph.Source(label='sgas',
-                        outputs={bgas: solph.Flow(
-                            variable_costs=27*weight)})
-    sbio = solph.Source(label='sbio',
-                        outputs={bbio: solph.Flow(
-                            variable_costs=6*weight)})
-
-    # Renewable Sources
-    awind = economics.annuity(1500000, 25, 0.07)
-    swind = solph.Source(label='swind',
-                         outputs={bel: solph.Flow(
-                            actual_value=data['wind'], fixed=True,
-                            investment=solph.Investment(ep_costs=awind,
-                                    maximum=13000,
-                                    existing=0))})
-
-    apv = economics.annuity(600000, 25, 0.07)
-    spv = solph.Source(label='spv',
-                       outputs={bel: solph.Flow(
-                            actual_value=data['pv'], fixed=True,
-                            investment=solph.Investment(ep_costs=apv,
-                                    maximum=160000,
-                                    existing=0))})
-
-    ahydro = economics.annuity(1600000, 50, 0.07)
-    shydro = solph.Source(label='shydro',
-                          outputs={bel: solph.Flow(
-                            actual_value=data['hydro'], fixed=True,
-                            investment=solph.Investment(ep_costs=ahydro,
-                                    maximum=1400,
-                                    existing=0))})
-
-    # Sink
-    demand = solph.Sink(label='demand',
-                        inputs={bel: solph.Flow(
-                            actual_value=data['demand'], fixed=True,
-                            nominal_value=1)})
-
-    # Transformers
-    # annu() & fix costs
-    acoal = economics.annuity(600000, 40, 0.07)
-    alig = economics.annuity(600000, 40, 0.07)
-    agas = economics.annuity(450000, 30, 0.07)
-    abio = economics.annuity(875000, 25, 0.07)
-
-    tcoal = solph.Transformer(
-                label="pp_coal",
-                inputs={bcoal: solph.Flow(investment=
-                               solph.Investment(ep_costs=acoal,
-                                                maximum=100000,
-                                                existing=0),
-                        variable_costs=0.6*weight)},
-                outputs={bel: solph.Flow()},
-                conversion_factors={bel: 0.4})
-
-    tlig = solph.Transformer(
-               label="pp_lignite",
-               inputs={blig: solph.Flow(investment=
-                             solph.Investment(ep_costs=alig,
-                                              maximum=60000,
-                                              existing=0),
-                       variable_costs=0.6*weight)},
-               outputs={bel: solph.Flow()},
-               conversion_factors={bel: 0.4})
-
-    tgas = solph.Transformer(
-               label="pp_gas",
-               inputs={bgas: solph.Flow(investment=
-                             solph.Investment(ep_costs=agas,
-                                              maximum=80000,
-                                              existing=0),
-                       variable_costs=1.6*weight)},
-               outputs={bel: solph.Flow()},
-               conversion_factors={bel: 0.6})
-
-    tbio = solph.Transformer(
-               label="pp_biomass",
-               inputs={bbio: solph.Flow(investment=
-                             solph.Investment(ep_costs=abio,
-                                              maximum=5000,
-                                              existing=0),
-                       variable_costs=1.4*weight)},
-               outputs={bel: solph.Flow()},
-               conversion_factors={bel: 0.35})
+    # Create oemof object with sites
+    """Syntax
+    
+    site_name = Site(site_name, site_data, weight,
+                     bus=[components],
+                     source={components: variable_cost},
+                     rsource={components: (ep_costs, max_capacity, existing_capacity)},
+                     transformer={components: (ep_costs, max_capacity, existing_capacity,
+                                               variable_cost, conversion_factor)},
+                     sink={components: nominal_value})
+    """ 
+    mid = Site('_mid', data.filter(like='_mid'), weight,
+               bus=['coal', 'lig', 'gas', 'bio', 'el'],
+               source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
+               rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
+                        'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
+                        'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},             
+               transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
+                            'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
+                            'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
+                            'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
+               sink={'demand': 1}
+              )
+    mid._create_components()
 
     return m

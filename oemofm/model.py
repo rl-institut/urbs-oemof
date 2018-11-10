@@ -39,12 +39,12 @@ class Site:
 
         # create buses
         for b in self.bus:
-            bus['b_'+b+self.name] = solph.Bus(label='b_'+b)
+            bus['b_'+b+self.name] = solph.Bus(label='b_'+b+self.name)
 
         # create sources
         for s in self.source.keys():
             source['s_'+s+self.name] = solph.Source(
-                            label='s_'+s,
+                            label='s_'+s+self.name,
                             outputs={bus['b_'+s+self.name]:
                                 solph.Flow(
                                     variable_costs=self.source[s]*self.weight)})
@@ -52,7 +52,7 @@ class Site:
         # create renewable sources
         for rs in self.rsource.keys():
             rsource['rs_'+rs+self.name] = solph.Source(
-                            label='rs_'+rs,
+                            label='rs_'+rs+self.name,
                             outputs={bus['b_el'+self.name]:
                                 solph.Flow(
                                     actual_value=self.data[rs+self.name],
@@ -65,7 +65,7 @@ class Site:
         # create transformer (output: elec only)
         for t in self.transformer.keys():
             transformer['t_'+t+self.name] = solph.Transformer(
-                            label="pp_"+t,
+                            label="pp_"+t+self.name,
                             inputs={bus['b_'+t+self.name]:
                                 solph.Flow(
                                     investment=solph.Investment(
@@ -80,7 +80,7 @@ class Site:
         # create sink (input: elec only)
         for sn in self.sink.keys():
             sink[sn+self.name] = solph.Sink(
-                            label=sn,
+                            label=sn+self.name,
                             inputs={bus['b_el'+self.name]:
                                 solph.Flow(
                                     actual_value=self.data[sn+self.name],
@@ -153,7 +153,7 @@ def create_model(data, timesteps=None):
     south._create_components()
 
     # Site 'north'
-    north = Site('_north', data.filter(like='north'), weight,
+    north = Site('_north', data.filter(like='_north'), weight,
                  bus=['coal', 'lig', 'gas', 'bio', 'el'],
                  source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
                  rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),

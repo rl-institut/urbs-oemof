@@ -122,13 +122,12 @@ def create_model(data, timesteps=None):
                                                variable_cost, conversion_factor)},
                      sink={components: nominal_value})
     """ 
-    # Site 'mid'
     mid = Site('_mid', data.filter(like='_mid'), weight,
                bus=['coal', 'lig', 'gas', 'bio', 'el'],
                source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
                rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
                         'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                        'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
+                        'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},             
                transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
                             'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
                             'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
@@ -136,35 +135,5 @@ def create_model(data, timesteps=None):
                sink={'demand': 1}
               )
     mid._create_components()
-
-    # Site 'south'
-    south = Site('_south', data.filter(like='_south'), weight,
-                 bus=['coal', 'lig', 'gas', 'bio', 'el'],
-                 source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-                 rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
-                          'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                          'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
-                 transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
-                              'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
-                              'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
-                              'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-                 sink={'demand': 1}
-                )
-    south._create_components()
-
-    # Site 'north'
-    north = Site('_north', data.filter(like='north'), weight,
-                 bus=['coal', 'lig', 'gas', 'bio', 'el'],
-                 source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-                 rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
-                          'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                          'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
-                 transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
-                              'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
-                              'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
-                              'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-                 sink={'demand': 1}
-                )
-    north._create_components()
 
     return m

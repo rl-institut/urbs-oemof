@@ -39,7 +39,6 @@ def comparison(u_model, o_model):
         print('urbs\t', u_model.obj())
         print('oemof\t', o_model.objective())
         print('Diff\t', u_model.obj() - o_model.objective())
-    import pdb; pdb.set_trace()
 
 
 ##########################################################################
@@ -66,7 +65,7 @@ def create_um(input_file, timesteps):
     model = urbs.create_model(data, 1, timesteps)
 
     # solve model and read results
-    optim = SolverFactory(solver)
+    optim = SolverFactory('glpk')
     result = optim.solve(model, tee=False)
 
     # write LP file
@@ -100,6 +99,7 @@ def create_om(input_file, timesteps):
     model = oemofm.create_model(data, timesteps)
 
     # solve model and read results
+    solver = 'glpk'
     model = solph.Model(model)
     model.solve(solver=solver, solve_kwargs={'tee': False})
 
@@ -115,11 +115,8 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 1)  # time step selection
+    (offset, length) = (0, 100)  # time step selection
     timesteps = range(offset, offset + length + 1)
-
-    # solver selection
-    solver = 'gurobi'
 
     # create models
     print('----------------------------------------------------')

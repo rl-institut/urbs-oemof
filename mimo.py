@@ -99,9 +99,8 @@ def create_om(input_file, timesteps):
     model = oemofm.create_model(data, timesteps)
 
     # solve model and read results
-    solver = 'glpk'
     model = solph.Model(model)
-    model.solve(solver=solver, solve_kwargs={'tee': False})
+    model.solve(solver='glpk', solve_kwargs={'tee': False})
 
     # write LP file
     filename = os.path.join(os.path.dirname(__file__), 'mimo_oemof.lp')

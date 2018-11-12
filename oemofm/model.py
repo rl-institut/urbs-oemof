@@ -5,7 +5,6 @@ from oemof.network import Node
 import oemof.solph as solph
 import pandas as pd
 import pprint as pp
-import matplotlib.pyplot as plt
 
 
 class Site:

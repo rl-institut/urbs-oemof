@@ -68,6 +68,10 @@ def create_um(input_file, timesteps):
     optim = SolverFactory('glpk')
     result = optim.solve(model, tee=False)
 
+    # write LP file
+    filename = os.path.join(os.path.dirname(__file__), 'mimo_urbs.lp')
+    model.write(filename, io_options={'symbolic_solver_labels': True})
+
     return model
 
 
@@ -95,38 +99,15 @@ def create_om(input_file, timesteps):
     model = oemofm.create_model(data, timesteps)
 
     # solve model and read results
-    solver = 'glpk'
     model = solph.Model(model)
-    model.solve(solver=solver, solve_kwargs={'tee': False})
+    model.solve(solver='glpk', solve_kwargs={'tee': False})
 
     # write LP file
     filename = os.path.join(os.path.dirname(__file__), 'mimo_oemof.lp')
     model.write(filename, io_options={'symbolic_solver_labels': True})
 
-    '''
-    EXTRAS
-    
-    # add results to the energy system to make it possible to store them.
-    energysystem.results['main'] = outputlib.processing.results(model)
-    energysystem.results['meta'] = outputlib.processing.meta_results(model)
-
-    # The default path is the '.oemof' folder in your $HOME directory.
-    # The default filename is 'es_dump.oemof'.
-
-    # store energy system with results
-    energysystem.dump(dpath=None, filename=None)
-
-    # ************************************************************************
-    # ********** PART 2 - Processing the results *****************************
-    # ************************************************************************
-    energysystem = solph.EnergySystem()
-    energysystem.restore(dpath=None, filename=None)
-
-    # define an alias for shorter calls below (optional)
-    results = energysystem.results['main']
-    '''
-
     return model
+
 
 if __name__ == '__main__':
     # Input Files
@@ -134,7 +115,7 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 1000)  # time step selection
+    (offset, length) = (0, 100)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

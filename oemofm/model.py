@@ -86,18 +86,33 @@ class Site:
                                     actual_value=self.data[sn+self.name],
                                     fixed=True, nominal_value=self.sink[sn])})
 
-        return bus, source, rsource, transformer, sink
+        # create storage
+        storage = solph.components.GenericStorage(
+            label='storage_el'+self.name,
+            inputs={
+                bus['b_el'+self.name]: solph.Flow(variable_costs=0.02*self.weight)},
+            outputs={
+                bus['b_el'+self.name]: solph.Flow(variable_costs=0.02*self.weight)},
+            inflow_conversion_factor=1, outflow_conversion_factor=1,
+            initial_capacity=0,
+            investment=solph.Investment(
+                            ep_costs=economics.annuity(100000, 50, 0.07),
+                            maximum=float('inf'),
+                            existing=0), variable_costs=0.02*self.weight)
+
+        return bus, source, rsource, transformer, sink, storage
 
 
 class Line:
     """Transmission line between sites
 
     Attributes:
-        bus: A list of buses
-        source: A dict of sources
-        rsource: A dict of renewable sources
-        transformer: A dict of transformers
-        sink: A dict of sinks
+        name_0: Name of the site 0
+        name_1: Name of the site 1
+        site_0: A Site object
+        site_1: A Site object
+        weight: A float number
+        specs: Specifications of the storage
     """
 
     def __init__(self, name_0, name_1, site_0, site_1, weight, **kwargs):
@@ -229,5 +244,6 @@ def create_model(data, timesteps=None):
     lines = {}
     for i in range(0, len(transmission)):
         lines[i] = transmission[i]._create_lines()
+
 
     return m

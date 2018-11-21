@@ -198,7 +198,7 @@ def create_model(data, timesteps=None):
              'north': None
             }
 
-    for site in sites.keys():
+    for site in sites:
         sites[site] = Site('_'+site, data.filter(like='_'+site), weight,
                            bus=['coal', 'lig', 'gas', 'bio', 'el'],
                            source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},

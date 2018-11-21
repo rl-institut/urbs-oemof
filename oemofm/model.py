@@ -226,10 +226,9 @@ def create_model(data, timesteps=None):
              ('south', 'mid'): None,
              ('south', 'north'): None,
             }
-    l_key = tuple(lines.keys())
 
-    for i, line in enumerate(lines.keys()):
-        lines[line] = Line(sites[l_key[i][0]], sites[l_key[i][1]], weight,
+    for line in lines:
+        lines[line] = Line(sites[line[0]], sites[line[1]], weight,
                            specs = [economics.annuity(1650000, 40, 0.07), float('inf'), 0, 0, 0.90]
                           )
         lines[line] = lines[line]._create_lines()

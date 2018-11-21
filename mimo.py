@@ -96,7 +96,6 @@ def comparison(u_model, o_model):
     Returns:
         None
     """
-
     # check objective difference
     if u_model.obj() != o_model.objective():
         print('urbs\t', u_model.obj())
@@ -163,6 +162,7 @@ def create_om(input_file, timesteps):
 
     # solve model and read results
     model = solph.Model(es)
+    model.name = 'oemof APP'
     model.solve(solver='glpk', solve_kwargs={'tee': False})
 
     # write LP file
@@ -170,7 +170,7 @@ def create_om(input_file, timesteps):
     model.write(filename, io_options={'symbolic_solver_labels': True})
 
     # draw graph
-    graph = True
+    graph = False
     if graph:
         graph = create_nx_graph(es, model)
         draw_graph(graph, plot=True, layout='neato', node_size=3000,

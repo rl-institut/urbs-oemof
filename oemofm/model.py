@@ -17,6 +17,7 @@ class Site:
         rsource: A dict of renewable sources
         transformer: A dict of transformers
         sink: A dict of sinks
+        storage: A dict of storages
     """
 
     def __init__(self, name, data, weight, **kwargs):
@@ -28,6 +29,7 @@ class Site:
         self.rsource = kwargs['rsource']
         self.transformer = kwargs['transformer']
         self.sink = kwargs['sink']
+        self.storage = kwargs['storage']
 
     def _create_components(self):
         # create empty dictionaries
@@ -36,6 +38,7 @@ class Site:
         rsource = {}
         transformer = {}
         sink = {}
+        storage = {}
 
         # create buses
         for b in self.bus:
@@ -87,37 +90,37 @@ class Site:
                                     fixed=True, nominal_value=self.sink[sn])})
 
         # create storage
-        storage = solph.components.GenericStorage(
-            label='storage_el'+self.name,
-            inputs={
-                bus['b_el'+self.name]: solph.Flow(variable_costs=0.02*self.weight)},
-            outputs={
-                bus['b_el'+self.name]: solph.Flow(variable_costs=0.02*self.weight)},
-            inflow_conversion_factor=1, outflow_conversion_factor=1,
-            initial_capacity=0,
-            investment=solph.Investment(
-                            ep_costs=economics.annuity(100000, 50, 0.07),
-                            maximum=float('inf'),
-                            existing=0), variable_costs=0.02*self.weight)
+        for st in self.storage.keys():
+            storage['storage_'+st+self.name] = solph.components.GenericStorage(
+                            label='storage_'+st+self.name,
+                            inputs={
+                                bus['b_el'+self.name]: solph.Flow(
+                                    variable_costs=self.storage[st][3]*self.weight)},
+                            outputs={
+                                bus['b_el'+self.name]: solph.Flow(
+                                    variable_costs=self.storage[st][3]*self.weight)},
+                            inflow_conversion_factor=1, outflow_conversion_factor=1,
+                            initial_capacity=0,
+                            investment=solph.Investment(
+                                            ep_costs=self.storage[st][0],
+                                            maximum=self.storage[st][1],
+                                            existing=self.storage[st][2]),
+                            variable_costs=self.storage[st][3]*self.weight)
 
-        return bus, source, rsource, transformer, sink, storage
+        return self.name, bus, source, rsource, transformer, sink, storage
 
 
 class Line:
     """Transmission line between sites
 
     Attributes:
-        name_0: Name of the site 0
-        name_1: Name of the site 1
         site_0: A Site object
         site_1: A Site object
         weight: A float number
         specs: Specifications of the storage
     """
 
-    def __init__(self, name_0, name_1, site_0, site_1, weight, **kwargs):
-        self.name_0 = name_0
-        self.name_1 = name_1
+    def __init__(self, site_0, site_1, weight, **kwargs):
         self.site_0 = site_0
         self.site_1 = site_1
         self.weight = weight
@@ -126,30 +129,30 @@ class Line:
     def _create_lines(self):
         # create transmission lines
         line = solph.custom.Link(
-                    label="line"+self.name_0+self.name_1,
+                    label="line"+self.site_0[0]+self.site_1[0],
                     inputs={
-                       self.site_0[0]['b_el'+self.name_0]:
+                       self.site_0[1]['b_el'+self.site_0[0]]:
                            solph.Flow(investment=solph.Investment(
                                ep_costs=self.specs[0],
                                maximum=self.specs[1],
                                existing=self.specs[2]),
                            variable_costs=self.specs[3]*self.weight),
-                       self.site_1[0]['b_el'+self.name_1]:
+                       self.site_1[1]['b_el'+self.site_1[0]]:
                            solph.Flow(investment=solph.Investment(
                                ep_costs=self.specs[0],
                                maximum=self.specs[1],
                                existing=self.specs[2]),
                            variable_costs=self.specs[3]*self.weight)},
                     outputs={
-                       self.site_1[0]['b_el'+self.name_1]:
+                       self.site_1[1]['b_el'+self.site_1[0]]:
                            solph.Flow(),
-                       self.site_0[0]['b_el'+self.name_0]:
+                       self.site_0[1]['b_el'+self.site_0[0]]:
                            solph.Flow()},
                     conversion_factors={
-                       (self.site_0[0]['b_el'+self.name_0],
-                        self.site_1[0]['b_el'+self.name_1]): self.specs[4],
-                       (self.site_1[0]['b_el'+self.name_1],
-                        self.site_0[0]['b_el'+self.name_0]): self.specs[4]})
+                       (self.site_0[1]['b_el'+self.site_0[0]],
+                        self.site_1[1]['b_el'+self.site_1[0]]): self.specs[4],
+                       (self.site_1[1]['b_el'+self.site_1[0]],
+                        self.site_0[1]['b_el'+self.site_0[0]]): self.specs[4]})
 
         return line
 
@@ -176,74 +179,61 @@ def create_model(data, timesteps=None):
     m = solph.EnergySystem(timeindex=date_time_index)
     Node.registry = m
 
-    # Create oemof object (sites)
+    # Create Sites
     """Syntax
 
-    site_name = Site(site_name, site_data, weight,
-                     bus=[components],
-                     source={components: variable_cost},
-                     rsource={components: (ep_costs, max_capacity, existing_capacity)},
-                     transformer={components: (ep_costs, max_capacity, existing_capacity,
-                                               variable_cost, conversion_factor)},
-                     sink={components: nominal_value})
+    Site(site_name, site_data, weight,
+         bus=[components],
+         source={components: variable_cost},
+         rsource={components: (ep_costs, max_capacity, existing_capacity)},
+         transformer={components: (ep_costs, max_capacity, existing_capacity,
+                                   variable_cost, conversion_factor)},
+         sink={components: nominal_value}
+         storage={components: (ep_costs, max_capacity, existing_capacity,
+                               variable_costs)
+        )
     """
-    # Site input 'mid'
-    mid = Site('_mid', data.filter(like='_mid'), weight,
-               bus=['coal', 'lig', 'gas', 'bio', 'el'],
-               source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-               rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
-                        'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                        'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
-               transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
-                            'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
-                            'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
-                            'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-               sink={'demand': 1})
+    sites = {'mid': None,
+             'south': None,
+             'north': None
+            }
 
-    # Site input 'south'
-    south = Site('_south', data.filter(like='_south'), weight,
-                 bus=['coal', 'lig', 'gas', 'bio', 'el'],
-                 source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-                 rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
-                          'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                          'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
-                 transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
-                              'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
-                              'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
-                              'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-                 sink={'demand': 1})
+    for site in sites.keys():
+        sites[site] = Site('_'+site, data.filter(like='_'+site), weight,
+                           bus=['coal', 'lig', 'gas', 'bio', 'el'],
+                           source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
+                           rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
+                                    'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
+                                    'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
+                           transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
+                                        'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
+                                        'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
+                                        'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
+                           sink={'demand': 1},
+                           storage={'el': (economics.annuity(100000, 50, 0.07), float('inf'), 0, 0.02)}
+                          )
+        sites[site] = sites[site]._create_components()
 
-    # Site input 'north'
-    north = Site('_north', data.filter(like='_north'), weight,
-                 bus=['coal', 'lig', 'gas', 'bio', 'el'],
-                 source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-                 rsource={'wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
-                          'pv': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                          'hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
-                 transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
-                              'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
-                              'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
-                              'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-                 sink={'demand': 1})
+    # Create Transmission Lines
+    """Syntax
 
-    # Sites
-    site = {}
-    site['mid'] = mid._create_components()
-    site['south'] = south._create_components()
-    site['north'] = north._create_components()
+    Line(site_0, site_1, weight,
+         specs=[(ep_costs, max_capacity, existing_capacity, variable_cost,
+                 conversion_factor]
+        )
+    """
+    lines = {('mid', 'north'): None,
+             ('south', 'mid'): None,
+             ('south', 'north'): None,
+            }
+    l_key = tuple(lines.keys())
+    i = 0
 
-    # Create transmission lines between sites
-    transmission = []
-    transmission.append(Line('_mid', '_north', site['mid'], site['north'], weight,
-                        specs = [economics.annuity(1650000, 40, 0.07), float('inf'), 0, 0, 0.90]))
-    transmission.append(Line('_south', '_mid', site['south'], site['mid'], weight,
-                        specs = [economics.annuity(1650000, 40, 0.07), float('inf'), 0, 0, 0.90]))
-    transmission.append(Line('_south', '_north', site['south'], site['north'], weight,
-                        specs = [economics.annuity(3000000, 40, 0.07), float('inf'), 0, 0, 0.85]))
-
-    lines = {}
-    for i in range(0, len(transmission)):
-        lines[i] = transmission[i]._create_lines()
-
+    for line in lines.keys():
+        lines[line] = Line(sites[l_key[i][0]], sites[l_key[i][1]], weight,
+                           specs = [economics.annuity(1650000, 40, 0.07), float('inf'), 0, 0, 0.90]
+                          )
+        lines[line] = lines[line]._create_lines()
+        i += 1
 
     return m

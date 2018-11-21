@@ -96,7 +96,6 @@ def comparison(u_model, o_model):
     Returns:
         None
     """
-
     # check objective difference
     if u_model.obj() != o_model.objective():
         print('urbs\t', u_model.obj())
@@ -163,6 +162,7 @@ def create_om(input_file, timesteps):
 
     # solve model and read results
     model = solph.Model(es)
+    model.name = 'oemof APP'
     model.solve(solver='glpk', solve_kwargs={'tee': False})
 
     # write LP file
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 100)  # time step selection
+    (offset, length) = (0, 10)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

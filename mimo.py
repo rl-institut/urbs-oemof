@@ -170,7 +170,7 @@ def create_om(input_file, timesteps):
     model.write(filename, io_options={'symbolic_solver_labels': True})
 
     # draw graph
-    graph = False
+    graph = True
     if graph:
         graph = create_nx_graph(es, model)
         draw_graph(graph, plot=True, layout='neato', node_size=3000,
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 100)  # time step selection
+    (offset, length) = (0, 10)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

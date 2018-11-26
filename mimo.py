@@ -12,6 +12,12 @@ from oemof.graph import create_nx_graph
 import urbs
 from pyomo.opt.base import SolverFactory
 
+# connection
+import connection_oep as conn
+import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
 # misc.
 import logging
 import os
@@ -19,10 +25,23 @@ import pandas as pd
 from datetime import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
 ##########################################################################
 # Helper Functions
 ##########################################################################
+Base = declarative_base()
+
+class site(Base):
+    __tablename__ = 'site_example'
+    __table_args__ = {'schema': 'sandbox'}
+
+    id = sa.Column(sa.Integer, primary_key=True, nullable=False,
+				   server_default=sa.text("nextval('model_draft.site_example_id_seq'::regclass)"))
+    Name = sa.Column(sa.String())
+    area = sa.Column(sa.String())
+
+
 def draw_graph(grph, edge_labels=True, node_color='#AFAFAF',
                edge_color='#CFCFCF', plot=True, node_size=2000,
                with_labels=True, arrows=True, layout='neato'):
@@ -119,13 +138,39 @@ def create_um(input_file, timesteps):
     Returns:
         model instance
     """
+    # Connection OEP (need to move this to create_om)
+    data2 = conn.read_data(input_file)
+
+    # Login Details
+    engine, metadata = conn.connect_oep()
+
+    # Setup Table in OEP
+    table = conn.setup_table('site_example', schema_name='sandbox',
+                			 metadata=metadata, data=data2['site'])
+
+    # Create Table in OEP
+    if not engine.dialect.has_table(engine, 'site_example', 'sandbox'):
+        table.create()
+        data2['site'].to_sql('site_example', engine, schema='sandbox',
+							 if_exists='append', index=None)
+
+    # Retrieve Table from OEP
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    session.close()
+
+    df = pd.DataFrame(session.query(site.Name, site.area).all())
+    print(df)
+
+    # Remove Table from OEP
+    #table.drop(engine)
 
     # scenario name, read and modify data for scenario
     data = urbs.read_excel(input_file)
 
     # create model
     model = urbs.create_model(data, 1, timesteps)
-
+	
     # solve model and read results
     optim = SolverFactory('glpk')
     result = optim.solve(model, tee=False)
@@ -153,6 +198,7 @@ def create_om(input_file, timesteps):
     Returns:
         model instance
     """
+    # connection OEP
 
     # read input file
     data = pd.read_csv(input_file)
@@ -187,7 +233,7 @@ if __name__ == '__main__':
     input_file_oemof = 'mimo.csv'
 
     # simulation timesteps
-    (offset, length) = (0, 10)  # time step selection
+    (offset, length) = (0, 1)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

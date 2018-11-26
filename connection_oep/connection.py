@@ -7,6 +7,18 @@ from geoalchemy2.types import Geometry
 import pandas as pd
 
 
+Base = declarative_base()
+
+class site(Base):
+    __tablename__ = 'site_example'
+    __table_args__ = {'schema': 'sandbox'}
+
+    id = sa.Column(sa.Integer, primary_key=True, nullable=False,
+                   server_default=sa.text("nextval('model_draft.site_example_id_seq'::regclass)"))
+    Name = sa.Column(sa.String())
+    area = sa.Column(sa.String())
+
+
 def read_data(filename):
     with pd.ExcelFile(filename) as xls:
 

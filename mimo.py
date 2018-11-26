@@ -30,18 +30,6 @@ import numpy as np
 ##########################################################################
 # Helper Functions
 ##########################################################################
-Base = declarative_base()
-
-class site(Base):
-    __tablename__ = 'site_example'
-    __table_args__ = {'schema': 'sandbox'}
-
-    id = sa.Column(sa.Integer, primary_key=True, nullable=False,
-				   server_default=sa.text("nextval('model_draft.site_example_id_seq'::regclass)"))
-    Name = sa.Column(sa.String())
-    area = sa.Column(sa.String())
-
-
 def draw_graph(grph, edge_labels=True, node_color='#AFAFAF',
                edge_color='#CFCFCF', plot=True, node_size=2000,
                with_labels=True, arrows=True, layout='neato'):
@@ -159,7 +147,7 @@ def create_um(input_file, timesteps):
     session = Session()
     session.close()
 
-    df = pd.DataFrame(session.query(site.Name, site.area).all())
+    df = pd.DataFrame(session.query(conn.site.Name, conn.site.area).all())
     print(df)
 
     # Remove Table from OEP

@@ -14,9 +14,6 @@ from pyomo.opt.base import SolverFactory
 
 # connection
 import connection_oep as conn
-import sqlalchemy as sa
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 
 # misc.
 import logging
@@ -126,32 +123,6 @@ def create_um(input_file, timesteps):
     Returns:
         model instance
     """
-    # Connection OEP (need to move this to create_om)
-    data2 = conn.read_data(input_file)
-
-    # Login Details
-    engine, metadata = conn.connect_oep()
-
-    # Setup Table in OEP
-    table = conn.setup_table('site_example', schema_name='sandbox',
-                			 metadata=metadata, data=data2['site'])
-
-    # Create Table in OEP
-    if not engine.dialect.has_table(engine, 'site_example', 'sandbox'):
-        table.create()
-        data2['site'].to_sql('site_example', engine, schema='sandbox',
-							 if_exists='append', index=None)
-
-    # Retrieve Table from OEP
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    session.close()
-
-    df = pd.DataFrame(session.query(conn.site.Name, conn.site.area).all())
-    print(df)
-
-    # Remove Table from OEP
-    #table.drop(engine)
 
     # scenario name, read and modify data for scenario
     data = urbs.read_excel(input_file)
@@ -233,3 +204,5 @@ if __name__ == '__main__':
     print('----------------------------------------------------')
 
     comparison(urbs_model, oemof_model)
+    a = conn.send_df(input_file_urbs)
+    print(conn.get_df(a))

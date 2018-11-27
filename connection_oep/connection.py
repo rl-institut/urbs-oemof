@@ -151,7 +151,7 @@ def write_data(data):
     data['demand'].columns = split_columns(data['demand'].columns, '.')
     data['supim'] = data['supim'].set_index(['t'])
     data['supim'].columns = split_columns(data['supim'].columns, '.')
-    data['eff_factor'] = data['eff_factor'].set_index(['t'])  
+    data['eff_factor'] = data['eff_factor'].set_index(['t'])
     data['eff_factor'].columns = split_columns(data['eff_factor'].columns, '.')
 
     for key in data:

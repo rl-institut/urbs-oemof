@@ -102,6 +102,16 @@ def comparison(u_model, o_model):
         print('oemof\t', o_model.objective())
         print('Diff\t', u_model.obj() - o_model.objective())
 
+    # to check flows with cap_pro/tra/sto
+    o_model = solph.EnergySystem()
+    o_model.restore(dpath=None, filename=None)
+    string_results = outputlib.views.convert_keys_to_strings(o_model.results['main'])
+    print(string_results.keys())
+    node_results_bel = outputlib.views.node(o_model.results['main'], 'b_el_mid')
+    df = node_results_bel['sequences']
+    df.head()
+    print(df)
+
 
 ##########################################################################
 # urbs Model
@@ -177,6 +187,10 @@ def create_om(input_file, timesteps):
                    node_color={'b_0': '#cd3333',
                                'b_1': '#7EC0EE',
                                'b_2': '#eeac7e'})
+
+    # get results
+    es.results['main'] = outputlib.processing.results(model)
+    es.dump(dpath=None, filename=None)
 
     return model
 

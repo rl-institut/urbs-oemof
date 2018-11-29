@@ -1,6 +1,9 @@
 ##########################################################################
 # IMPORTS
 ##########################################################################
+# urbs
+import urbs
+from pyomo.opt.base import SolverFactory
 
 # oemof
 import oemofm
@@ -8,9 +11,8 @@ import oemof.solph as solph
 import oemof.outputlib as outputlib
 from oemof.graph import create_nx_graph
 
-# urbs
-import urbs
-from pyomo.opt.base import SolverFactory
+# comparison
+import comparison as comp
 
 # misc.
 import logging
@@ -23,6 +25,8 @@ import matplotlib.pyplot as plt
 ##########################################################################
 # Helper Functions
 ##########################################################################
+
+
 def draw_graph(grph, edge_labels=True, node_color='#AFAFAF',
                edge_color='#CFCFCF', plot=True, node_size=2000,
                with_labels=True, arrows=True, layout='neato'):
@@ -102,15 +106,12 @@ def comparison(u_model, o_model):
         print('oemof\t', o_model.objective())
         print('Diff\t', u_model.obj() - o_model.objective())
 
-    # to check flows with cap_pro/tra/sto
+    # create oemof energysytem
     o_model = solph.EnergySystem()
     o_model.restore(dpath=None, filename=None)
-    string_results = outputlib.views.convert_keys_to_strings(o_model.results['main'])
-    print(string_results.keys())
-    node_results_bel = outputlib.views.node(o_model.results['main'], 'b_el_mid')
-    df = node_results_bel['sequences']
-    df.head()
-    print(df)
+
+    # compare storage variables
+    comp.compare_storages(u_model, o_model)
 
 
 ##########################################################################

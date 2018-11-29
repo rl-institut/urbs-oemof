@@ -193,9 +193,9 @@ def create_model(data, timesteps=None):
                                variable_costs)
         )
     """
-    sites = {'mid': None,
-             'south': None,
-             'north': None
+    sites = {'Mid': None,
+             'South': None,
+             'North': None
             }
 
     for site in sites:
@@ -222,9 +222,9 @@ def create_model(data, timesteps=None):
                  conversion_factor]
         )
     """
-    lines = {('mid', 'north'): None,
-             ('south', 'mid'): None,
-             ('south', 'north'): None,
+    lines = {('Mid', 'North'): None,
+             ('South', 'Mid'): None,
+             ('South', 'North'): None,
             }
 
     for line in lines:

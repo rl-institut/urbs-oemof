@@ -2,15 +2,15 @@
 # IMPORTS
 ##########################################################################
 
+# urbs
+import urbs
+from pyomo.opt.base import SolverFactory
+
 # oemof
 import oemofm
 import oemof.solph as solph
 import oemof.outputlib as outputlib
 from oemof.graph import create_nx_graph
-
-# urbs
-import urbs
-from pyomo.opt.base import SolverFactory
 
 # misc.
 import logging

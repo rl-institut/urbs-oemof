@@ -48,8 +48,7 @@ def send_df(input_file):
     data = read_data(input_file)
 
     # Login Details
-    engine, metadata = connect_oep('Okan Akca',
-                                   'd7b3e9ab325abc843e4b54ac37dad544d8345ca1')
+    engine, metadata = connect_oep()
 
     for i in data:
         if i is 'global_prop' or i is 'site' or i is 'commodity':

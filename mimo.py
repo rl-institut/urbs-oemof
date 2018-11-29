@@ -205,4 +205,4 @@ if __name__ == '__main__':
 
     comparison(urbs_model, oemof_model)
     a = conn.send_df(input_file_urbs)
-    print(conn.get_df(a))
+    #print(conn.get_df(a))

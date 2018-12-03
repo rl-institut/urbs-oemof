@@ -2,4 +2,4 @@
 
 """
 
-from .compare import compare_storages
+from .compare import *

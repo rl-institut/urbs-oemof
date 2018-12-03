@@ -112,6 +112,7 @@ def comparison(u_model, o_model):
 
     # compare storage variables
     comp.compare_storages(u_model, o_model)
+    comp.compare_transmission(u_model, o_model)
 
 
 ##########################################################################

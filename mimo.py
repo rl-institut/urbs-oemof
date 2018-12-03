@@ -1,7 +1,6 @@
 ##########################################################################
 # IMPORTS
 ##########################################################################
-
 # urbs
 import urbs
 from pyomo.opt.base import SolverFactory
@@ -11,6 +10,9 @@ import oemofm
 import oemof.solph as solph
 import oemof.outputlib as outputlib
 from oemof.graph import create_nx_graph
+
+# comparison
+import comparison as comp
 
 # misc.
 import logging
@@ -23,6 +25,8 @@ import matplotlib.pyplot as plt
 ##########################################################################
 # Helper Functions
 ##########################################################################
+
+
 def draw_graph(grph, edge_labels=True, node_color='#AFAFAF',
                edge_color='#CFCFCF', plot=True, node_size=2000,
                with_labels=True, arrows=True, layout='neato'):
@@ -102,6 +106,15 @@ def comparison(u_model, o_model):
         print('oemof\t', o_model.objective())
         print('Diff\t', u_model.obj() - o_model.objective())
 
+    # create oemof energysytem
+    o_model = solph.EnergySystem()
+    o_model.restore(dpath=None, filename=None)
+
+    # compare storage variables
+    comp.compare_storages(u_model, o_model)
+    comp.compare_transmission(u_model, o_model)
+    comp.compare_process(u_model, o_model)
+
 
 ##########################################################################
 # urbs Model
@@ -177,6 +190,10 @@ def create_om(input_file, timesteps):
                    node_color={'b_0': '#cd3333',
                                'b_1': '#7EC0EE',
                                'b_2': '#eeac7e'})
+
+    # get results
+    es.results['main'] = outputlib.processing.results(model)
+    es.dump(dpath=None, filename=None)
 
     return model
 

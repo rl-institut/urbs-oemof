@@ -1,10 +1,25 @@
+import os
+import sys
 import pandas as pd
+import numpy as np
 import oemof.solph as solph
 import oemof.outputlib as outputlib
+import matplotlib.pyplot as plt
+from datetime import datetime
 
+def prepare_result_directory(result_name):
+    """ create a time stamped directory within the result folder """
+    # timestamp for result directory
+    now = datetime.now().strftime('%Y%m%dT%H%M')
+
+    # create result directory if not existent
+    result_dir = os.path.join('result', '{}-{}'.format(result_name, now))
+    if not os.path.exists(result_dir):
+        os.makedirs(result_dir)
+
+    return result_dir
 
 def compare_storages(urbs_model, oemof_model):
-
     # get oemof storage variables
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
@@ -15,6 +30,11 @@ def compare_storages(urbs_model, oemof_model):
     sto_cap_df = {}
 
     for sit in urbs_model.sit:
+        # plot init
+        iterations = []
+        urbs_values = []
+        oemof_values = []
+
         # get storage variables for all sites
         results_bel = outputlib.views.node(oemof_model.results['main'],
                                            'b_el_'+sit)
@@ -33,6 +53,7 @@ def compare_storages(urbs_model, oemof_model):
         sto_cap_df[sit] = results_con['scalars']
         sto_cap_df[sit] = sto_cap_df[sit].filter(like=sit)
 
+        # output template
         print('----------------------------------------------------')
         print('i', '\t', 'Storage', sit, '\t', '(urbs - oemof)')
 
@@ -74,6 +95,16 @@ def compare_storages(urbs_model, oemof_model):
                       urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]() -
                       sto_con_df[sit][(('storage_el_'+sit, 'None'),
                                       'capacity')][(i-1)])
+
+            # plot details
+            iterations.append(i)
+            urbs_values.append(urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]())
+            oemof_values.append(sto_con_df[sit][(('storage_el_'+sit, 'None'),
+                                                'capacity')][(i-1)])
+
+        # plot
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'storage')
+
     return print('----------------------------------------------------')
 
 
@@ -366,3 +397,31 @@ def compare_process(urbs_model, oemof_model):
             else:
                 raise TypeError('NON Recognised Value for PRO-RE-LOOP')
     return print('----------------------------------------------------')
+
+
+def draw_graph(site, i, urbs_values, oemof_values, name):
+    # x-Axis (timesteps)
+    i = np.array(i)
+
+    # y-Axis (values)
+    u = np.array(urbs_values)
+    o = np.array(oemof_values)
+
+    # create figure
+    fig = plt.figure()
+
+    # draw plots
+    plt.plot(i, u, label='urbs')
+    plt.plot(i, o, label='oemof')
+
+    # plot specs
+    plt.xlabel('Timesteps')
+    plt.ylabel('Value')
+    plt.title(site)
+    plt.grid(True)
+    plt.legend()
+    # plt.show()
+
+    # save plot
+    result_dir = prepare_result_directory(name)
+    fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)

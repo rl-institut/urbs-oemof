@@ -15,12 +15,12 @@ from oemof.graph import create_nx_graph
 import comparison as comp
 
 # misc.
-import logging
 import os
+import logging
 import pandas as pd
-from datetime import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 ##########################################################################
 # Helper Functions

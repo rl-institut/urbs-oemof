@@ -7,6 +7,7 @@ import oemof.outputlib as outputlib
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+
 def prepare_result_directory(result_name):
     """ create a time stamped directory within the result folder """
     # timestamp for result directory
@@ -18,6 +19,7 @@ def prepare_result_directory(result_name):
         os.makedirs(result_dir)
 
     return result_dir
+
 
 def compare_storages(urbs_model, oemof_model):
     # get oemof storage variables
@@ -200,6 +202,7 @@ def compare_transmission(urbs_model, oemof_model):
                               urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
                               tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_el_'+sit),
                                           'flow')][(i-1)])
+
     return print('----------------------------------------------------')
 
 
@@ -396,6 +399,7 @@ def compare_process(urbs_model, oemof_model):
 
             else:
                 raise TypeError('NON Recognised Value for PRO-RE-LOOP')
+
     return print('----------------------------------------------------')
 
 
@@ -411,8 +415,8 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
     fig = plt.figure()
 
     # draw plots
-    plt.plot(i, u, label='urbs')
-    plt.plot(i, o, label='oemof')
+    plt.plot(i, u, label='urbs', linestyle='--', dashes=(5, 5), marker='x')
+    plt.plot(i, o, label='oemof', linestyle='--', dashes=(5, 5), marker='.')
 
     # plot specs
     plt.xlabel('Timesteps')

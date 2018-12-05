@@ -245,6 +245,11 @@ def compare_process(urbs_model, oemof_model):
     pro_cap_r_df = {}
 
     for sit in urbs_model.sit:
+        # plot init
+        iterations = []
+        urbs_values = dict([(key, []) for key in pro_list])
+        oemof_values = dict([(key, []) for key in pro_list])
+
         # get process unit variables for all sites
         results_bel = outputlib.views.node(oemof_model.results['main'],
                                            'b_el_'+sit)
@@ -282,6 +287,12 @@ def compare_process(urbs_model, oemof_model):
                                           'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    iterations.append(i)
+                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]())
+                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
+                                                         'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
                                        'flow')][(i-1)]) >= 0.1:
@@ -302,6 +313,11 @@ def compare_process(urbs_model, oemof_model):
                                           'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]())
+                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
+                                                         'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
                                        'flow')][(i-1)]) >= 0.1:
@@ -322,6 +338,11 @@ def compare_process(urbs_model, oemof_model):
                                           'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]())
+                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
+                                                         'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
                                        'flow')][(i-1)]) >= 0.1:
@@ -342,6 +363,11 @@ def compare_process(urbs_model, oemof_model):
                                           'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]())
+                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
+                                                         'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_el_'+sit),
                                        'flow')][(i-1)]) >= 0.1:
@@ -353,6 +379,13 @@ def compare_process(urbs_model, oemof_model):
 
             else:
                 raise TypeError('NON Recognised Value for PRO-LOOP')
+
+        # plot
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (nRE)')
+
+        # plot init
+        urbs_values = dict([(key, []) for key in ren_list])
+        oemof_values = dict([(key, []) for key in ren_list])
 
         for ren in ren_list:
             if ren is 'wind':
@@ -366,6 +399,11 @@ def compare_process(urbs_model, oemof_model):
                                             'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]())
+                    oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_el_'+sit),
+                                                           'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]() -
                            pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_el_'+sit),
                                          'flow')][(i-1)]) >= 0.1:
@@ -386,6 +424,11 @@ def compare_process(urbs_model, oemof_model):
                                             'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, 'Photovoltaics', 'Elec')]())
+                    oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_el_'+sit),
+                                                           'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Photovoltaics', 'Elec')]() -
                            pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_el_'+sit),
                                          'flow')][(i-1)]) >= 0.1:
@@ -406,6 +449,11 @@ def compare_process(urbs_model, oemof_model):
                                             'invest')])
 
                 for i in range(1, len(oemof_model.timeindex)):
+                    # plot details
+                    urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]())
+                    oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_el_'+sit),
+                                                           'flow')][(i-1)])
+
                     if abs(urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]() -
                            pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_el_'+sit),
                                          'flow')][(i-1)]) >= 0.1:
@@ -418,6 +466,9 @@ def compare_process(urbs_model, oemof_model):
             else:
                 raise TypeError('NON Recognised Value for PRO-RE-LOOP')
 
+        # plot
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (RE)')
+
     return print('----------------------------------------------------')
 
 
@@ -426,6 +477,9 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
     result_dir = prepare_result_directory('plots')
 
     if name is 'Storage':
+        # create figure
+        fig = plt.figure()
+
         # x-Axis (timesteps)
         i = np.array(i)
 
@@ -433,18 +487,15 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         u = np.array(urbs_values)
         o = np.array(oemof_values)
 
-        # create figure
-        fig = plt.figure()
-
         # draw plots
         plt.plot(i, u, label='urbs', linestyle='--', dashes=(5, 5), marker='x')
-        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+        plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
         plt.plot(i, o, label='oemof', linestyle='--', dashes=(5, 5), marker='.')
-        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+        plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 
         # plot specs
-        plt.xlabel('Timesteps')
-        plt.ylabel('Value')
+        plt.xlabel('Timesteps [h]')
+        plt.ylabel('Flow [MWh]')
         plt.title(site+' '+name)
         plt.grid(True)
         plt.legend()
@@ -454,7 +505,10 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
 
     elif name is 'Transmission':
-         # x-Axis (timesteps)
+        # create figure
+        fig = plt.figure()
+
+        # x-Axis (sites)
         i = np.array(i)
         i_pos = np.arange(len(i))
 
@@ -462,13 +516,10 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         u = urbs_values
         o = oemof_values
 
-        # create figure
-        fig = plt.figure()
-
         plt.bar(i_pos-0.15, list(u.values()), label='urbs', align='center', alpha=0.75, width=0.2)
-        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+        plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
         plt.bar(i_pos+0.15, list(o.values()), label='oemof', align='center', alpha=0.75, width=0.2)
-        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+        plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 
         # tick names
         plt.xticks(i_pos, list(map((site+' to ').__add__, list(u.keys()))))
@@ -480,6 +531,39 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         plt.grid(True)
         plt.legend()
         plt.ticklabel_format(style='sci', axis='y')
+        # plt.show()
+
+        # save plot
+        fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+
+    elif 'Process' in name:
+        # init
+        u = {}
+        o = {}
+
+        # create figure
+        fig = plt.figure()
+
+        # x-Axis (timesteps)
+        i = np.array(i)
+
+        for key in urbs_values.keys():
+            # y-Axis (values)
+            u[key] = np.array(urbs_values[key])
+            o[key] = np.array(oemof_values[key])
+
+            # draw plots
+            plt.plot(i, u[key], label='urbs_'+str(key), linestyle='--', dashes=(5, 5), marker='x')
+            plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+            plt.plot(i, o[key], label='oemof_'+str(key), linestyle='--', dashes=(5, 5), marker='.')
+            plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+
+        # plot specs
+        plt.xlabel('Timesteps [h]')
+        plt.ylabel('Flow [MWh]')
+        plt.title(site+' '+name)
+        plt.grid(True)
+        plt.legend()
         # plt.show()
 
         # save plot

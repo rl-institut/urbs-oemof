@@ -105,7 +105,7 @@ def compare_storages(urbs_model, oemof_model):
                                                 'capacity')][(i-1)])
 
         # plot
-        draw_graph(sit, iterations, urbs_values, oemof_values, 'storage')
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Storage')
 
     return print('----------------------------------------------------')
 
@@ -121,6 +121,11 @@ def compare_transmission(urbs_model, oemof_model):
     tra_cap_df = {}
 
     for sit in urbs_model.sit:
+        # plot init
+        sit_outs = []
+        urbs_values = {}
+        oemof_values = {}
+
         # get transmission variables for all sites
         results_bel = outputlib.views.node(oemof_model.results['main'],
                                            'b_el_'+sit)
@@ -149,6 +154,12 @@ def compare_transmission(urbs_model, oemof_model):
                           tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit+'_'+sit_out),
                                           'invest')])
 
+                    # plot details
+                    sit_outs.append(sit_out)
+                    urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
+                    oemof_values[sit_out] = tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit+'_'+sit_out),
+                                                            'invest')]
+
             except KeyError:
                 if abs(urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
                        tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
@@ -158,6 +169,12 @@ def compare_transmission(urbs_model, oemof_model):
                           urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
                           tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
                                           'invest')])
+
+                    # plot details
+                    sit_outs.append(sit_out)
+                    urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
+                    oemof_values[sit_out] = tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
+                                                            'invest')]
 
         for i in range(1, len(oemof_model.timeindex)):
             for sit_out in out:
@@ -202,6 +219,9 @@ def compare_transmission(urbs_model, oemof_model):
                               urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
                               tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_el_'+sit),
                                           'flow')][(i-1)])
+
+        # plot
+        draw_graph(sit, sit_outs, urbs_values, oemof_values, 'Transmission')
 
     return print('----------------------------------------------------')
 
@@ -404,28 +424,65 @@ def compare_process(urbs_model, oemof_model):
 
 
 def draw_graph(site, i, urbs_values, oemof_values, name):
-    # x-Axis (timesteps)
-    i = np.array(i)
+    # result directory
+    result_dir = prepare_result_directory('plots')
 
-    # y-Axis (values)
-    u = np.array(urbs_values)
-    o = np.array(oemof_values)
+    if name is 'Storage':
+        # x-Axis (timesteps)
+        i = np.array(i)
 
-    # create figure
-    fig = plt.figure()
+        # y-Axis (values)
+        u = np.array(urbs_values)
+        o = np.array(oemof_values)
 
-    # draw plots
-    plt.plot(i, u, label='urbs', linestyle='--', dashes=(5, 5), marker='x')
-    plt.plot(i, o, label='oemof', linestyle='--', dashes=(5, 5), marker='.')
+        # create figure
+        fig = plt.figure()
 
-    # plot specs
-    plt.xlabel('Timesteps')
-    plt.ylabel('Value')
-    plt.title(site)
-    plt.grid(True)
-    plt.legend()
-    # plt.show()
+        # draw plots
+        plt.plot(i, u, label='urbs', linestyle='--', dashes=(5, 5), marker='x')
+        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+        plt.plot(i, o, label='oemof', linestyle='--', dashes=(5, 5), marker='.')
+        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
 
-    # save plot
-    result_dir = prepare_result_directory(name)
-    fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        # plot specs
+        plt.xlabel('Timesteps')
+        plt.ylabel('Value')
+        plt.title(site+' '+name)
+        plt.grid(True)
+        plt.legend()
+        # plt.show()
+
+        # save plot
+        fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+
+    elif name is 'Transmission':
+         # x-Axis (timesteps)
+        i = np.array(i)
+        i_pos = np.arange(len(i))
+
+        # y-Axis (values)
+        u = urbs_values
+        o = oemof_values
+
+        # create figure
+        fig = plt.figure()
+
+        plt.bar(i_pos-0.15, list(u.values()), label='urbs', align='center', alpha=0.75, width=0.2)
+        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+        plt.bar(i_pos+0.15, list(o.values()), label='oemof', align='center', alpha=0.75, width=0.2)
+        plt.ticklabel_format(axis='y', style='sci',scilimits=(1,5))
+
+        # tick names
+        plt.xticks(i_pos, list(map((site+' to ').__add__, list(u.keys()))))
+
+        # plot specs
+        plt.xlabel('Lines')
+        plt.ylabel('Capacity [MW]')
+        plt.title(site+' '+name)
+        plt.grid(True)
+        plt.legend()
+        plt.ticklabel_format(style='sci', axis='y')
+        # plt.show()
+
+        # save plot
+        fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)

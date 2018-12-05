@@ -154,12 +154,6 @@ def compare_transmission(urbs_model, oemof_model):
                           tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit+'_'+sit_out),
                                           'invest')])
 
-                    # plot details
-                    sit_outs.append(sit_out)
-                    urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
-                    oemof_values[sit_out] = tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit+'_'+sit_out),
-                                                            'invest')]
-
             except KeyError:
                 if abs(urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
                        tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
@@ -170,11 +164,15 @@ def compare_transmission(urbs_model, oemof_model):
                           tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
                                           'invest')])
 
-                    # plot details
-                    sit_outs.append(sit_out)
-                    urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
-                    oemof_values[sit_out] = tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
-                                                            'invest')]
+            # plot details
+            sit_outs.append(sit_out)
+            urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
+            try:
+                oemof_values[sit_out] = tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit+'_'+sit_out),
+                                                        'invest')]
+            except KeyError:
+                oemof_values[sit_out] = tra_cap_df[sit][(('b_el_'+sit, 'line_'+sit_out+'_'+sit),
+                                                        'invest')]
 
         for i in range(1, len(oemof_model.timeindex)):
             for sit_out in out:

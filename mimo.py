@@ -14,6 +14,7 @@ from pyomo.opt.base import SolverFactory
 
 # connection
 import connection_oep as conn
+import sqlalchemy as sa
 
 # misc.
 import logging
@@ -204,5 +205,23 @@ if __name__ == '__main__':
     print('----------------------------------------------------')
 
     comparison(urbs_model, oemof_model)
-    a = conn.send_df(input_file_urbs)
-    #print(conn.get_df(a))
+
+    # establish connection to oep
+    engine, metadata = conn.connect_oep('Okan Akca')
+    print('Connection established')
+
+	# load data
+    data = conn.read_data(input_file_urbs)
+
+    # create table
+    table = {}
+    imp = {}
+    for key in ['global_prop']:
+        # setup table
+        table['ubbb_'+key] = conn.setup_table('ubbb_'+key, schema_name='sandbox', metadata=metadata)
+        # upload to oep
+        table['ubbb_'+key] = conn.upload_to_oep(data[key], table['ubbb_'+key], engine, metadata)
+        # download from oep
+        imp[key] = conn.get_df(engine, table['ubbb_'+key])
+
+        print(imp[key].drop(columns='index'))

@@ -1,11 +1,11 @@
+import pandas as pd
 import getpass
 import oedialect
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from geoalchemy2.types import Geometry
-import pandas as pd
-import pdb
 
 Base = declarative_base()
 
@@ -113,6 +113,110 @@ def setup_table(table_name, schema_name='sandbox',
             sa.Column('depreciation', sa.FLOAT(50)),
             sa.Column('area-per-cap', sa.FLOAT(50)),
             schema=schema_name)
+
+    if table_name == 'ubbb_process_commodity':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
+                      nullable=False),
+            sa.Column('Process', sa.VARCHAR(50)),
+            sa.Column('Commodity', sa.VARCHAR(50)),
+            sa.Column('Direction', sa.VARCHAR(50)),
+            sa.Column('ratio', sa.FLOAT(50)),
+            sa.Column('ratio-min', sa.FLOAT(50)),
+            schema=schema_name)
+
+    if table_name == 'ubbb_transmission':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
+                      nullable=False),
+            sa.Column('Site In', sa.VARCHAR(50)),
+            sa.Column('Site Out', sa.VARCHAR(50)),
+            sa.Column('Transmission', sa.VARCHAR(50)),
+            sa.Column('Commodity', sa.VARCHAR(50)),
+            sa.Column('eff', sa.FLOAT(50)),
+            sa.Column('inv-cost', sa.FLOAT(50)),
+            sa.Column('fix-cost', sa.FLOAT(50)),
+            sa.Column('var-cost', sa.FLOAT(50)),
+            sa.Column('inst-cap', sa.FLOAT(50)),
+            sa.Column('cap-lo', sa.FLOAT(50)),
+            sa.Column('cap-up', sa.FLOAT(50)),
+            sa.Column('wacc', sa.FLOAT(50)),
+            sa.Column('depreciation', sa.FLOAT(50)),
+            schema=schema_name)
+
+    if table_name == 'ubbb_storage':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
+                      nullable=False),
+            sa.Column('Site', sa.VARCHAR(50)),
+            sa.Column('Storage', sa.VARCHAR(50)),
+            sa.Column('Commodity', sa.VARCHAR(50)),
+            sa.Column('inst-cap-c', sa.FLOAT(50)),
+            sa.Column('cap-lo-c', sa.FLOAT(50)),
+            sa.Column('cap-up-c', sa.FLOAT(50)),
+            sa.Column('inst-cap-p', sa.FLOAT(50)),
+            sa.Column('cap-lo-p', sa.FLOAT(50)),
+            sa.Column('cap-up-p', sa.FLOAT(50)),
+            sa.Column('eff-in', sa.FLOAT(50)),
+            sa.Column('eff-out', sa.FLOAT(50)),
+            sa.Column('inv-cost-p', sa.FLOAT(50)),
+            sa.Column('inv-cost-c', sa.FLOAT(50)),
+            sa.Column('fix-cost-p', sa.FLOAT(50)),
+            sa.Column('fix-cost-c', sa.FLOAT(50)),
+            sa.Column('var-cost-p', sa.FLOAT(50)),
+            sa.Column('var-cost-c', sa.FLOAT(50)),
+            sa.Column('wacc', sa.FLOAT(50)),
+            sa.Column('depreciation', sa.FLOAT(50)),
+            sa.Column('init', sa.FLOAT(50)),
+            sa.Column('discharge', sa.FLOAT(50)),
+            sa.Column('ep-ratio', sa.FLOAT(50)),
+            schema=schema_name)
+
+    if table_name == 'ubbb_demand':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
+                      nullable=False),
+            sa.Column('t', sa.Integer),
+            sa.Column('Mid.Elec', sa.FLOAT(50)),
+            sa.Column('South.Elec', sa.FLOAT(50)),
+            sa.Column('North.Elec', sa.FLOAT(50)),
+            schema=schema_name)
+
+    if table_name == 'ubbb_supim':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
+                      nullable=False),
+            sa.Column('t', sa.Integer),
+            sa.Column('Mid.Wind', sa.FLOAT(50)),
+            sa.Column('Mid.Solar', sa.FLOAT(50)),
+            sa.Column('Mid.Hydro', sa.FLOAT(50)),
+            sa.Column('South.Wind', sa.FLOAT(50)),
+            sa.Column('South.Solar', sa.FLOAT(50)),
+            sa.Column('South.Hydro', sa.FLOAT(50)),   
+            sa.Column('North.Wind', sa.FLOAT(50)),
+            sa.Column('North.Solar', sa.FLOAT(50)),
+            sa.Column('North.Hydro', sa.FLOAT(50)),
+            schema=schema_name)
+
+    if table_name == 'ubbb_eff_factor':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
+                      nullable=False),
+            sa.Column('t', sa.INTEGER(50)),
+            schema=schema_name)
+
     return table
 
 
@@ -171,7 +275,7 @@ def get_df(engine):
     data['demand'] = 0
     data['supim'] = 0
     data['eff_factor'] = 0
-    import pdb; pdb.set_trace()
+
     data = write_data(data)
     return data
 

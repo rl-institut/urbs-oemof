@@ -17,13 +17,12 @@ import connection_oep as conn
 import sqlalchemy as sa
 
 # misc.
-import logging
 import os
+import numpy as np
 import pandas as pd
-from datetime import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
-import numpy as np
+from datetime import datetime
 
 ##########################################################################
 # Helper Functions
@@ -215,13 +214,13 @@ if __name__ == '__main__':
 
     # create table
     table = {}
-    imp = {}
-    for key in ['global_prop']:
+    input_data = {}
+    for key in ['process_commodity']:
         # setup table
         table['ubbb_'+key] = conn.setup_table('ubbb_'+key, schema_name='sandbox', metadata=metadata)
         # upload to oep
         table['ubbb_'+key] = conn.upload_to_oep(data[key], table['ubbb_'+key], engine, metadata)
         # download from oep
-        imp[key] = conn.get_df(engine, table['ubbb_'+key])
+        input_data[key] = conn.get_df(engine, table['ubbb_'+key])
 
-        print(imp[key].drop(columns='index'))
+        print(input_data[key].drop(columns='index'))

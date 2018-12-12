@@ -96,7 +96,7 @@ def pyomo_model_prep(data, timesteps):
     #
     #     m.storage.loc[site, storage, commodity][attribute]
     #
-    m.global_prop = data['global_prop'].drop('description', axis=1)
+    m.global_prop = data['global_prop']
     m.site = data['site']
     m.commodity = data['commodity']
     m.process = data['process']

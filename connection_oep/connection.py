@@ -9,6 +9,7 @@ from geoalchemy2.types import Geometry
 
 Base = declarative_base()
 
+
 def read_data(filename):
     with pd.ExcelFile(filename) as xls:
 
@@ -63,18 +64,18 @@ def setup_table(table_name, schema_name='sandbox',
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Property', sa.VARCHAR(50)),
-            sa.Column('value', sa.FLOAT(50)),
+            sa.Column('value', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_site':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Name', sa.VARCHAR(50)),
             sa.Column('area', sa.VARCHAR(50)),
             schema=schema_name)
@@ -83,156 +84,160 @@ def setup_table(table_name, schema_name='sandbox',
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Site', sa.VARCHAR(50)),
             sa.Column('Commodity', sa.VARCHAR(50)),
             sa.Column('Type', sa.VARCHAR(50)),
-            sa.Column('price', sa.FLOAT(50)),
-            sa.Column('max', sa.FLOAT(50)),
-            sa.Column('maxperhour', sa.FLOAT(50)),
+            sa.Column('price', sa.Float()),
+            sa.Column('max', sa.Float()),
+            sa.Column('maxperhour', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_process':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Site', sa.VARCHAR(50)),
             sa.Column('Process', sa.VARCHAR(50)),
-            sa.Column('inst-cap', sa.FLOAT(50)),
-            sa.Column('cap-lo', sa.FLOAT(50)),
-            sa.Column('cap-up', sa.FLOAT(50)),
-            sa.Column('max-grad', sa.FLOAT(50)),
-            sa.Column('min-fraction', sa.FLOAT(50)),
-            sa.Column('inv-cost', sa.FLOAT(50)),
-            sa.Column('fix-cost', sa.FLOAT(50)),
-            sa.Column('var-cost', sa.FLOAT(50)),
-            sa.Column('wacc', sa.FLOAT(50)),
-            sa.Column('depreciation', sa.FLOAT(50)),
-            sa.Column('area-per-cap', sa.FLOAT(50)),
+            sa.Column('inst-cap', sa.Float()),
+            sa.Column('cap-lo', sa.Float()),
+            sa.Column('cap-up', sa.Float()),
+            sa.Column('max-grad', sa.Float()),
+            sa.Column('min-fraction', sa.Float()),
+            sa.Column('inv-cost', sa.Float()),
+            sa.Column('fix-cost', sa.Float()),
+            sa.Column('var-cost', sa.Float()),
+            sa.Column('wacc', sa.Float()),
+            sa.Column('depreciation', sa.Float()),
+            sa.Column('area-per-cap', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_process_commodity':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Process', sa.VARCHAR(50)),
             sa.Column('Commodity', sa.VARCHAR(50)),
             sa.Column('Direction', sa.VARCHAR(50)),
-            sa.Column('ratio', sa.FLOAT(50)),
-            sa.Column('ratio-min', sa.FLOAT(50)),
+            sa.Column('ratio', sa.Float()),
+            sa.Column('ratio-min', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_transmission':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Site In', sa.VARCHAR(50)),
             sa.Column('Site Out', sa.VARCHAR(50)),
             sa.Column('Transmission', sa.VARCHAR(50)),
             sa.Column('Commodity', sa.VARCHAR(50)),
-            sa.Column('eff', sa.FLOAT(50)),
-            sa.Column('inv-cost', sa.FLOAT(50)),
-            sa.Column('fix-cost', sa.FLOAT(50)),
-            sa.Column('var-cost', sa.FLOAT(50)),
-            sa.Column('inst-cap', sa.FLOAT(50)),
-            sa.Column('cap-lo', sa.FLOAT(50)),
-            sa.Column('cap-up', sa.FLOAT(50)),
-            sa.Column('wacc', sa.FLOAT(50)),
-            sa.Column('depreciation', sa.FLOAT(50)),
+            sa.Column('eff', sa.Float()),
+            sa.Column('inv-cost', sa.Float()),
+            sa.Column('fix-cost', sa.Float()),
+            sa.Column('var-cost', sa.Float()),
+            sa.Column('inst-cap', sa.Float()),
+            sa.Column('cap-lo', sa.Float()),
+            sa.Column('cap-up', sa.Float()),
+            sa.Column('wacc', sa.Float()),
+            sa.Column('depreciation', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_storage':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('Site', sa.VARCHAR(50)),
             sa.Column('Storage', sa.VARCHAR(50)),
             sa.Column('Commodity', sa.VARCHAR(50)),
-            sa.Column('inst-cap-c', sa.FLOAT(50)),
-            sa.Column('cap-lo-c', sa.FLOAT(50)),
-            sa.Column('cap-up-c', sa.FLOAT(50)),
-            sa.Column('inst-cap-p', sa.FLOAT(50)),
-            sa.Column('cap-lo-p', sa.FLOAT(50)),
-            sa.Column('cap-up-p', sa.FLOAT(50)),
-            sa.Column('eff-in', sa.FLOAT(50)),
-            sa.Column('eff-out', sa.FLOAT(50)),
-            sa.Column('inv-cost-p', sa.FLOAT(50)),
-            sa.Column('inv-cost-c', sa.FLOAT(50)),
-            sa.Column('fix-cost-p', sa.FLOAT(50)),
-            sa.Column('fix-cost-c', sa.FLOAT(50)),
-            sa.Column('var-cost-p', sa.FLOAT(50)),
-            sa.Column('var-cost-c', sa.FLOAT(50)),
-            sa.Column('wacc', sa.FLOAT(50)),
-            sa.Column('depreciation', sa.FLOAT(50)),
-            sa.Column('init', sa.FLOAT(50)),
-            sa.Column('discharge', sa.FLOAT(50)),
-            sa.Column('ep-ratio', sa.FLOAT(50)),
+            sa.Column('inst-cap-c', sa.Float()),
+            sa.Column('cap-lo-c', sa.Float()),
+            sa.Column('cap-up-c', sa.Float()),
+            sa.Column('inst-cap-p', sa.Float()),
+            sa.Column('cap-lo-p', sa.Float()),
+            sa.Column('cap-up-p', sa.Float()),
+            sa.Column('eff-in', sa.Float()),
+            sa.Column('eff-out', sa.Float()),
+            sa.Column('inv-cost-p', sa.Float()),
+            sa.Column('inv-cost-c', sa.Float()),
+            sa.Column('fix-cost-p', sa.Float()),
+            sa.Column('fix-cost-c', sa.Float()),
+            sa.Column('var-cost-p', sa.Float()),
+            sa.Column('var-cost-c', sa.Float()),
+            sa.Column('wacc', sa.Float()),
+            sa.Column('depreciation', sa.Float()),
+            sa.Column('init', sa.Float()),
+            sa.Column('discharge', sa.Float()),
+            sa.Column('ep-ratio', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_demand':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('t', sa.Integer),
-            sa.Column('Mid.Elec', sa.FLOAT(50)),
-            sa.Column('South.Elec', sa.FLOAT(50)),
-            sa.Column('North.Elec', sa.FLOAT(50)),
+            sa.Column('Mid.Elec', sa.Float()),
+            sa.Column('South.Elec', sa.Float()),
+            sa.Column('North.Elec', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_supim':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('t', sa.Integer),
-            sa.Column('Mid.Wind', sa.FLOAT(50)),
-            sa.Column('Mid.Solar', sa.FLOAT(50)),
-            sa.Column('Mid.Hydro', sa.FLOAT(50)),
-            sa.Column('South.Wind', sa.FLOAT(50)),
-            sa.Column('South.Solar', sa.FLOAT(50)),
-            sa.Column('South.Hydro', sa.FLOAT(50)),   
-            sa.Column('North.Wind', sa.FLOAT(50)),
-            sa.Column('North.Solar', sa.FLOAT(50)),
-            sa.Column('North.Hydro', sa.FLOAT(50)),
+            sa.Column('Mid.Wind', sa.Float()),
+            sa.Column('Mid.Solar', sa.Float()),
+            sa.Column('Mid.Hydro', sa.Float()),
+            sa.Column('South.Wind', sa.Float()),
+            sa.Column('South.Solar', sa.Float()),
+            sa.Column('South.Hydro', sa.Float()),
+            sa.Column('North.Wind', sa.Float()),
+            sa.Column('North.Solar', sa.Float()),
+            sa.Column('North.Hydro', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_eff_factor':
         table = sa.Table(
             table_name,
             metadata,
-            sa.Column('index', sa.Integer, primary_key=True, autoincrement=True,
-                      nullable=False),
+            sa.Column('index', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
             sa.Column('t', sa.INTEGER(50)),
             schema=schema_name)
 
     return table
 
 
-def upload_to_oep(df, Table, engine, metadata):
-    table_name = Table.name
-    schema_name = Table.schema
+def upload_to_oep(df, table, engine, metadata):
+    table_name = table.name
+    schema_name = table.schema
 
     if not engine.dialect.has_table(engine, table_name, schema_name):
-        Table.create()
+        table.create()
         print('Created table')
     else:
         print('Table already exists')
+        table.drop(engine)
+        table.create()
+        print('Created table')
 
     # insert data
     try:
-        df.to_sql(table_name, engine, schema='sandbox', if_exists='replace')
+        df.to_sql(table_name, engine, schema=schema_name, if_exists='replace',
+                  dtype={'ratio': sa.Float()})
         print('Inserted to ' + table_name)
     except Exception as e:
         Session = sessionmaker(bind=engine)
@@ -242,7 +247,7 @@ def upload_to_oep(df, Table, engine, metadata):
         raise
         print('Insert incomplete!')
 
-    return Table
+    return table
 
 
 def get_df(engine, table):
@@ -266,8 +271,9 @@ def get_df(engine):
     data['site'] = pd.DataFrame(
         session.query(site.Name, site.area).all())
     data['commodity'] = pd.DataFrame(
-        session.query(commodity.Site, commodity.Commodity, commodity.Type,
-                      commodity.price, commodity.max, commodity.maxperhour).all())
+        session.query(commodity.Site, commodity.Commodity,
+                      commodity.Type, commodity.price,
+                      commodity.max, commodity.maxperhour).all())
     data['process'] = 0
     data['process_commodity'] = 0
     data['transmission'] = 0

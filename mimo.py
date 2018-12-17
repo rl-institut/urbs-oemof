@@ -24,6 +24,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+
 ##########################################################################
 # Helper Functions
 ##########################################################################
@@ -129,7 +130,7 @@ def create_um(input_file, timesteps):
 
     # create model
     model = urbs.create_model(data, 1, timesteps)
-	
+
     # solve model and read results
     optim = SolverFactory('glpk')
     result = optim.solve(model, tee=False)
@@ -209,7 +210,7 @@ if __name__ == '__main__':
     engine, metadata = conn.connect_oep('Okan Akca')
     print('Connection established')
 
-	# load data
+    # load data
     data = conn.read_data(input_file_urbs)
 
     # create table
@@ -217,9 +218,13 @@ if __name__ == '__main__':
     input_data = {}
     for key in ['process_commodity']:
         # setup table
-        table['ubbb_'+key] = conn.setup_table('ubbb_'+key, schema_name='sandbox', metadata=metadata)
+        table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
+                                              schema_name='sandbox',
+                                              metadata=metadata)
         # upload to oep
-        table['ubbb_'+key] = conn.upload_to_oep(data[key], table['ubbb_'+key], engine, metadata)
+        table['ubbb_'+key] = conn.upload_to_oep(data[key],
+                                                table['ubbb_'+key],
+                                                engine, metadata)
         # download from oep
         input_data[key] = conn.get_df(engine, table['ubbb_'+key])
 

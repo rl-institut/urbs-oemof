@@ -146,7 +146,7 @@ def create_um(input_data, timesteps):
 ##########################################################################
 
 # create oemof model
-def create_om(input_file, timesteps):
+def create_om(input_data, timesteps):
     """
     Creates an oemof model for given input, time steps
 
@@ -157,13 +157,8 @@ def create_om(input_file, timesteps):
     Returns:
         model instance
     """
-    # connection OEP
-
-    # read input file
-    data = pd.read_csv(input_file)
-
     # create oemof energy system
-    es = oemofm.create_model(data, timesteps)
+    es = oemofm.create_model(input_data, timesteps)
 
     # solve model and read results
     model = solph.Model(es)
@@ -188,16 +183,15 @@ def create_om(input_file, timesteps):
 
 if __name__ == '__main__':
     # Input Files
-    input_file_urbs = 'mimo.xlsx'
-    input_file_oemof = 'mimo.csv'
-
+    input_file = 'mimo.xlsx'
+    """
 	# establish connection to oep
-    engine, metadata = conn.connect_oep('Okan Akca')
+    engine, metadata = conn.connect_oep()
     print('OEP Connection established')
-
+    """
     # load data
-    data = conn.read_data(input_file_urbs)
-
+    data = conn.read_data(input_file)
+    """
     # create table
     table = {}
     input_data = {}
@@ -212,9 +206,9 @@ if __name__ == '__main__':
         #                                        engine, metadata)
         # download from oep
         input_data[key] = conn.get_df(engine, table['ubbb_'+key])
-
+    """
     # write data
-    input_data = conn.write_data(input_data)
+    input_data = conn.write_data(data)
 
     # simulation timesteps
     (offset, length) = (0, 1)  # time step selection
@@ -225,7 +219,7 @@ if __name__ == '__main__':
     print('CREATING urbs MODEL')
     urbs_model = create_um(input_data, timesteps)
     print('CREATING oemof MODEL')
-    oemof_model = create_om(input_file_oemof, timesteps)
+    oemof_model = create_om(input_data, timesteps)
     print('----------------------------------------------------')
 
     # comparison

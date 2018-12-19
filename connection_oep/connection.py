@@ -4,7 +4,6 @@ import oedialect
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from geoalchemy2.types import Geometry
 
 Base = declarative_base()
@@ -215,7 +214,7 @@ def setup_table(table_name, schema_name='sandbox',
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('t', sa.INTEGER(50)),
+            sa.Column('t', sa.Integer),
             schema=schema_name)
 
     return table
@@ -236,8 +235,9 @@ def upload_to_oep(df, table, engine, metadata):
 
     # insert data
     try:
+        dtype = {key: table.columns[key].type for key in table.columns.keys()}
         df.to_sql(table_name, engine, schema=schema_name, if_exists='replace',
-                  dtype={'ratio': sa.Float()})
+                  dtype=dtype)
         print('Inserted to ' + table_name)
     except Exception as e:
         Session = sessionmaker(bind=engine)
@@ -259,34 +259,11 @@ def get_df(engine, table):
     return df
 
 
-"""
-def get_df(engine):
-    data = {}
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    session.close()
-
-    data['global_prop'] = pd.DataFrame(
-        session.query(global_prop.Property, global_prop.value).all())
-    data['site'] = pd.DataFrame(
-        session.query(site.Name, site.area).all())
-    data['commodity'] = pd.DataFrame(
-        session.query(commodity.Site, commodity.Commodity,
-                      commodity.Type, commodity.price,
-                      commodity.max, commodity.maxperhour).all())
-    data['process'] = 0
-    data['process_commodity'] = 0
-    data['transmission'] = 0
-    data['storage'] = 0
-    data['demand'] = 0
-    data['supim'] = 0
-    data['eff_factor'] = 0
-
-    data = write_data(data)
-    return data
-
-
 def write_data(data):
+    for key in data:
+        data[key] = data[key].drop(columns='index')
+        data[key].fillna(value=pd.np.nan, inplace=True)
+
     data['global_prop'] = data['global_prop'].set_index(['Property'])
     data['site'] = data['site'].set_index(['Name'])
     data['commodity'] = data['commodity'].set_index(
@@ -317,4 +294,3 @@ def split_columns(columns, sep='.'):
         return columns
     column_tuples = [tuple(col.split('.')) for col in columns]
     return pd.MultiIndex.from_tuples(column_tuples)
-"""

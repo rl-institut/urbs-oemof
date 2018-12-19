@@ -14,7 +14,6 @@ from pyomo.opt.base import SolverFactory
 
 # connection
 import connection_oep as conn
-import sqlalchemy as sa
 
 # misc.
 import os
@@ -113,7 +112,7 @@ def comparison(u_model, o_model):
 ##########################################################################
 
 # create urbs model
-def create_um(input_file, timesteps):
+def create_um(input_data, timesteps):
     """
     Creates an urbs model for given input, time steps
 
@@ -126,10 +125,10 @@ def create_um(input_file, timesteps):
     """
 
     # scenario name, read and modify data for scenario
-    data = urbs.read_excel(input_file)
+    #data = urbs.read_excel(input_file)
 
     # create model
-    model = urbs.create_model(data, 1, timesteps)
+    model = urbs.create_model(input_data, 1, timesteps)
 
     # solve model and read results
     optim = SolverFactory('glpk')
@@ -192,23 +191,9 @@ if __name__ == '__main__':
     input_file_urbs = 'mimo.xlsx'
     input_file_oemof = 'mimo.csv'
 
-    # simulation timesteps
-    (offset, length) = (0, 1)  # time step selection
-    timesteps = range(offset, offset + length + 1)
-
-    # create models
-    print('----------------------------------------------------')
-    print('CREATING urbs MODEL')
-    urbs_model = create_um(input_file_urbs, timesteps)
-    print('CREATING oemof MODEL')
-    oemof_model = create_om(input_file_oemof, timesteps)
-    print('----------------------------------------------------')
-
-    comparison(urbs_model, oemof_model)
-
-    # establish connection to oep
+	# establish connection to oep
     engine, metadata = conn.connect_oep('Okan Akca')
-    print('Connection established')
+    print('OEP Connection established')
 
     # load data
     data = conn.read_data(input_file_urbs)
@@ -216,16 +201,32 @@ if __name__ == '__main__':
     # create table
     table = {}
     input_data = {}
-    for key in ['process_commodity']:
+    for key in data:
         # setup table
         table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
                                               schema_name='sandbox',
                                               metadata=metadata)
         # upload to oep
-        table['ubbb_'+key] = conn.upload_to_oep(data[key],
-                                                table['ubbb_'+key],
-                                                engine, metadata)
+        #table['ubbb_'+key] = conn.upload_to_oep(data[key],
+        #                                        table['ubbb_'+key],
+        #                                        engine, metadata)
         # download from oep
         input_data[key] = conn.get_df(engine, table['ubbb_'+key])
 
-        print(input_data[key].drop(columns='index'))
+    # write data
+    input_data = conn.write_data(input_data)
+
+    # simulation timesteps
+    (offset, length) = (0, 1)  # time step selection
+    timesteps = range(offset, offset + length + 1)
+
+    # create models
+    print('----------------------------------------------------')
+    print('CREATING urbs MODEL')
+    urbs_model = create_um(input_data, timesteps)
+    print('CREATING oemof MODEL')
+    oemof_model = create_om(input_file_oemof, timesteps)
+    print('----------------------------------------------------')
+
+    # comparison
+    comparison(urbs_model, oemof_model)

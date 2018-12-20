@@ -136,10 +136,6 @@ def create_um(input_data, timesteps):
     Returns:
         model instance
     """
-
-    # scenario name, read and modify data for scenario
-    #data = urbs.read_excel(input_file)
-
     # create model
     model = urbs.create_model(input_data, 1, timesteps)
 
@@ -202,7 +198,7 @@ if __name__ == '__main__':
     # Input Files
     input_file = 'mimo.xlsx'
 
-	# establish connection to oep
+    # establish connection to oep
     engine, metadata = conn.connect_oep()
     print('OEP Connection established')
 

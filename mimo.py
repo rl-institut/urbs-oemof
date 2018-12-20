@@ -195,11 +195,14 @@ def create_om(input_data, timesteps):
 
 
 if __name__ == '__main__':
-    # Input Files
+    # input file
     input_file = 'mimo.xlsx'
 
-    # establish connection to oep
-    engine, metadata = conn.connect_oep()
+    # config for OEP
+    username, token = open("config.ini", "r").readlines()
+
+    # establish connection to OEP
+    engine, metadata = conn.connect_oep(username, token)
     print('OEP Connection established')
 
     # load data
@@ -213,11 +216,11 @@ if __name__ == '__main__':
         table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
                                               schema_name='sandbox',
                                               metadata=metadata)
-        # upload to oep
+        # upload to OEP
         #table['ubbb_'+key] = conn.upload_to_oep(data[key],
         #                                        table['ubbb_'+key],
         #                                        engine, metadata)
-        # download from oep
+        # download from OEP
         input_data[key] = conn.get_df(engine, table['ubbb_'+key])
 
     # write data

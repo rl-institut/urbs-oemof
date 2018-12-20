@@ -1,4 +1,3 @@
-from oemof.tools import logger
 from oemof.tools import helpers
 from oemof.tools import economics
 from oemof.network import Node
@@ -31,12 +30,6 @@ class Site:
         self.sink = kwargs['sink']
         self.storage = kwargs['storage']
 
-        # fix data
-        self.data['demand'] = self.data['demand'].shift(-1)
-        self.data['demand'] = self.data['demand'][:-1]
-        self.data['supim'] = self.data['supim'].shift(-1)
-        self.data['supim'] = self.data['supim'][:-1]
-
     def _create_components(self):
         # create empty dictionaries
         bus = {}
@@ -64,12 +57,12 @@ class Site:
                             label='rs_'+rs+'_'+self.name,
                             outputs={bus['b_el'+'_'+self.name]:
                                 solph.Flow(
-                                    actual_value=self.data['supim'][self.name][rs],
+                                    actual_value=self.rsource[rs][0],
                                     fixed=True,
                                     investment=solph.Investment(
-                                        ep_costs=self.rsource[rs][0],
-                                        maximum=self.rsource[rs][1],
-                                        existing=self.rsource[rs][2]))})
+                                        ep_costs=self.rsource[rs][1],
+                                        maximum=self.rsource[rs][2],
+                                        existing=self.rsource[rs][3]))})
 
         # create transformer (output: elec only)
         for t in self.transformer.keys():
@@ -92,8 +85,8 @@ class Site:
                             label=sn+self.name,
                             inputs={bus['b_el'+'_'+self.name]:
                                 solph.Flow(
-                                    actual_value=self.data[sn][self.name]['Elec'],
-                                    fixed=True, nominal_value=self.sink[sn])})
+                                    actual_value=self.sink[sn],
+                                    fixed=True, nominal_value=1)})
 
         # create storage
         for st in self.storage.keys():
@@ -185,6 +178,12 @@ def create_model(data, timesteps=None):
     m = solph.EnergySystem(timeindex=date_time_index)
     Node.registry = m
 
+    # fix data
+    data['demand'] = data['demand'].shift(-1)
+    data['demand'] = data['demand'][:-1]
+    data['supim'] = data['supim'].shift(-1)
+    data['supim'] = data['supim'][:-1]
+
     # Create Sites
     """Syntax
 
@@ -205,14 +204,14 @@ def create_model(data, timesteps=None):
         sites[site] = Site(site, data, weight,
                            bus=['coal', 'lig', 'gas', 'bio', 'el'],
                            source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-                           rsource={'Wind': (economics.annuity(1500000, 25, 0.07), 13000, 0),
-                                    'Solar': (economics.annuity(600000, 25, 0.07), 160000, 0),
-                                    'Hydro': (economics.annuity(1600000, 50, 0.07), 1400, 0)},
+                           rsource={'Wind': (data['supim'][site]['Wind'], economics.annuity(1500000, 25, 0.07), 13000, 0),
+                                    'Solar': (data['supim'][site]['Solar'], economics.annuity(600000, 25, 0.07), 160000, 0),
+                                    'Hydro': (data['supim'][site]['Hydro'], economics.annuity(1600000, 50, 0.07), 1400, 0)},
                            transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
                                         'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
                                         'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
                                         'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-                           sink={'demand': 1},
+                           sink={'demand': data['demand'][site]['Elec']},
                            storage={'el': (economics.annuity(100000, 50, 0.07), float('inf'), 0, 0.02)}
                           )
         sites[site] = sites[site]._create_components()

@@ -1,6 +1,9 @@
 ##########################################################################
 # IMPORTS
 ##########################################################################
+# urbs
+import urbs
+from pyomo.opt.base import SolverFactory
 
 # oemof
 import oemofm
@@ -8,9 +11,8 @@ import oemof.solph as solph
 import oemof.outputlib as outputlib
 from oemof.graph import create_nx_graph
 
-# urbs
-import urbs
-from pyomo.opt.base import SolverFactory
+# comparison
+import comparison as comp
 
 # connection
 import connection_oep as conn
@@ -27,6 +29,8 @@ from datetime import datetime
 ##########################################################################
 # Helper Functions
 ##########################################################################
+
+
 def draw_graph(grph, edge_labels=True, node_color='#AFAFAF',
                edge_color='#CFCFCF', plot=True, node_size=2000,
                with_labels=True, arrows=True, layout='neato'):
@@ -106,6 +110,15 @@ def comparison(u_model, o_model):
         print('oemof\t', o_model.objective())
         print('Diff\t', u_model.obj() - o_model.objective())
 
+    # create oemof energysytem
+    o_model = solph.EnergySystem()
+    o_model.restore(dpath=None, filename=None)
+
+    # compare storage variables
+    comp.compare_storages(u_model, o_model)
+    comp.compare_transmission(u_model, o_model)
+    comp.compare_process(u_model, o_model)
+
 
 ##########################################################################
 # urbs Model
@@ -178,20 +191,24 @@ def create_om(input_data, timesteps):
                                'b_1': '#7EC0EE',
                                'b_2': '#eeac7e'})
 
+    # get results
+    es.results['main'] = outputlib.processing.results(model)
+    es.dump(dpath=None, filename=None)
+
     return model
 
 
 if __name__ == '__main__':
     # Input Files
     input_file = 'mimo.xlsx'
-    """
+
 	# establish connection to oep
     engine, metadata = conn.connect_oep()
     print('OEP Connection established')
-    """
+
     # load data
     data = conn.read_data(input_file)
-    """
+
     # create table
     table = {}
     input_data = {}
@@ -206,12 +223,12 @@ if __name__ == '__main__':
         #                                        engine, metadata)
         # download from oep
         input_data[key] = conn.get_df(engine, table['ubbb_'+key])
-    """
+
     # write data
-    input_data = conn.write_data(data)
+    input_data = conn.write_data(input_data)
 
     # simulation timesteps
-    (offset, length) = (0, 1)  # time step selection
+    (offset, length) = (0, 10)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

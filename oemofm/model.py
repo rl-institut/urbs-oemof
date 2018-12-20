@@ -82,7 +82,7 @@ class Site:
         # create sink (input: elec only)
         for sn in self.sink.keys():
             sink[sn+'_'+self.name] = solph.Sink(
-                            label=sn+self.name,
+                            label=sn+'_'+self.name,
                             inputs={bus['b_el'+'_'+self.name]:
                                 solph.Flow(
                                     actual_value=self.sink[sn],

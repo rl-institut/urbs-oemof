@@ -227,7 +227,7 @@ if __name__ == '__main__':
     input_data = conn.write_data(input_data)
 
     # simulation timesteps
-    (offset, length) = (0, 10)  # time step selection
+    (offset, length) = (0, 100)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

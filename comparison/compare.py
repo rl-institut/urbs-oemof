@@ -488,9 +488,9 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         o = np.array(oemof_values)
 
         # draw plots
-        plt.plot(i, u, label='urbs', linestyle='--', dashes=(5, 5), marker='x')
+        plt.plot(i, u, label='urbs', linestyle='None', marker='x')
         plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-        plt.plot(i, o, label='oemof', linestyle='--', dashes=(5, 5), marker='.')
+        plt.plot(i, o, label='oemof', linestyle='None', marker='.')
         plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 
         # plot specs
@@ -553,9 +553,9 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
             o[key] = np.array(oemof_values[key])
 
             # draw plots
-            plt.plot(i, u[key], label='urbs_'+str(key), linestyle='--', dashes=(5, 5), marker='x')
+            plt.plot(i, u[key], label='urbs_'+str(key), linestyle='None', marker='x')
             plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-            plt.plot(i, o[key], label='oemof_'+str(key), linestyle='--', dashes=(5, 5), marker='.')
+            plt.plot(i, o[key], label='oemof_'+str(key), linestyle='None', marker='.')
             plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 
         # plot specs

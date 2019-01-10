@@ -10,12 +10,12 @@
 
 ## code 
 
-10% - `Nd_0[PP_0] & Nd_0[Dmd]`\
-15% - `Nd_i[PP_0] & Nd_i[Dmd] // i=0,1,2`\
-25% - `Nd_i[PP_j] & Nd_i[Dmd] // i=0,1,2 // j=0,1,2,3`\
-30% - `Nd_i[PP_j] & Nd_i[rPP_i] & Nd_i[Dmd] // i=0,1,2 // j=0,1,2,3`\
-40% - `Nd_i[PP_j] & Nd_i[rPP_i] & Nd_i[Dmd[i]] // i=0,1,2 // j=0,1,2,3`\
-50% - `Nd_i[PP_j[i]] & Nd_i[rPP_i[i]] & Nd_i[Dmd[i]] // i=0,1,2 // j=0,1,2,3`
+10% - `Nd_0[PP_0] & Nd_0[Dmd_0]`\
+15% - `Nd_i[PP_0] & Nd_i[Dmd_0] // i=0,1,2`\
+25% - `Nd_i[PP_j] & Nd_i[Dmd_0] // i=0,1,2 // j=0,1,2,3`\
+30% - `Nd_i[PP_j] & Nd_i[rPP_i] & Nd_i[Dmd_0] // i=0,1,2 // j=0,1,2,3`\
+40% - `Nd_i[PP_j] & Nd_i[rPP_i] & Nd_i[Dmd_0[i]] // i=0,1,2 // j=0,1,2,3`\
+50% - `Nd_i[PP_j[i]] & Nd_i[rPP_i[i]] & Nd_i[Dmd_0[i]] // i=0,1,2 // j=0,1,2,3`
 
 ## legend
 * PP: Power Plant

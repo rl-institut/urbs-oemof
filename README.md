@@ -7,7 +7,7 @@
 * 30% 3 node system, same 3 renewable power plants are implemented to 25%
 * 40% 3 node system, same PP & rPP, but different demand
 * 50% 3 node system, same amount of PP & rPP as 40%, but different specification (capacity, costs, etc...)
-* 51% 7 more systems are implemented to 50%
+* 51% 7 more nodes are implemented to 50%
 
 ## code 
 

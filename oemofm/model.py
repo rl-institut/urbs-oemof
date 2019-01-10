@@ -245,14 +245,23 @@ def create_model(data, timesteps=None):
         for item in bus_df2:
             sink_dict[item] = data['demand'][site][item]
 
+        # Storage Tuple
+        storage_tup = (economics.annuity(data['storage']['inv-cost-p'][site].filter(like='Pump').values[0],
+                                         data['storage']['depreciation'][site].filter(like='Pump').values[0],
+                                         data['storage']['wacc'][site].filter(like='Pump').values[0]),
+                       data['storage']['cap-up-p'][site].filter(like='Pump').values[0],
+                       data['storage']['inst-cap-p'][site].filter(like='Pump').values[0],
+                       data['storage']['var-cost-p'][site].filter(like='Pump').values[0])
+
+        # Site Creation
         sites[site] = Site(site, data, weight,
                            bus=bus_list,
                            source=source_dict,
                            rsource=rsource_dict,
                            transformer=transformer_dict,
                            sink=sink_dict,
-                           storage={'Elec': (economics.annuity(100000, 50, 0.07), float('inf'), 0, 0.02)}
-                          )
+                           storage={'Elec': storage_tup})
+
         sites[site] = sites[site]._create_components()
 
     # Create Transmission Lines

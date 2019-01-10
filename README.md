@@ -22,3 +22,9 @@
 * rPP: Renewable Power Plant
 * Dmd: Demand
 * Nd: Node-Area-Region
+
+## example with 50% complexity
+
+`Nd_0[PP_0[0],PP_1[0],PP_2[0],PP_3[0]] & Nd_0[rPP_0[0],rPP_1[0],rPP_2[0]] & Nd_0[Dmd_0[0]]`\
+`Nd_1[PP_0[1],PP_1[1],PP_2[1],PP_3[1]] & Nd_1[rPP_0[1],rPP_1[1],rPP_2[1]] & Nd_1[Dmd_0[1]]`\
+`Nd_2[PP_0[2],PP_1[2],PP_2[2],PP_3[2]] & Nd_2[rPP_0[2],rPP_1[2],rPP_2[2]] & Nd_2[Dmd_0[2]]`

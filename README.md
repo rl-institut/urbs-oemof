@@ -7,6 +7,7 @@
 * 30% 3 node system, same 3 renewable power plants are implemented to 25%
 * 40% 3 node system, same PP & rPP, but different demand
 * 50% 3 node system, same amount of PP & rPP as 40%, but different specification (capacity, costs, etc...)
+* 51% 7 more systems are implemented to 50%
 
 ## code 
 
@@ -15,7 +16,8 @@
 25% - `Nd_i[PP_j] & Nd_i[Dmd_0] // i=0,1,2 // j=0,1,2,3`\
 30% - `Nd_i[PP_j] & Nd_i[rPP_i] & Nd_i[Dmd_0] // i=0,1,2 // j=0,1,2,3`\
 40% - `Nd_i[PP_j] & Nd_i[rPP_i] & Nd_i[Dmd_0[i]] // i=0,1,2 // j=0,1,2,3`\
-50% - `Nd_i[PP_j[i]] & Nd_i[rPP_i[i]] & Nd_i[Dmd_0[i]] // i=0,1,2 // j=0,1,2,3`
+50% - `Nd_i[PP_j[i]] & Nd_i[rPP_i[i]] & Nd_i[Dmd_0[i]] // i=0,1,2 // j=0,1,2,3`\
+51% - `Nd_x[PP_j[x]] & Nd_x[rPP_i[x]] & Nd_x[Dmd_0[x]] x=0-10 // i=0,1,2 // j=0,1,2,3`
 
 ## legend
 * PP: Power Plant

@@ -1,0 +1,122 @@
+Changed Demand Test
+- Both models are created.
+- Same obj values
+- Diff = 6.866455078125e-05
+
+    ----------------------------------------------------
+    CREATING urbs MODEL
+    CREATING oemof MODEL
+    ----------------------------------------------------
+    urbs	 17781903938.338974
+    oemof	 17781903938.338905
+    Diff	 6.866455078125e-05
+    ----------------------------------------------------
+    i 	 Storage South 	 (urbs - oemof)
+    19 	 Storage OUT 	 Diff: -220.259622231872
+    19 	 Storage CON 	 Diff: 220.25962223190072
+    20 	 Storage OUT 	 Diff: 220.259622231872
+    76 	 Storage IN 	 Diff: -1139.35006406507
+    76 	 Storage CON 	 Diff: -1139.35006406507
+    77 	 Storage CON 	 Diff: -1139.3500640650707
+    78 	 Storage IN 	 Diff: 1139.350064065064
+    ----------------------------------------------------
+    i 	 Storage North 	 (urbs - oemof)
+    1 	 Storage IN 	 Diff: -5247.5977713329
+    1 	 Storage CON 	 Diff: -5247.5977713329
+    2 	 Storage CON 	 Diff: -5247.59777133291
+    3 	 Storage CON 	 Diff: -5247.597771332909
+    4 	 Storage IN 	 Diff: -5247.5977713329
+    4 	 Storage CON 	 Diff: -10495.19554266578
+    5 	 Storage CON 	 Diff: -10495.195542665779
+    6 	 Storage CON 	 Diff: -10495.195542665759
+    7 	 Storage CON 	 Diff: -10495.1955426658
+    8 	 Storage CON 	 Diff: -10495.195542665899
+    9 	 Storage CON 	 Diff: -10495.1955426658
+    10 	 Storage CON 	 Diff: -10495.195542665799
+    11 	 Storage IN 	 Diff: 5247.59777133289
+    11 	 Storage CON 	 Diff: -5247.5977713328975
+    12 	 Storage CON 	 Diff: -5247.597771333003
+    13 	 Storage IN 	 Diff: -3662.41049526792
+    13 	 Storage CON 	 Diff: -8910.0082666009
+    14 	 Storage CON 	 Diff: -8910.0082666009
+    15 	 Storage CON 	 Diff: -8910.0082666009
+    16 	 Storage IN 	 Diff: 4199.04426745398
+    16 	 Storage CON 	 Diff: -4710.963999146898
+    17 	 Storage CON 	 Diff: -4710.963999146898
+    18 	 Storage CON 	 Diff: -4710.963999146898
+    19 	 Storage IN 	 Diff: -2267.6790440454397
+    19 	 Storage CON 	 Diff: -6978.6430431923
+    20 	 Storage CON 	 Diff: -6978.6430431923
+    21 	 Storage CON 	 Diff: -6978.6430431923
+    22 	 Storage CON 	 Diff: -6978.6430431923
+    23 	 Storage CON 	 Diff: -6978.6430431923
+    24 	 Storage IN 	 Diff: 5032.11287338836
+    24 	 Storage CON 	 Diff: -1946.5301698038966
+    25 	 Storage CON 	 Diff: -1946.5301698038966
+    26 	 Storage CON 	 Diff: -1946.5301698038966
+    27 	 Storage CON 	 Diff: -1946.5301698038966
+    28 	 Storage CON 	 Diff: -1946.5301698038966
+    29 	 Storage CON 	 Diff: -1946.5301698038966
+    30 	 Storage CON 	 Diff: -1946.5301698038966
+    31 	 Storage IN 	 Diff: 1206.83975825983
+    31 	 Storage CON 	 Diff: -739.6904115440993
+    32 	 Storage CON 	 Diff: -739.6904115440993
+    33 	 Storage CON 	 Diff: -739.6904115440993
+    34 	 Storage IN 	 Diff: 739.690411544144
+    99 	 Storage OUT 	 Diff: -211.393475862652
+    99 	 Storage CON 	 Diff: 211.39347586264603
+    ----------------------------------------------------
+    i 	 Storage Mid 	 (urbs - oemof)
+    5 	 Storage IN 	 Diff: -21959.8144288331
+    5 	 Storage CON 	 Diff: -21959.8144288331
+    6 	 Storage IN 	 Diff: 24124.3881415689
+    6 	 Storage CON 	 Diff: 2164.5737127358007
+    7 	 Storage IN 	 Diff: -23973.8501886556
+    7 	 Storage CON 	 Diff: -21809.2764759198
+    8 	 Storage IN 	 Diff: -11629.99009368
+    8 	 Storage CON 	 Diff: -33439.2665695999
+    9 	 Storage CON 	 Diff: -33439.2665695999
+    10 	 Storage CON 	 Diff: -33439.266569599895
+    11 	 Storage IN 	 Diff: 2490.31120346183
+    11 	 Storage CON 	 Diff: -30948.955366138092
+    12 	 Storage IN 	 Diff: 15153.3857487209
+    12 	 Storage CON 	 Diff: -15795.569617417197
+    13 	 Storage CON 	 Diff: -15795.569617417197
+    14 	 Storage CON 	 Diff: -15795.569617417197
+    15 	 Storage IN 	 Diff: 15795.5696174171
+    ----------------------------------------------------
+    ----------------------------------------------------
+    i 	 Transmission South 	 (urbs - oemof)
+    ----------------------------------------------------
+    i 	 Transmission North 	 (urbs - oemof)
+    ----------------------------------------------------
+    i 	 Transmission Mid 	 (urbs - oemof)
+    ----------------------------------------------------
+    ----------------------------------------------------
+    i 	 Process South 	 (urbs - oemof)
+    19 	 UNIT 	 Lignite 	 Diff: 220.25962223187344
+    20 	 UNIT 	 Lignite 	 Diff: -220.25962223187003
+    76 	 UNIT 	 Lignite 	 Diff: -1139.35006406506
+    78 	 UNIT 	 Lignite 	 Diff: 1139.35006406506
+    ----------------------------------------------------
+    i 	 Process North 	 (urbs - oemof)
+    1 	 UNIT 	 Lignite 	 Diff: -5247.5977713329
+    4 	 UNIT 	 Lignite 	 Diff: -5247.5977713329
+    11 	 UNIT 	 Lignite 	 Diff: 5247.5977713329
+    13 	 UNIT 	 Lignite 	 Diff: -3662.4104952679145
+    16 	 UNIT 	 Lignite 	 Diff: 4199.04426745398
+    19 	 UNIT 	 Lignite 	 Diff: -2267.67904404545
+    24 	 UNIT 	 Lignite 	 Diff: 5032.112873388371
+    31 	 UNIT 	 Lignite 	 Diff: 1206.8397582598304
+    34 	 UNIT 	 Lignite 	 Diff: 739.6904115441503
+    99 	 UNIT 	 Lignite 	 Diff: 211.393475862655
+    ----------------------------------------------------
+    i 	 Process Mid 	 (urbs - oemof)
+    5 	 UNIT 	 Coal 	 Diff: -21959.8144288331
+    6 	 UNIT 	 Coal 	 Diff: 24124.388141568925
+    7 	 UNIT 	 Coal 	 Diff: -23973.850188655648
+    8 	 UNIT 	 Coal 	 Diff: -11629.99009368005
+    11 	 UNIT 	 Coal 	 Diff: 2490.31120346179
+    12 	 UNIT 	 Coal 	 Diff: 15153.38574872093
+    15 	 UNIT 	 Coal 	 Diff: 15795.56961741713
+    ----------------------------------------------------

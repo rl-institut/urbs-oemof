@@ -261,7 +261,10 @@ def get_df(engine, table):
 
 def write_data(data):
     for key in data:
-        data[key] = data[key].drop(columns='index')
+        try:
+            data[key] = data[key].drop(columns='index')
+        except KeyError:
+            pass
         data[key].fillna(value=pd.np.nan, inplace=True)
 
     data['global_prop'] = data['global_prop'].set_index(['Property'])

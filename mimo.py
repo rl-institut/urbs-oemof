@@ -195,36 +195,47 @@ def create_om(input_data, timesteps):
 
 
 if __name__ == '__main__':
+    # connection
+    connection = False
+
     # input file
     input_file = 'mimo.xlsx'
-
-    # config for OEP
-    username, token = open("config.ini", "r").readlines()
-
-    # establish connection to OEP
-    engine, metadata = conn.connect_oep(username, token)
-    print('OEP Connection established')
 
     # load data
     data = conn.read_data(input_file)
 
-    # create table
-    table = {}
-    input_data = {}
-    for key in data:
-        # setup table
-        table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
-                                              schema_name='sandbox',
-                                              metadata=metadata)
-        # upload to OEP
-        #table['ubbb_'+key] = conn.upload_to_oep(data[key],
-        #                                        table['ubbb_'+key],
-        #                                        engine, metadata)
-        # download from OEP
-        input_data[key] = conn.get_df(engine, table['ubbb_'+key])
+    # establish connection to OEP
+    if connection:
 
-    # write data
-    input_data = conn.write_data(input_data)
+        # config for OEP
+        username, token = open("config.ini", "r").readlines()
+
+        # create engine
+        engine, metadata = conn.connect_oep(username, token)
+        print('OEP Connection established')
+
+        # create table
+        table = {}
+        input_data = {}
+        for key in data:
+            # setup table
+            table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
+                                                  schema_name='sandbox',
+                                                  metadata=metadata)
+            # upload to OEP
+            #table['ubbb_'+key] = conn.upload_to_oep(data[key],
+                                                    #table['ubbb_'+key],
+                                                    #engine, metadata)
+            # download from OEP
+            input_data[key] = conn.get_df(engine, table['ubbb_'+key])
+
+        # write data
+        input_data = conn.write_data(input_data)
+
+    else:
+        input_data = data
+        input_data = conn.write_data(input_data)
+
 
     # simulation timesteps
     (offset, length) = (0, 10)  # time step selection

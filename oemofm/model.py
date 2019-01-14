@@ -55,7 +55,7 @@ class Site:
         for rs in self.rsource.keys():
             rsource['rs_'+rs+'_'+self.name] = solph.Source(
                             label='rs_'+rs+'_'+self.name,
-                            outputs={bus['b_el'+'_'+self.name]:
+                            outputs={bus['b_Elec'+'_'+self.name]:
                                 solph.Flow(
                                     actual_value=self.rsource[rs][0],
                                     fixed=True,
@@ -75,15 +75,15 @@ class Site:
                                         maximum=self.transformer[t][1],
                                         existing=self.transformer[t][2]),
                                     variable_costs=self.transformer[t][3]*self.weight)},
-                            outputs={bus['b_el'+'_'+self.name]: solph.Flow()},
-                            conversion_factors={bus['b_el'+'_'+self.name]:
+                            outputs={bus['b_Elec'+'_'+self.name]: solph.Flow()},
+                            conversion_factors={bus['b_Elec'+'_'+self.name]:
                                                     self.transformer[t][4]})
 
         # create sink (input: elec only)
         for sn in self.sink.keys():
             sink[sn+'_'+self.name] = solph.Sink(
                             label=sn+'_'+self.name,
-                            inputs={bus['b_el'+'_'+self.name]:
+                            inputs={bus['b_Elec'+'_'+self.name]:
                                 solph.Flow(
                                     actual_value=self.sink[sn],
                                     fixed=True, nominal_value=1)})
@@ -93,10 +93,10 @@ class Site:
             storage['storage_'+st+'_'+self.name] = solph.components.GenericStorage(
                             label='storage_'+st+'_'+self.name,
                             inputs={
-                                bus['b_el'+'_'+self.name]: solph.Flow(
+                                bus['b_Elec'+'_'+self.name]: solph.Flow(
                                     variable_costs=self.storage[st][3]*self.weight)},
                             outputs={
-                                bus['b_el'+'_'+self.name]: solph.Flow(
+                                bus['b_Elec'+'_'+self.name]: solph.Flow(
                                     variable_costs=self.storage[st][3]*self.weight)},
                             inflow_conversion_factor=1, outflow_conversion_factor=1,
                             initial_capacity=0,
@@ -130,28 +130,28 @@ class Line:
         line = solph.custom.Link(
                     label="line"+'_'+self.site_0[0]+'_'+self.site_1[0],
                     inputs={
-                       self.site_0[1]['b_el'+'_'+self.site_0[0]]:
+                       self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
                            solph.Flow(investment=solph.Investment(
                                ep_costs=self.specs[0],
                                maximum=self.specs[1],
                                existing=self.specs[2]),
                            variable_costs=self.specs[3]*self.weight),
-                       self.site_1[1]['b_el'+'_'+self.site_1[0]]:
+                       self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
                            solph.Flow(investment=solph.Investment(
                                ep_costs=self.specs[0],
                                maximum=self.specs[1],
                                existing=self.specs[2]),
                            variable_costs=self.specs[3]*self.weight)},
                     outputs={
-                       self.site_1[1]['b_el'+'_'+self.site_1[0]]:
+                       self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
                            solph.Flow(),
-                       self.site_0[1]['b_el'+'_'+self.site_0[0]]:
+                       self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
                            solph.Flow()},
                     conversion_factors={
-                       (self.site_0[1]['b_el'+'_'+self.site_0[0]],
-                        self.site_1[1]['b_el'+'_'+self.site_1[0]]): self.specs[4],
-                       (self.site_1[1]['b_el'+'_'+self.site_1[0]],
-                        self.site_0[1]['b_el'+'_'+self.site_0[0]]): self.specs[4]})
+                       (self.site_0[1]['b_Elec'+'_'+self.site_0[0]],
+                        self.site_1[1]['b_Elec'+'_'+self.site_1[0]]): self.specs[4],
+                       (self.site_1[1]['b_Elec'+'_'+self.site_1[0]],
+                        self.site_0[1]['b_Elec'+'_'+self.site_0[0]]): self.specs[4]})
 
         return line
 
@@ -178,7 +178,7 @@ def create_model(data, timesteps=None):
     m = solph.EnergySystem(timeindex=date_time_index)
     Node.registry = m
 
-    # fix data
+    # Fix Data
     data['demand'] = data['demand'].shift(-1)
     data['demand'] = data['demand'][:-1]
     data['supim'] = data['supim'].shift(-1)
@@ -201,19 +201,67 @@ def create_model(data, timesteps=None):
     sites = data['site'].to_dict()['area']
 
     for site in sites:
+        # Create Lists and Dicts for Sites
+        b_df1 = data['commodity'].index.get_level_values('Site') == site
+        b_df2 = data['commodity'].index.get_level_values('Type') == 'Stock'
+        b_df3 = data['commodity'].index.get_level_values('Type') == 'Demand'
+        b_df4 = data['commodity'].index.get_level_values('Type') == 'SupIm'
+
+        # Bus List
+        bus_df1 = data['commodity'][b_df1 & b_df2].index.remove_unused_levels().get_level_values('Commodity')
+        bus_df2 = data['commodity'][b_df1 & b_df3].index.remove_unused_levels().get_level_values('Commodity')
+        bus_list = bus_df1.append(bus_df2).tolist()
+
+        # Source Dict
+        source_dict = {}
+        for item in bus_df1:
+            source_dict[item] = data['commodity']['price'][site][item]['Stock']
+
+        # RSource List & Dict
+        r_df = data['commodity'][b_df1 & b_df4].index.remove_unused_levels().get_level_values('Commodity')
+        rsource_list = r_df.tolist()
+        rsource_dict = {}
+        for item in rsource_list:
+            rsource_dict[item] = (data['supim'][site][item],
+                                  economics.annuity(data['process']['inv-cost'][site].filter(like=item).values[0],
+                                                    data['process']['depreciation'][site].filter(like=item).values[0],
+                                                    data['process']['wacc'][site].filter(like=item).values[0]),
+                                  data['process']['cap-up'][site].filter(like=item).values[0],
+                                  data['process']['inst-cap'][site].filter(like=item).values[0])
+
+        # Transformer Dict
+        transformer_dict = {}
+        for item in bus_df1:
+            transformer_dict[item] = (economics.annuity(data['process']['inv-cost'][site].filter(like=item).values[0],
+                                                        data['process']['depreciation'][site].filter(like=item).values[0],
+                                                        data['process']['wacc'][site].filter(like=item).values[0]),
+                                      data['process']['cap-up'][site].filter(like=item).values[0],
+                                      data['process']['inst-cap'][site].filter(like=item).values[0],
+                                      data['process']['var-cost'][site].filter(like=item).values[0],
+                                      data['process_commodity']['ratio'].filter(like=item).filter(like='Elec').values[0])
+
+        # Sink Dict
+        sink_dict = {}
+        for item in bus_df2:
+            sink_dict[item] = data['demand'][site][item]
+
+        # Storage Tuple
+        storage_tup = (economics.annuity(data['storage']['inv-cost-p'][site].filter(like='Pump').values[0],
+                                         data['storage']['depreciation'][site].filter(like='Pump').values[0],
+                                         data['storage']['wacc'][site].filter(like='Pump').values[0]),
+                       data['storage']['cap-up-p'][site].filter(like='Pump').values[0],
+                       data['storage']['inst-cap-p'][site].filter(like='Pump').values[0],
+                       data['storage']['var-cost-p'][site].filter(like='Pump').values[0])
+
+        # Site Creation
         sites[site] = Site(site, data, weight,
-                           bus=['coal', 'lig', 'gas', 'bio', 'el'],
-                           source={'coal': 7, 'lig': 4, 'gas': 27, 'bio': 6},
-                           rsource={'Wind': (data['supim'][site]['Wind'], economics.annuity(1500000, 25, 0.07), 13000, 0),
-                                    'Solar': (data['supim'][site]['Solar'], economics.annuity(600000, 25, 0.07), 160000, 0),
-                                    'Hydro': (data['supim'][site]['Hydro'], economics.annuity(1600000, 50, 0.07), 1400, 0)},
-                           transformer={'coal': (economics.annuity(600000, 40, 0.07), 100000, 0, 0.6, 0.4),
-                                        'lig': (economics.annuity(600000, 40, 0.07), 60000, 0, 0.6, 0.4),
-                                        'gas': (economics.annuity(450000, 30, 0.07), 80000, 0, 1.6, 0.6),
-                                        'bio': (economics.annuity(875000, 25, 0.07), 5000, 0, 1.4, 0.35)},
-                           sink={'demand': data['demand'][site]['Elec']},
-                           storage={'el': (economics.annuity(100000, 50, 0.07), float('inf'), 0, 0.02)}
-                          )
+                           bus=bus_list,
+                           source=source_dict,
+                           rsource=rsource_dict,
+                           transformer=transformer_dict,
+                           sink=sink_dict,
+                           storage={'Elec': storage_tup})
+
         sites[site] = sites[site]._create_components()
 
     # Create Transmission Lines

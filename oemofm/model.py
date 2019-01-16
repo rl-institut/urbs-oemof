@@ -4,6 +4,7 @@ from oemof.network import Node
 import oemof.solph as solph
 import pandas as pd
 import pprint as pp
+from itertools import combinations
 
 
 class Site:
@@ -67,7 +68,7 @@ class Site:
         # create transformer (output: elec only)
         for t in self.transformer.keys():
             transformer['t_'+t+'_'+self.name] = solph.Transformer(
-                            label="pp_"+t+'_'+self.name,
+                            label='pp_'+t+'_'+self.name,
                             inputs={bus['b_'+t+'_'+self.name]:
                                 solph.Flow(
                                     investment=solph.Investment(
@@ -127,8 +128,9 @@ class Line:
 
     def _create_lines(self):
         # create transmission lines
+        """
         line = solph.custom.Link(
-                    label="line"+'_'+self.site_0[0]+'_'+self.site_1[0],
+                    label='line'+'_'+self.site_0[0]+'_'+self.site_1[0],
                     inputs={
                        self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
                            solph.Flow(investment=solph.Investment(
@@ -152,6 +154,33 @@ class Line:
                         self.site_1[1]['b_Elec'+'_'+self.site_1[0]]): self.specs[4],
                        (self.site_1[1]['b_Elec'+'_'+self.site_1[0]],
                         self.site_0[1]['b_Elec'+'_'+self.site_0[0]]): self.specs[4]})
+        """
+        line = {}
+        line['line_'+self.site_0[0]+'_'+self.site_1[0]] = solph.Transformer(
+                            label='line_'+self.site_0[0]+'_'+self.site_1[0],
+                            inputs={self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
+                                        solph.Flow(investment=solph.Investment(
+                                            ep_costs=self.specs[0],
+                                            maximum=self.specs[1],
+                                            existing=self.specs[2]),
+                                        variable_costs=self.specs[3]*self.weight)},
+                            outputs={self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
+                                        solph.Flow()},
+                            conversion_factors={self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
+                                                    self.specs[4]})
+
+        line['line_'+self.site_1[0]+'_'+self.site_0[0]] = solph.Transformer(
+                            label='line_'+self.site_1[0]+'_'+self.site_0[0],
+                            inputs={self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
+                                        solph.Flow(investment=solph.Investment(
+                                            ep_costs=self.specs[0],
+                                            maximum=self.specs[1],
+                                            existing=self.specs[2]),
+                                        variable_costs=self.specs[3]*self.weight)},
+                            outputs={self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
+                                        solph.Flow()},
+                            conversion_factors={self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
+                                                    self.specs[4]})
 
         return line
 
@@ -175,8 +204,8 @@ def create_model(data, timesteps=None):
                                     freq='H')
 
     # Create Energy System
-    m = solph.EnergySystem(timeindex=date_time_index)
-    Node.registry = m
+    es = solph.EnergySystem(timeindex=date_time_index)
+    Node.registry = es
 
     # Fix Data
     data['demand'] = data['demand'].shift(-1)
@@ -272,15 +301,43 @@ def create_model(data, timesteps=None):
                  conversion_factor]
         )
     """
-    lines = {('Mid', 'North'): None,
-             ('South', 'Mid'): None,
-             ('South', 'North'): None,
-            }
+    lines_list = list(data['transmission'].reset_index(level=[2,3]).index.values)
+    lines_list = (set(tuple(sorted(line)) for line in lines_list))
+    lines = dict.fromkeys(lines_list)
 
     for line in lines:
         lines[line] = Line(sites[line[0]], sites[line[1]], weight,
-                           specs = [economics.annuity(1650000, 40, 0.07), float('inf'), 0, 0, 0.90]
+                           specs = [economics.annuity(data['transmission']['inv-cost'][line][0],
+                                                      data['transmission']['depreciation'][line][0],
+                                                      data['transmission']['wacc'][line][0]),
+                           data['transmission']['cap-up'][line][0],
+                           data['transmission']['inst-cap'][line][0],
+                           data['transmission']['var-cost'][line][0],
+                           data['transmission']['eff'][line][0]]
                           )
+
         lines[line] = lines[line]._create_lines()
 
-    return m
+    # transmission symmetry constraint
+    lines_sym = []
+    for key in es.groups.keys():
+        if isinstance(key, str) and 'line' in key:
+            lines_sym.append(key)
+    lines_sym = [i for i in combinations(lines_sym,2) if i[0].split('_')[1:] == i[1].split('_')[1:][::-1]]
+
+    # create model
+    model = solph.Model(es)
+    model.name = 'oemof APP'
+
+    # add lines symmetry constraint
+    for line in lines_sym:
+        l0 = es.groups[line[0]]
+        l1 = es.groups[line[1]]
+        b0 = es.groups['b_Elec_'+line[0].split('_')[1:][0]]
+        b1 = es.groups['b_Elec_'+line[1].split('_')[1:][0]]
+
+        solph.constraints.equate_variables(model,
+                                           model.InvestmentFlow.invest[b0, l0],
+                                           model.InvestmentFlow.invest[b1, l1])
+
+    return es, model

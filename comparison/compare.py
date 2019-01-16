@@ -62,7 +62,7 @@ def compare_storages(urbs_model, oemof_model):
         # storage capacity
         if abs(urbs_model.cap_sto_c[(sit, 'Pump storage', 'Elec')]() -
                sto_cap_df[sit][(('storage_Elec_'+sit, 'None'),
-                               'invest')]) >= 0.1:
+                               'invest')]) >= 0.01:
             print('\t', 'Storage CAP', '\t' 'Diff:',
                   urbs_model.cap_sto_c[(sit, 'Pump storage', 'Elec')]() -
                   sto_cap_df[sit][(('storage_Elec_'+sit, 'None'),
@@ -72,7 +72,7 @@ def compare_storages(urbs_model, oemof_model):
             # storage unit charge
             if abs(urbs_model.e_sto_in[(i, sit, 'Pump storage', 'Elec')]() -
                    sto_df[sit][(('b_Elec_'+sit, 'storage_Elec_'+sit),
-                               'flow')][(i-1)]) >= 0.1:
+                               'flow')][(i-1)]) >= 0.01:
 
                 print(i, '\t', 'Storage IN', '\t', 'Diff:',
                       urbs_model.e_sto_in[(i, sit, 'Pump storage', 'Elec')]() -
@@ -82,7 +82,7 @@ def compare_storages(urbs_model, oemof_model):
             # storage unit discharge
             if abs(urbs_model.e_sto_out[(i, sit, 'Pump storage', 'Elec')]() -
                    sto_df[sit][(('storage_Elec_'+sit, 'b_Elec_'+sit),
-                               'flow')][(i-1)]) >= 0.1:
+                               'flow')][(i-1)]) >= 0.01:
 
                 print(i, '\t', 'Storage OUT', '\t', 'Diff:',
                       urbs_model.e_sto_out[(i, sit, 'Pump storage', 'Elec')]() -
@@ -91,7 +91,7 @@ def compare_storages(urbs_model, oemof_model):
             # storage unit content
             if abs(urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]() -
                    sto_con_df[sit][(('storage_Elec_'+sit, 'None'),
-                                   'capacity')][(i-1)]) >= 0.1:
+                                   'capacity')][(i-1)]) >= 0.01:
 
                 print(i, '\t', 'Storage CON', '\t', 'Diff:',
                       urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]() -
@@ -144,79 +144,43 @@ def compare_transmission(urbs_model, oemof_model):
         # transmission capacity
         out = (sit_out for sit_out in urbs_model.sit if sit_out != sit)
         for sit_out in out:
-            try:
-                if abs(urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
-                       tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                       'invest')]) >= 0.1:
+            if abs(urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
+                   tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                    'invest')]) >= 0.01:
 
-                    print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t' 'Diff:',
-                          urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
-                          tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                          'invest')])
-
-            except KeyError:
-                if abs(urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
-                       tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit_out+'_'+sit),
-                                       'invest')]) >= 0.1:
-
-                    print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t' 'Diff:',
-                          urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
-                          tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit_out+'_'+sit),
-                                          'invest')])
+                print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                      urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
+                      tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                       'invest')])
 
             # plot details
             sit_outs.append(sit_out)
             urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
-            try:
-                oemof_values[sit_out] = tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                                        'invest')]
-            except KeyError:
-                oemof_values[sit_out] = tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit_out+'_'+sit),
-                                                        'invest')]
+            oemof_values[sit_out] = tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                                    'invest')]
 
+        out = (sit_out for sit_out in urbs_model.sit if sit_out != sit)
         for i in range(1, len(oemof_model.timeindex)):
             for sit_out in out:
                 # transmission in
-                try:
-                    if abs(urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
-                           tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                       'flow')][(i-1)]) >= 0.1:
+                if abs(urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
+                       tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                   'flow')][(i-1)]) >= 0.01:
 
-                        print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t' 'Diff:',
-                              urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
-                              tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                          'flow')][(i-1)])
-
-                except KeyError:
-                    if abs(urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
-                           tra_df[sit][(('b_Elec_'+sit, 'line_'+sit_out+'_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
-
-                        print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t' 'Diff:',
-                              urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
-                              tra_df[sit][(('b_Elec_'+sit, 'line_'+sit_out+'_'+sit),
-                                          'flow')][(i-1)])
+                    print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                          urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
+                          tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                      'flow')][(i-1)])
 
                 # transmission out
-                try:
-                    if abs(urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
-                           tra_df[sit][(('line_'+sit+'_'+sit_out, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
+                if abs(urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
+                       tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
+                                   'flow')][(i-1)]) >= 0.01:
 
-                        print(i, '\t', 'Transmission OUT', '\t', sit_out+'_'+sit, '\t' 'Diff:',
-                              urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
-                              tra_df[sit][(('line_'+sit+'_'+sit_out, 'b_Elec_'+sit),
-                                          'flow')][(i-1)])
-
-                except KeyError:
-                    if abs(urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
-                           tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
-
-                        print(i, '\t', 'Transmission OUT', '\t', sit_out+'_'+sit, '\t' 'Diff:',
-                              urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
-                              tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
-                                          'flow')][(i-1)])
+                    print(i, '\t', 'Transmission OUT', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                          urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
+                          tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
+                                      'flow')][(i-1)])
 
         # plot
         draw_graph(sit, sit_outs, urbs_values, oemof_values, 'Transmission')
@@ -279,7 +243,7 @@ def compare_process(urbs_model, oemof_model):
             if pro is 'Coal':
                 if abs(urbs_model.cap_pro[(sit, 'Coal plant')]() -
                        pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.1:
+                                       'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Coal plant')]() -
@@ -295,7 +259,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
+                                       'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]() -
@@ -305,7 +269,7 @@ def compare_process(urbs_model, oemof_model):
             elif pro is 'Lignite':
                 if abs(urbs_model.cap_pro[(sit, 'Lignite plant')]() -
                        pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.1:
+                                       'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Lignite plant')]() -
@@ -320,7 +284,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
+                                       'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]() -
@@ -330,7 +294,7 @@ def compare_process(urbs_model, oemof_model):
             elif pro is 'Gas':
                 if abs(urbs_model.cap_pro[(sit, 'Gas plant')]() -
                        pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.1:
+                                       'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Gas plant')]() -
@@ -345,7 +309,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
+                                       'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]() -
@@ -355,7 +319,7 @@ def compare_process(urbs_model, oemof_model):
             elif pro is 'Biomass':
                 if abs(urbs_model.cap_pro[(sit, 'Biomass plant')]() -
                        pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.1:
+                                       'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Biomass plant')]() -
@@ -370,7 +334,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]() -
                            pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.1:
+                                       'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]() -
@@ -391,7 +355,7 @@ def compare_process(urbs_model, oemof_model):
             if ren is 'Wind':
                 if abs(urbs_model.cap_pro[(sit, 'Wind park')]() -
                        pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'invest')]) >= 0.1:
+                                         'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Wind park')]() -
@@ -406,7 +370,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]() -
                            pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'flow')][(i-1)]) >= 0.1:
+                                         'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]() -
@@ -416,7 +380,7 @@ def compare_process(urbs_model, oemof_model):
             elif ren is 'Solar':
                 if abs(urbs_model.cap_pro[(sit, 'Solar plant')]() -
                        pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'invest')]) >= 0.1:
+                                         'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Solar plant')]() -
@@ -431,7 +395,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Solar plant', 'Elec')]() -
                            pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'flow')][(i-1)]) >= 0.1:
+                                         'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Solar plant', 'Elec')]() -
@@ -441,7 +405,7 @@ def compare_process(urbs_model, oemof_model):
             elif ren is 'Hydro':
                 if abs(urbs_model.cap_pro[(sit, 'Hydro plant')]() -
                        pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'invest')]) >= 0.1:
+                                         'invest')]) >= 0.01:
 
                     print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
                           urbs_model.cap_pro[(sit, 'Hydro plant')]() -
@@ -456,7 +420,7 @@ def compare_process(urbs_model, oemof_model):
 
                     if abs(urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]() -
                            pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'flow')][(i-1)]) >= 0.1:
+                                         'flow')][(i-1)]) >= 0.01:
 
                         print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
                               urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]() -

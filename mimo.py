@@ -167,11 +167,9 @@ def create_om(input_data, timesteps):
         model instance
     """
     # create oemof energy system
-    es = oemofm.create_model(input_data, timesteps)
+    es, model = oemofm.create_model(input_data, timesteps)
 
     # solve model and read results
-    model = solph.Model(es)
-    model.name = 'oemof APP'
     model.solve(solver='glpk', solve_kwargs={'tee': False})
 
     # write LP file
@@ -238,7 +236,7 @@ if __name__ == '__main__':
 
 
     # simulation timesteps
-    (offset, length) = (0, 100)  # time step selection
+    (offset, length) = (0, 10)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

@@ -1,0 +1,67 @@
+Changed Process Cap Test
+- Both models are created.
+- Similar obj values
+- Diff =  -7956713.605686188
+
+ ----------------------------------------------------
+CREATING urbs MODEL
+CREATING oemof MODEL
+----------------------------------------------------
+urbs	 10048644752.08279
+oemof	 10056601465.688477
+Diff	 -7956713.605686188
+----------------------------------------------------
+i 	 Storage Mid 	 (urbs - oemof)
+8 	 Storage IN 	 Diff: -388.211322676336
+8 	 Storage CON 	 Diff: -388.211322676336
+9 	 Storage IN 	 Diff: 388.211322676305
+----------------------------------------------------
+i 	 Storage South 	 (urbs - oemof)
+	 Storage CAP 	Diff: 704.137621486848
+7 	 Storage IN 	 Diff: 90.6624185130362
+7 	 Storage CON 	 Diff: 90.6624185130362
+8 	 Storage IN 	 Diff: 123.842009057657
+8 	 Storage CON 	 Diff: 214.504427570693
+9 	 Storage IN 	 Diff: 197.645484184263
+9 	 Storage CON 	 Diff: 412.149911754955
+----------------------------------------------------
+i 	 Storage North 	 (urbs - oemof)
+----------------------------------------------------
+----------------------------------------------------
+i 	 Transmission Mid 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission South 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission North 	 (urbs - oemof)
+----------------------------------------------------
+----------------------------------------------------
+i 	 Process Mid 	 (urbs - oemof)
+8 	 UNIT 	 Coal 	 Diff: -388.2113226762999
+9 	 UNIT 	 Coal 	 Diff: 388.2113226762999
+----------------------------------------------------
+i 	 Process South 	 (urbs - oemof)
+	 CAP 	 Gas 	 Diff: 3.6155547983760243
+1 	 UNIT 	 Gas 	 Diff: 2.169332879026001
+	 CAP 	 Lignite 	 Diff: -715.3843219704299
+1 	 UNIT 	 Lignite 	 Diff: -286.15372878817993
+2 	 UNIT 	 Lignite 	 Diff: -286.15372878817993
+3 	 UNIT 	 Lignite 	 Diff: -290.35005353257907
+4 	 UNIT 	 Lignite 	 Diff: -290.39948036018905
+5 	 UNIT 	 Lignite 	 Diff: -291.090225233924
+6 	 UNIT 	 Lignite 	 Diff: -292.073954781246
+7 	 UNIT 	 Lignite 	 Diff: -202.451131314072
+8 	 UNIT 	 Lignite 	 Diff: -169.271540769452
+9 	 UNIT 	 Lignite 	 Diff: -94.5331027934688
+	 CAP 	 Wind 	 Diff: 303.6406385311798
+1 	 UNIT 	 Wind 	 Diff: 283.98439590914995
+2 	 UNIT 	 Wind 	 Diff: 286.15372878817016
+3 	 UNIT 	 Wind 	 Diff: 290.3500535325802
+4 	 UNIT 	 Wind 	 Diff: 290.39948036018995
+5 	 UNIT 	 Wind 	 Diff: 291.09022523393014
+6 	 UNIT 	 Wind 	 Diff: 292.07395478125
+7 	 UNIT 	 Wind 	 Diff: 293.1135498271101
+8 	 UNIT 	 Wind 	 Diff: 293.1135498271101
+9 	 UNIT 	 Wind 	 Diff: 292.17858697773
+----------------------------------------------------
+i 	 Process North 	 (urbs - oemof)
+----------------------------------------------------

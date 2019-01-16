@@ -14,13 +14,17 @@ from oemof.graph import create_nx_graph
 # comparison
 import comparison as comp
 
+# connection
+import connection_oep as conn
+
 # misc.
-import logging
 import os
+import numpy as np
 import pandas as pd
-from datetime import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
+from datetime import datetime
+
 
 ##########################################################################
 # Helper Functions
@@ -121,7 +125,7 @@ def comparison(u_model, o_model):
 ##########################################################################
 
 # create urbs model
-def create_um(input_file, timesteps):
+def create_um(input_data, timesteps):
     """
     Creates an urbs model for given input, time steps
 
@@ -132,12 +136,8 @@ def create_um(input_file, timesteps):
     Returns:
         model instance
     """
-
-    # scenario name, read and modify data for scenario
-    data = urbs.read_excel(input_file)
-
     # create model
-    model = urbs.create_model(data, 1, timesteps)
+    model = urbs.create_model(input_data, 1, timesteps)
 
     # solve model and read results
     optim = SolverFactory('glpk')
@@ -155,7 +155,7 @@ def create_um(input_file, timesteps):
 ##########################################################################
 
 # create oemof model
-def create_om(input_file, timesteps):
+def create_om(input_data, timesteps):
     """
     Creates an oemof model for given input, time steps
 
@@ -166,16 +166,10 @@ def create_om(input_file, timesteps):
     Returns:
         model instance
     """
-
-    # read input file
-    data = pd.read_csv(input_file)
-
     # create oemof energy system
-    es = oemofm.create_model(data, timesteps)
+    es, model = oemofm.create_model(input_data, timesteps)
 
     # solve model and read results
-    model = solph.Model(es)
-    model.name = 'oemof APP'
     model.solve(solver='glpk', solve_kwargs={'tee': False})
 
     # write LP file
@@ -199,9 +193,47 @@ def create_om(input_file, timesteps):
 
 
 if __name__ == '__main__':
-    # Input Files
-    input_file_urbs = 'mimo.xlsx'
-    input_file_oemof = 'mimo.csv'
+    # connection
+    connection = False
+
+    # input file
+    input_file = 'mimo.xlsx'
+
+    # load data
+    data = conn.read_data(input_file)
+
+    # establish connection to OEP
+    if connection:
+
+        # config for OEP
+        username, token = open("config.ini", "r").readlines()
+
+        # create engine
+        engine, metadata = conn.connect_oep(username, token)
+        print('OEP Connection established')
+
+        # create table
+        table = {}
+        input_data = {}
+        for key in data:
+            # setup table
+            table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
+                                                  schema_name='sandbox',
+                                                  metadata=metadata)
+            # upload to OEP
+            #table['ubbb_'+key] = conn.upload_to_oep(data[key],
+                                                    #table['ubbb_'+key],
+                                                    #engine, metadata)
+            # download from OEP
+            input_data[key] = conn.get_df(engine, table['ubbb_'+key])
+
+        # write data
+        input_data = conn.write_data(input_data)
+
+    else:
+        input_data = data
+        input_data = conn.write_data(input_data)
+
 
     # simulation timesteps
     (offset, length) = (0, 10)  # time step selection
@@ -210,9 +242,10 @@ if __name__ == '__main__':
     # create models
     print('----------------------------------------------------')
     print('CREATING urbs MODEL')
-    urbs_model = create_um(input_file_urbs, timesteps)
+    urbs_model = create_um(input_data, timesteps)
     print('CREATING oemof MODEL')
-    oemof_model = create_om(input_file_oemof, timesteps)
+    oemof_model = create_om(input_data, timesteps)
     print('----------------------------------------------------')
 
+    # comparison
     comparison(urbs_model, oemof_model)

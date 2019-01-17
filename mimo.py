@@ -117,12 +117,12 @@ def comparison(u_model, o_model):
     with open('urbs_log.txt', 'r') as urbslog:
         mem_urbs = urbslog.read().replace('\n', ' ')
         mem_urbs = float(mem_urbs[mem_urbs.find('Memory used:')+12:
-								  mem_urbs.find('Mb')])
+                                  mem_urbs.find('Mb')])
 
     with open('oemof_log.txt', 'r') as oemoflog:
         mem_oemof = oemoflog.read().replace('\n', ' ')
         mem_oemof = float(mem_oemof[mem_oemof.find('Memory used:')+12:
-								    mem_oemof.find('Mb')])
+                                    mem_oemof.find('Mb')])
 
     # check memory difference
     if mem_urbs != mem_oemof:
@@ -191,8 +191,8 @@ def create_om(input_data, timesteps):
     es, model = oemofm.create_model(input_data, timesteps)
 
     # solve model and read results
-    model.solve(solver='glpk', solve_kwargs={'logfile':'oemof_log.txt',
-											 'tee': False})
+    model.solve(solver='glpk',
+                solve_kwargs={'logfile': 'oemof_log.txt', 'tee': False})
 
     # write LP file
     filename = os.path.join(os.path.dirname(__file__), 'mimo_oemof.lp')
@@ -243,9 +243,11 @@ if __name__ == '__main__':
                                                   schema_name='sandbox',
                                                   metadata=metadata)
             # upload to OEP
-            #table['ubbb_'+key] = conn.upload_to_oep(data[key],
-                                                    #table['ubbb_'+key],
-                                                    #engine, metadata)
+            '''
+            table['ubbb_'+key] = conn.upload_to_oep(data[key],
+                                                    table['ubbb_'+key],
+                                                    engine, metadata)
+            '''
             # download from OEP
             input_data[key] = conn.get_df(engine, table['ubbb_'+key])
 
@@ -255,7 +257,6 @@ if __name__ == '__main__':
     else:
         input_data = data
         input_data = conn.write_data(input_data)
-
 
     # simulation timesteps
     (offset, length) = (0, 10)  # time step selection

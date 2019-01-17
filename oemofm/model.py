@@ -301,20 +301,19 @@ def create_model(data, timesteps=None):
                  conversion_factor]
         )
     """
-    lines_list = list(data['transmission'].reset_index(level=[2,3]).index.values)
+    lines_list = list(data['transmission'].reset_index(level=[2, 3]).index.values)
     lines_list = (set(tuple(sorted(line)) for line in lines_list))
     lines = dict.fromkeys(lines_list)
 
     for line in lines:
         lines[line] = Line(sites[line[0]], sites[line[1]], weight,
-                           specs = [economics.annuity(data['transmission']['inv-cost'][line][0],
-                                                      data['transmission']['depreciation'][line][0],
-                                                      data['transmission']['wacc'][line][0]),
+                           specs=[economics.annuity(data['transmission']['inv-cost'][line][0],
+                                                    data['transmission']['depreciation'][line][0],
+                                                    data['transmission']['wacc'][line][0]),
                            data['transmission']['cap-up'][line][0],
                            data['transmission']['inst-cap'][line][0],
                            data['transmission']['var-cost'][line][0],
-                           data['transmission']['eff'][line][0]]
-                          )
+                           data['transmission']['eff'][line][0]])
 
         lines[line] = lines[line]._create_lines()
 
@@ -323,7 +322,7 @@ def create_model(data, timesteps=None):
     for key in es.groups.keys():
         if isinstance(key, str) and 'line' in key:
             lines_sym.append(key)
-    lines_sym = [i for i in combinations(lines_sym,2) if i[0].split('_')[1:] == i[1].split('_')[1:][::-1]]
+    lines_sym = [i for i in combinations(lines_sym, 2) if i[0].split('_')[1:] == i[1].split('_')[1:][::-1]]
 
     # create model
     model = solph.Model(es)

@@ -345,7 +345,7 @@ def compare_process(urbs_model, oemof_model):
                 raise TypeError('NON Recognised Value for PRO-LOOP')
 
         # plot
-        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (nRE)')
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (PP)')
 
         # plot init
         urbs_values = dict([(key, []) for key in ren_list])
@@ -431,7 +431,7 @@ def compare_process(urbs_model, oemof_model):
                 raise TypeError('NON Recognised Value for PRO-RE-LOOP')
 
         # plot
-        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (RE)')
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (fPP)')
 
     return print('----------------------------------------------------')
 
@@ -459,7 +459,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # plot specs
         plt.xlabel('Timesteps [h]')
-        plt.ylabel('Flow [MWh]')
+        plt.ylabel('Content [MWh]')
         plt.title(site+' '+name)
         plt.grid(True)
         plt.legend()

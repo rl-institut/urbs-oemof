@@ -234,18 +234,20 @@ def upload_to_oep(df, table, engine, metadata):
         print('Created table')
 
     # insert data
+    Session = sessionmaker(bind=engine)
+    session = Session()
     try:
         dtype = {key: table.columns[key].type for key in table.columns.keys()}
         df.to_sql(table_name, engine, schema=schema_name, if_exists='replace',
                   dtype=dtype)
         print('Inserted to ' + table_name)
     except Exception as e:
-        Session = sessionmaker(bind=engine)
-        session = Session()
         session.rollback()
         session.close()
         raise
         print('Insert incomplete!')
+    finally:
+        session.close()
 
     return table
 

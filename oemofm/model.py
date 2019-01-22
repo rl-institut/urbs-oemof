@@ -93,19 +93,16 @@ class Site:
         for st in self.storage.keys():
             storage['storage_'+st+'_'+self.name] = solph.components.GenericStorage(
                             label='storage_'+st+'_'+self.name,
-                            inputs={
-                                bus['b_Elec'+'_'+self.name]: solph.Flow(
-                                    variable_costs=self.storage[st][3]*self.weight)},
-                            outputs={
-                                bus['b_Elec'+'_'+self.name]: solph.Flow(
-                                    variable_costs=self.storage[st][3]*self.weight)},
+                            inputs={bus['b_Elec'+'_'+self.name]: solph.Flow(
+                                variable_costs=self.storage[st][3]*self.weight)},
+                            outputs={bus['b_Elec'+'_'+self.name]: solph.Flow(
+                                variable_costs=self.storage[st][3]*self.weight)},
                             inflow_conversion_factor=1, outflow_conversion_factor=1,
                             initial_capacity=0,
                             investment=solph.Investment(
-                                            ep_costs=self.storage[st][0],
-                                            maximum=self.storage[st][1],
-                                            existing=self.storage[st][2]),
-                            variable_costs=self.storage[st][3]*self.weight)
+                                ep_costs=self.storage[st][0],
+                                maximum=self.storage[st][1],
+                                existing=self.storage[st][2]))
 
         return self.name, bus, source, rsource, transformer, sink, storage
 

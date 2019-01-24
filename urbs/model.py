@@ -808,7 +808,7 @@ def res_initial_and_final_storage_state_rule(m, t, sit, sto, com):
                 m.cap_sto_c[sit, sto, com] *
                 m.storage_dict['init'][(sit, sto, com)])
     elif t == m.t[len(m.t)]:  # last timestep
-        return (m.e_sto_con[t, sit, sto, com] >=
+        return (m.e_sto_con[t, sit, sto, com] ==
                 m.cap_sto_c[sit, sto, com] *
                 m.storage_dict['init'][(sit, sto, com)])
     else:

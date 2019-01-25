@@ -135,6 +135,9 @@ def comparison(u_model, o_model):
     o_model = solph.EnergySystem()
     o_model.restore(dpath=None, filename=None)
 
+    # compare lp files
+    comp.compare_lp_files()
+
     # compare storage variables
     comp.compare_storages(u_model, o_model)
     comp.compare_transmission(u_model, o_model)
@@ -259,7 +262,7 @@ if __name__ == '__main__':
         input_data = conn.write_data(input_data)
 
     # simulation timesteps
-    (offset, length) = (0, 10)  # time step selection
+    (offset, length) = (0, 2)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

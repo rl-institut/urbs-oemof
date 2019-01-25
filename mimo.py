@@ -131,9 +131,19 @@ def comparison(u_model, o_model):
         print('oemof\t', mem_oemof, ' Mb')
         print('Diff\t', mem_urbs - mem_oemof, ' Mb')
 
+    print('----------------------------------------------------')
+
     # create oemof energysytem
     o_model = solph.EnergySystem()
     o_model.restore(dpath=None, filename=None)
+
+    # compare lp files
+    u_const, o_const = comp.compare_lp_files()
+    if u_const != o_const:
+        print('Constraint Amount')
+        print('urbs\t', u_const)
+        print('oemof\t', o_const)
+        print('Diff\t', u_const - o_const)
 
     # compare storage variables
     comp.compare_storages(u_model, o_model)

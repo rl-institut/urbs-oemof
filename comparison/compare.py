@@ -1,5 +1,6 @@
 import os
 import sys
+import re as r
 import pandas as pd
 import numpy as np
 import oemof.solph as solph
@@ -19,6 +20,71 @@ def prepare_result_directory(result_name):
         os.makedirs(result_dir)
 
     return result_dir
+
+
+def _file_len(filename):
+    with open(filename) as f:
+        for i, l in enumerate(f):
+            pass
+    return i
+
+
+def compare_lp_files():
+    # open urbs lp file
+    with open('mimo_urbs.lp', 'r') as urbslp:
+
+        # create constraint file
+        const = open('constraints_urbs.txt', 'w+')
+
+        for line in urbslp:
+            # find constraints
+            ce = r.match(r'c_e_(.*)\_', line)
+            cu = r.match(r'c_u_(.*)\_', line)
+            re = r.match(r'r_e_(.*)\_', line)
+            rl = r.match(r'r_l_(.*)\_', line)
+
+            # write constraints
+            if ce:
+                const.write(ce.group(1))
+                const.write('\n')
+
+            if cu:
+                const.write(cu.group(1))
+                const.write('\n')
+
+            if re:
+                const.write(re.group(1))
+                const.write('\n')
+
+            if rl:
+                const.write(rl.group(1))
+                const.write('\n')
+        const.close()
+
+    # open oemof lp file
+    with open('mimo_oemof.lp', 'r') as oemoflp:
+
+        # create constraint file
+        const = open('constraints_oemof.txt', 'w+')
+
+        for line in oemoflp:
+            # find constraints
+            ce = r.match(r'c_e_(.*)\_', line)
+            cu = r.match(r'c_u_(.*)\_', line)
+
+            # write constraints
+            if ce:
+                const.write(ce.group(1))
+                const.write('\n')
+            if cu:
+                const.write(cu.group(1))
+                const.write('\n')
+        const.close()
+
+    u_const_amount = _file_len('constraints_urbs.txt')
+    o_const_amount = _file_len('constraints_oemof.txt')
+
+    return u_const_amount, o_const_amount
 
 
 def compare_storages(urbs_model, oemof_model):

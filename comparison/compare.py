@@ -22,6 +22,13 @@ def prepare_result_directory(result_name):
     return result_dir
 
 
+def _file_len(filename):
+    with open(filename) as f:
+        for i, l in enumerate(f):
+            pass
+    return i
+
+
 def compare_lp_files():
     # open urbs lp file
     with open('mimo_urbs.lp', 'r') as urbslp:
@@ -30,7 +37,6 @@ def compare_lp_files():
         const = open('constraints_urbs.txt', 'w+')
 
         for line in urbslp:
-
             # find constraints
             ce = r.match(r'c_e_(.*)\_', line)
             cu = r.match(r'c_u_(.*)\_', line)
@@ -53,7 +59,6 @@ def compare_lp_files():
             if rl:
                 const.write(rl.group(1))
                 const.write('\n')
-
         const.close()
 
     # open oemof lp file
@@ -63,7 +68,6 @@ def compare_lp_files():
         const = open('constraints_oemof.txt', 'w+')
 
         for line in oemoflp:
-
             # find constraints
             ce = r.match(r'c_e_(.*)\_', line)
             cu = r.match(r'c_u_(.*)\_', line)
@@ -75,11 +79,12 @@ def compare_lp_files():
             if cu:
                 const.write(cu.group(1))
                 const.write('\n')
-
-        
         const.close()
 
-    return None
+    u_const_amount = _file_len('constraints_urbs.txt')
+    o_const_amount = _file_len('constraints_oemof.txt')
+
+    return u_const_amount, o_const_amount
 
 
 def compare_storages(urbs_model, oemof_model):

@@ -164,12 +164,13 @@ class Line:
                                         solph.Flow(investment=solph.Investment(
                                             ep_costs=self.specs[0],
                                             maximum=self.specs[1],
-                                            existing=self.specs[2]),
-                                        variable_costs=self.specs[3]*self.weight)},
+                                            existing=self.specs[2],
+                                            minimum=self.specs[3]),
+                                        variable_costs=self.specs[4]*self.weight)},
                             outputs={self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
                                         solph.Flow()},
                             conversion_factors={self.site_1[1]['b_Elec'+'_'+self.site_1[0]]:
-                                                    self.specs[4]})
+                                                    self.specs[5]})
 
         line['line_'+self.site_1[0]+'_'+self.site_0[0]] = solph.Transformer(
                             label='line_'+self.site_1[0]+'_'+self.site_0[0],
@@ -177,12 +178,13 @@ class Line:
                                         solph.Flow(investment=solph.Investment(
                                             ep_costs=self.specs[0],
                                             maximum=self.specs[1],
-                                            existing=self.specs[2]),
-                                        variable_costs=self.specs[3]*self.weight)},
+                                            existing=self.specs[2],
+                                            minimum=self.specs[3]),
+                                        variable_costs=self.specs[4]*self.weight)},
                             outputs={self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
                                         solph.Flow()},
                             conversion_factors={self.site_0[1]['b_Elec'+'_'+self.site_0[0]]:
-                                                    self.specs[4]})
+                                                    self.specs[5]})
 
         return line
 
@@ -321,6 +323,7 @@ def create_model(data, timesteps=None):
                                                     data['transmission']['wacc'][line][0]),
                            data['transmission']['cap-up'][line][0],
                            data['transmission']['inst-cap'][line][0],
+                           data['transmission']['cap-lo'][line][0],
                            data['transmission']['var-cost'][line][0],
                            data['transmission']['eff'][line][0]])
 

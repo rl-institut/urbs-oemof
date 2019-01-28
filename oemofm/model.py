@@ -104,6 +104,7 @@ class Site:
                                 maximum=self.storage[st][1],
                                 existing=self.storage[st][2],
                                 minimum=self.storage[st][3]),
+                            variable_costs=self.storage[st][4]*self.weight,
                             initial_capacity=self.storage[st][5],
                             inflow_conversion_factor=self.storage[st][6],
                             outflow_conversion_factor=self.storage[st][7],

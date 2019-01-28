@@ -63,7 +63,8 @@ class Site:
                                     investment=solph.Investment(
                                         ep_costs=self.rsource[rs][1],
                                         maximum=self.rsource[rs][2],
-                                        existing=self.rsource[rs][3]))})
+                                        existing=self.rsource[rs][3],
+                                        minimum=self.rsource[rs][4]))})
 
         # create transformer (output: elec only)
         for t in self.transformer.keys():
@@ -74,11 +75,12 @@ class Site:
                                     investment=solph.Investment(
                                         ep_costs=self.transformer[t][0],
                                         maximum=self.transformer[t][1],
-                                        existing=self.transformer[t][2]),
-                                    variable_costs=self.transformer[t][3]*self.weight)},
+                                        existing=self.transformer[t][2],
+                                        minimum=self.transformer[t][3]),
+                                    variable_costs=self.transformer[t][4]*self.weight)},
                             outputs={bus['b_Elec'+'_'+self.name]: solph.Flow()},
                             conversion_factors={bus['b_Elec'+'_'+self.name]:
-                                                    self.transformer[t][4]})
+                                                    self.transformer[t][5]})
 
         # create sink (input: elec only)
         for sn in self.sink.keys():
@@ -256,7 +258,8 @@ def create_model(data, timesteps=None):
                                                     data['process']['depreciation'][site].filter(like=item).values[0],
                                                     data['process']['wacc'][site].filter(like=item).values[0]),
                                   data['process']['cap-up'][site].filter(like=item).values[0],
-                                  data['process']['inst-cap'][site].filter(like=item).values[0])
+                                  data['process']['inst-cap'][site].filter(like=item).values[0],
+                                  data['process']['cap-lo'][site].filter(like=item).values[0])
 
         # Transformer Dict
         transformer_dict = {}
@@ -266,6 +269,7 @@ def create_model(data, timesteps=None):
                                                         data['process']['wacc'][site].filter(like=item).values[0]),
                                       data['process']['cap-up'][site].filter(like=item).values[0],
                                       data['process']['inst-cap'][site].filter(like=item).values[0],
+                                      data['process']['cap-lo'][site].filter(like=item).values[0],
                                       data['process']['var-cost'][site].filter(like=item).values[0],
                                       data['process_commodity']['ratio'].filter(like=item).filter(like='Elec').values[0])
 

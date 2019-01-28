@@ -94,15 +94,18 @@ class Site:
             storage['storage_'+st+'_'+self.name] = solph.components.GenericStorage(
                             label='storage_'+st+'_'+self.name,
                             inputs={bus['b_Elec'+'_'+self.name]: solph.Flow(
-                                variable_costs=self.storage[st][3]*self.weight)},
+                                variable_costs=self.storage[st][4]*self.weight)},
                             outputs={bus['b_Elec'+'_'+self.name]: solph.Flow(
-                                variable_costs=self.storage[st][3]*self.weight)},
-                            inflow_conversion_factor=1, outflow_conversion_factor=1,
-                            initial_capacity=0,
+                                variable_costs=self.storage[st][4]*self.weight)},
                             investment=solph.Investment(
                                 ep_costs=self.storage[st][0],
                                 maximum=self.storage[st][1],
-                                existing=self.storage[st][2]))
+                                existing=self.storage[st][2],
+                                minimum=self.storage[st][3]),
+                            initial_capacity=self.storage[st][5],
+                            inflow_conversion_factor=self.storage[st][6],
+                            outflow_conversion_factor=self.storage[st][7],
+                            capacity_loss=self.storage[st][8])
 
         return self.name, bus, source, rsource, transformer, sink, storage
 
@@ -277,7 +280,12 @@ def create_model(data, timesteps=None):
                                          data['storage']['wacc'][site].filter(like='Pump').values[0]),
                        data['storage']['cap-up-p'][site].filter(like='Pump').values[0],
                        data['storage']['inst-cap-p'][site].filter(like='Pump').values[0],
-                       data['storage']['var-cost-p'][site].filter(like='Pump').values[0])
+                       data['storage']['cap-lo-p'][site].filter(like='Pump').values[0],
+                       data['storage']['var-cost-p'][site].filter(like='Pump').values[0],
+                       data['storage']['init'][site].filter(like='Pump').values[0],
+                       data['storage']['eff-in'][site].filter(like='Pump').values[0],
+                       data['storage']['eff-out'][site].filter(like='Pump').values[0],
+                       data['storage']['discharge'][site].filter(like='Pump').values[0])
 
         # Site Creation
         sites[site] = Site(site, data, weight,

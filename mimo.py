@@ -148,9 +148,12 @@ def comparison(u_model, o_model):
     print('----------------------------------------------------')
 
     # compare model variables
-    comp.compare_storages(u_model, o_model)
-    comp.compare_transmission(u_model, o_model)
-    comp.compare_process(u_model, o_model)
+    if len(u_model.tm) >= 2:
+        comp.compare_storages(u_model, o_model)
+        comp.compare_transmission(u_model, o_model)
+        comp.compare_process(u_model, o_model)
+    else:
+        pass
 
     print('----------------------------------------------------')
 
@@ -273,7 +276,7 @@ if __name__ == '__main__':
         input_data = conn.write_data(input_data)
 
     # simulation timesteps
-    (offset, length) = (0, 10)  # time step selection
+    (offset, length) = (0, 1)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

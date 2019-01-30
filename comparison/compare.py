@@ -134,7 +134,7 @@ def compare_storages(urbs_model, oemof_model):
         if abs(urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
                sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
                                'invest')]) >= 0.01:
-            print('\t', 'Storage PWR', '\t','Diff:',
+            print('\t', 'Storage PWR', '\t', 'Diff:',
                   urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
                   sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
                                   'invest')])
@@ -143,7 +143,7 @@ def compare_storages(urbs_model, oemof_model):
         if abs(urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
                sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
                                'invest')]) >= 0.01:
-            print('\t', 'Storage CAP', '\t','Diff:',
+            print('\t', 'Storage CAP', '\t', 'Diff:',
                   urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
                   sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
                                   'invest')])

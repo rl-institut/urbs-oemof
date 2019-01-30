@@ -147,7 +147,7 @@ def comparison(u_model, o_model):
 
     print('----------------------------------------------------')
 
-    # compare storage variables
+    # compare model variables
     comp.compare_storages(u_model, o_model)
     comp.compare_transmission(u_model, o_model)
     comp.compare_process(u_model, o_model)

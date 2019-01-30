@@ -134,7 +134,7 @@ def compare_storages(urbs_model, oemof_model):
         if abs(urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
                sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
                                'invest')]) >= 0.01:
-            print('\t', 'Storage PWR', '\t' 'Diff:',
+            print('\t', 'Storage PWR', '\t','Diff:',
                   urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
                   sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
                                   'invest')])
@@ -143,7 +143,7 @@ def compare_storages(urbs_model, oemof_model):
         if abs(urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
                sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
                                'invest')]) >= 0.01:
-            print('\t', 'Storage CAP', '\t' 'Diff:',
+            print('\t', 'Storage CAP', '\t','Diff:',
                   urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
                   sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
                                   'invest')])
@@ -227,7 +227,7 @@ def compare_transmission(urbs_model, oemof_model):
                    tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                     'invest')]) >= 0.01:
 
-                print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                       urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]() -
                       tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                        'invest')])
@@ -246,7 +246,7 @@ def compare_transmission(urbs_model, oemof_model):
                        tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                    'flow')][(i-1)]) >= 0.01:
 
-                    print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                    print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                           urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
                           tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                       'flow')][(i-1)])
@@ -256,7 +256,7 @@ def compare_transmission(urbs_model, oemof_model):
                        tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
                                    'flow')][(i-1)]) >= 0.01:
 
-                    print(i, '\t', 'Transmission OUT', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                    print(i, '\t', 'Transmission OUT', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                           urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
                           tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
                                       'flow')][(i-1)])

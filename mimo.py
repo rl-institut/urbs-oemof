@@ -145,10 +145,14 @@ def comparison(u_model, o_model):
         print('oemof\t', o_const)
         print('Diff\t', u_const - o_const)
 
+    print('----------------------------------------------------')
+
     # compare storage variables
     comp.compare_storages(u_model, o_model)
     comp.compare_transmission(u_model, o_model)
     comp.compare_process(u_model, o_model)
+
+    print('----------------------------------------------------')
 
 
 ###############################################################################

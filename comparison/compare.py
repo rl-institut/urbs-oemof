@@ -545,6 +545,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)
 
     elif name is 'Transmission':
         # create figure
@@ -577,6 +578,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)
 
     elif 'Process' in name:
         # init
@@ -610,3 +612,4 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)

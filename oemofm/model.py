@@ -46,7 +46,7 @@ class Site:
             bus['b_'+b+'_'+self.name] = solph.Bus(label='b_'+b+'_'+self.name)
 
         # create sources
-        for s in self.source.keys():
+        for s in self.source:
             source['s_'+s+'_'+self.name] = solph.Source(
                 label='s_'+s+'_'+self.name,
                 outputs={bus['b_'+s+'_'+self.name]:
@@ -54,7 +54,7 @@ class Site:
                              variable_costs=self.source[s]*self.weight)})
 
         # create renewable sources
-        for rs in self.rsource.keys():
+        for rs in self.rsource:
             rsource['rs_'+rs+'_'+self.name] = solph.Source(
                 label='rs_'+rs+'_'+self.name,
                 outputs={bus['b_Elec'+'_'+self.name]:
@@ -67,7 +67,7 @@ class Site:
                                  existing=self.rsource[rs][3]))})
 
         # create transformer (output: elec only)
-        for t in self.transformer.keys():
+        for t in self.transformer:
             transformer['t_'+t+'_'+self.name] = solph.Transformer(
                 label='pp_'+t+'_'+self.name,
                 inputs={bus['b_'+t+'_'+self.name]:
@@ -82,7 +82,7 @@ class Site:
                                     self.transformer[t][4]})
 
         # create sink (input: elec only)
-        for sn in self.sink.keys():
+        for sn in self.sink:
             sink[sn+'_'+self.name] = solph.Sink(
                 label=sn+'_'+self.name,
                 inputs={bus['b_Elec'+'_'+self.name]:
@@ -91,7 +91,7 @@ class Site:
                             fixed=True, nominal_value=1)})
 
         # create storage
-        for st in self.storage.keys():
+        for st in self.storage:
             storage['storage_'+st+'_'+self.name] = solph.components.GenericStorage(
                 label='storage_'+st+'_'+self.name,
                 inputs={bus['b_Elec'+'_'+self.name]:

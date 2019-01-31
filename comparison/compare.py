@@ -87,7 +87,7 @@ def compare_lp_files():
     return u_const_amount, o_const_amount
 
 
-def compare_storages(urbs_model, oemof_model):
+def compare_storages(urbs_model, oemof_model, threshold):
     # restore oemof energysytem results
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
@@ -133,7 +133,7 @@ def compare_storages(urbs_model, oemof_model):
         # storage power
         if abs(urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
                sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
-                               'invest')]) >= 0.01:
+                               'invest')]) >= threshold:
             print('\t', 'Storage PWR', '\t', 'Diff:',
                   urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
                   sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
@@ -142,7 +142,7 @@ def compare_storages(urbs_model, oemof_model):
         # storage capacity
         if abs(urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
                sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
-                               'invest')]) >= 0.01:
+                               'invest')]) >= threshold:
             print('\t', 'Storage CAP', '\t', 'Diff:',
                   urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
                   sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
@@ -152,7 +152,7 @@ def compare_storages(urbs_model, oemof_model):
             # storage unit charge
             if abs(urbs_model.e_sto_in[(i, sit, 'Pump', 'Elec')]() -
                    sto_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
-                               'flow')][(i-1)]) >= 0.01:
+                               'flow')][(i-1)]) >= threshold:
 
                 print(i, '\t', 'Storage IN', '\t', 'Diff:',
                       urbs_model.e_sto_in[(i, sit, 'Pump', 'Elec')]() -
@@ -162,7 +162,7 @@ def compare_storages(urbs_model, oemof_model):
             # storage unit discharge
             if abs(urbs_model.e_sto_out[(i, sit, 'Pump', 'Elec')]() -
                    sto_df[sit][(('storage_Pump_'+sit, 'b_Elec_'+sit),
-                               'flow')][(i-1)]) >= 0.01:
+                               'flow')][(i-1)]) >= threshold:
 
                 print(i, '\t', 'Storage OUT', '\t', 'Diff:',
                       urbs_model.e_sto_out[(i, sit, 'Pump', 'Elec')]() -
@@ -171,7 +171,7 @@ def compare_storages(urbs_model, oemof_model):
             # storage unit content
             if abs(urbs_model.e_sto_con[(i, sit, 'Pump', 'Elec')]() -
                    sto_con_df[sit][(('storage_Pump_'+sit, 'None'),
-                                   'capacity')][(i-1)]) >= 0.01:
+                                   'capacity')][(i-1)]) >= threshold:
 
                 print(i, '\t', 'Storage CON', '\t', 'Diff:',
                       urbs_model.e_sto_con[(i, sit, 'Pump', 'Elec')]() -
@@ -190,7 +190,7 @@ def compare_storages(urbs_model, oemof_model):
     return print('----------------------------------------------------')
 
 
-def compare_transmission(urbs_model, oemof_model):
+def compare_transmission(urbs_model, oemof_model, threshold):
     # restore oemof energysytem results
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
@@ -233,7 +233,7 @@ def compare_transmission(urbs_model, oemof_model):
         for sit_out in out:
             if abs(urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]() -
                    tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                    'invest')]) >= 0.01:
+                                    'invest')]) >= threshold:
 
                 print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                       urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]() -
@@ -251,7 +251,7 @@ def compare_transmission(urbs_model, oemof_model):
                 # transmission in
                 if abs(urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
                        tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                   'flow')][(i-1)]) >= 0.01:
+                                   'flow')][(i-1)]) >= threshold:
 
                     print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                           urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
@@ -261,7 +261,7 @@ def compare_transmission(urbs_model, oemof_model):
                 # transmission out
                 if abs(urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
                        tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
-                                   'flow')][(i-1)]) >= 0.01:
+                                   'flow')][(i-1)]) >= threshold:
 
                     print(i, '\t', 'Transmission OUT', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                           urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
@@ -274,7 +274,7 @@ def compare_transmission(urbs_model, oemof_model):
     return print('----------------------------------------------------')
 
 
-def compare_process(urbs_model, oemof_model):
+def compare_process(urbs_model, oemof_model, threshold):
     # restore oemof energysytem results
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
@@ -332,7 +332,7 @@ def compare_process(urbs_model, oemof_model):
 
             if abs(urbs_model.cap_pro_new[(sit, pro+' plant')]() -
                    pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                   'invest')]) >= 0.01:
+                                   'invest')]) >= threshold:
 
                 print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
                       urbs_model.cap_pro_new[(sit, pro+' plant')]() -
@@ -347,7 +347,7 @@ def compare_process(urbs_model, oemof_model):
                 # nf process unit
                 if abs(urbs_model.e_pro_out[(i, sit, pro+' plant', 'Elec')]() -
                        pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                   'flow')][(i-1)]) >= 0.01:
+                                   'flow')][(i-1)]) >= threshold:
 
                     print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
                           urbs_model.e_pro_out[(i, sit, pro+' plant', 'Elec')]() -
@@ -366,7 +366,7 @@ def compare_process(urbs_model, oemof_model):
             # f process capacity
             if abs(urbs_model.cap_pro_new[(sit, ren+' plant')]() -
                    pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                     'invest')]) >= 0.01:
+                                     'invest')]) >= threshold:
 
                 print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
                       urbs_model.cap_pro_new[(sit, ren+' plant')]() -
@@ -381,7 +381,7 @@ def compare_process(urbs_model, oemof_model):
                 # f process unit
                 if abs(urbs_model.e_pro_out[(i, sit, ren+' plant', 'Elec')]() -
                        pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                     'flow')][(i-1)]) >= 0.01:
+                                     'flow')][(i-1)]) >= threshold:
 
                     print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
                           urbs_model.e_pro_out[(i, sit, ren+' plant', 'Elec')]() -

@@ -93,7 +93,7 @@ def draw_graph(grph, edge_labels=True, node_color='#AFAFAF',
         plt.show()
 
 
-def comparison(u_model, o_model):
+def comparison(u_model, o_model, threshold=0.1):
     """
     Function for comparing urbs & oemof
 
@@ -149,9 +149,9 @@ def comparison(u_model, o_model):
 
     # compare model variables
     if len(u_model.tm) >= 2:
-        comp.compare_storages(u_model, o_model)
-        comp.compare_transmission(u_model, o_model)
-        comp.compare_process(u_model, o_model)
+        comp.compare_storages(u_model, o_model, threshold)
+        comp.compare_transmission(u_model, o_model, threshold)
+        comp.compare_process(u_model, o_model, threshold)
     else:
         pass
 
@@ -288,4 +288,4 @@ if __name__ == '__main__':
     print('----------------------------------------------------')
 
     # comparison
-    comparison(urbs_model, oemof_model)
+    comparison(urbs_model, oemof_model, threshold=0.1)

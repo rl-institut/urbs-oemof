@@ -1,0 +1,137 @@
+----------------------------------------------------
+CREATING urbs MODEL
+CREATING oemof MODEL
+----------------------------------------------------
+OBJECTIVE
+urbs	 24151618607.58823
+oemof	 24151618607.588303
+Diff	 -7.2479248046875e-05
+----------------------------------------------------
+Memory Used
+urbs	 15.0  Mb
+oemof	 8.2  Mb
+Diff	 6.800000000000001  Mb
+----------------------------------------------------
+Constraint Amount
+urbs	 15192
+oemof	 8357
+Diff	 6835
+----------------------------------------------------
+----------------------------------------------------
+i 	 Storage Saxony-Anhalt 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Baden-Württemberg 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Brandenburg 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Mecklenburg-Vorpommern 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Saxony 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Bremen 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Schleswig-Holstein 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Offshore 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Bavaria 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Thuringia 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Berlin 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage North Rhine-Westphalia 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Rhineland-Palatinate 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Saarland 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Lower Saxony 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Hesse 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Storage Hamburg 	 (urbs - oemof)
+----------------------------------------------------
+----------------------------------------------------
+i 	 Transmission Saxony-Anhalt 	 (urbs - oemof)
+9 	 Transmission OUT 	 Saxony-Anhalt_Thuringia 	 Diff: 52.57768622080698
+9 	 Transmission OUT 	 Saxony-Anhalt_Lower Saxony 	 Diff: -52.577686220795954
+----------------------------------------------------
+i 	 Transmission Baden-Württemberg 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Brandenburg 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Mecklenburg-Vorpommern 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Saxony 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Bremen 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Schleswig-Holstein 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Offshore 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Bavaria 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Thuringia 	 (urbs - oemof)
+9 	 Transmission IN 	 Thuringia_Saxony-Anhalt 	 Diff: 58.41965135645205
+9 	 Transmission OUT 	 Thuringia_Hesse 	 Diff: 58.419651356445996
+----------------------------------------------------
+i 	 Transmission Berlin 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission North Rhine-Westphalia 	 (urbs - oemof)
+9 	 Transmission OUT 	 North Rhine-Westphalia_Hesse 	 Diff: -58.419651356445705
+9 	 Transmission OUT 	 North Rhine-Westphalia_Hamburg 	 Diff: 58.41965135644732
+----------------------------------------------------
+i 	 Transmission Rhineland-Palatinate 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Saarland 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Transmission Lower Saxony 	 (urbs - oemof)
+9 	 Transmission IN 	 Lower Saxony_Saxony-Anhalt 	 Diff: -58.41965135644102
+9 	 Transmission OUT 	 Lower Saxony_Hamburg 	 Diff: -58.41965135644699
+----------------------------------------------------
+i 	 Transmission Hesse 	 (urbs - oemof)
+9 	 Transmission IN 	 Hesse_Thuringia 	 Diff: 64.91072372938498
+9 	 Transmission IN 	 Hesse_North Rhine-Westphalia 	 Diff: -64.9107237293841
+----------------------------------------------------
+i 	 Transmission Hamburg 	 (urbs - oemof)
+9 	 Transmission IN 	 Hamburg_North Rhine-Westphalia 	 Diff: 64.91072372938595
+9 	 Transmission IN 	 Hamburg_Lower Saxony 	 Diff: -64.910723729387
+----------------------------------------------------
+----------------------------------------------------
+i 	 Process Saxony-Anhalt 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Baden-Württemberg 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Brandenburg 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Mecklenburg-Vorpommern 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Saxony 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Bremen 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Schleswig-Holstein 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Offshore 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Bavaria 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Thuringia 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Berlin 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process North Rhine-Westphalia 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Rhineland-Palatinate 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Saarland 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Lower Saxony 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Hesse 	 (urbs - oemof)
+----------------------------------------------------
+i 	 Process Hamburg 	 (urbs - oemof)
+----------------------------------------------------
+----------------------------------------------------

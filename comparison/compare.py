@@ -1,5 +1,6 @@
 import os
 import sys
+import re as r
 import pandas as pd
 import numpy as np
 import oemof.solph as solph
@@ -21,14 +22,80 @@ def prepare_result_directory(result_name):
     return result_dir
 
 
-def compare_storages(urbs_model, oemof_model):
-    # get oemof storage variables
+def _file_len(filename):
+    with open(filename) as f:
+        for i, l in enumerate(f):
+            pass
+    return i
+
+
+def compare_lp_files():
+    # open urbs lp file
+    with open('mimo_urbs.lp', 'r') as urbslp:
+
+        # create constraint file
+        const = open('constraints_urbs.txt', 'w+')
+
+        for line in urbslp:
+            # find constraints
+            ce = r.match(r'c_e_(.*)\_', line)
+            cu = r.match(r'c_u_(.*)\_', line)
+            re = r.match(r'r_e_(.*)\_', line)
+            rl = r.match(r'r_l_(.*)\_', line)
+
+            # write constraints
+            if ce:
+                const.write(ce.group(1))
+                const.write('\n')
+
+            if cu:
+                const.write(cu.group(1))
+                const.write('\n')
+
+            if re:
+                const.write(re.group(1))
+                const.write('\n')
+
+            if rl:
+                const.write(rl.group(1))
+                const.write('\n')
+        const.close()
+
+    # open oemof lp file
+    with open('mimo_oemof.lp', 'r') as oemoflp:
+
+        # create constraint file
+        const = open('constraints_oemof.txt', 'w+')
+
+        for line in oemoflp:
+            # find constraints
+            ce = r.match(r'c_e_(.*)\_', line)
+            cu = r.match(r'c_u_(.*)\_', line)
+
+            # write constraints
+            if ce:
+                const.write(ce.group(1))
+                const.write('\n')
+            if cu:
+                const.write(cu.group(1))
+                const.write('\n')
+        const.close()
+
+    u_const_amount = _file_len('constraints_urbs.txt')
+    o_const_amount = _file_len('constraints_oemof.txt')
+
+    return u_const_amount, o_const_amount
+
+
+def compare_storages(urbs_model, oemof_model, threshold):
+    # restore oemof energysytem results
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
 
     # storage dictionaries
     sto_df = {}
     sto_con_df = {}
+    sto_pwr_df = {}
     sto_cap_df = {}
 
     for sit in urbs_model.sit:
@@ -37,7 +104,7 @@ def compare_storages(urbs_model, oemof_model):
         urbs_values = []
         oemof_values = []
 
-        # get storage variables for all sites
+        # get storage variable values
         results_bel = outputlib.views.node(oemof_model.results['main'],
                                            'b_Elec_'+sit)
         results_con = outputlib.views.node(oemof_model.results['main'],
@@ -51,6 +118,10 @@ def compare_storages(urbs_model, oemof_model):
         sto_con_df[sit] = results_con['sequences']
         sto_con_df[sit] = sto_con_df[sit].filter(like=sit)
 
+        # power
+        sto_pwr_df[sit] = results_bel['scalars']
+        sto_pwr_df[sit] = sto_pwr_df[sit].filter(like=sit)
+
         # capacity
         sto_cap_df[sit] = results_con['scalars']
         sto_cap_df[sit] = sto_cap_df[sit].filter(like=sit)
@@ -59,49 +130,58 @@ def compare_storages(urbs_model, oemof_model):
         print('----------------------------------------------------')
         print('i', '\t', 'Storage', sit, '\t', '(urbs - oemof)')
 
+        # storage power
+        if abs(urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
+               sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
+                               'invest')]) >= threshold:
+            print('\t', 'Storage PWR', '\t', 'Diff:',
+                  urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
+                  sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
+                                  'invest')])
+
         # storage capacity
-        if abs(urbs_model.cap_sto_c[(sit, 'Pump storage', 'Elec')]() -
-               sto_cap_df[sit][(('storage_Elec_'+sit, 'None'),
-                               'invest')]) >= 0.01:
-            print('\t', 'Storage CAP', '\t' 'Diff:',
-                  urbs_model.cap_sto_c[(sit, 'Pump storage', 'Elec')]() -
-                  sto_cap_df[sit][(('storage_Elec_'+sit, 'None'),
+        if abs(urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
+               sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
+                               'invest')]) >= threshold:
+            print('\t', 'Storage CAP', '\t', 'Diff:',
+                  urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')]() -
+                  sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
                                   'invest')])
 
         for i in range(1, len(oemof_model.timeindex)):
             # storage unit charge
-            if abs(urbs_model.e_sto_in[(i, sit, 'Pump storage', 'Elec')]() -
-                   sto_df[sit][(('b_Elec_'+sit, 'storage_Elec_'+sit),
-                               'flow')][(i-1)]) >= 0.01:
+            if abs(urbs_model.e_sto_in[(i, sit, 'Pump', 'Elec')]() -
+                   sto_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
+                               'flow')][(i-1)]) >= threshold:
 
                 print(i, '\t', 'Storage IN', '\t', 'Diff:',
-                      urbs_model.e_sto_in[(i, sit, 'Pump storage', 'Elec')]() -
-                      sto_df[sit][(('b_Elec_'+sit, 'storage_Elec_'+sit),
+                      urbs_model.e_sto_in[(i, sit, 'Pump', 'Elec')]() -
+                      sto_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
                                   'flow')][(i-1)])
 
             # storage unit discharge
-            if abs(urbs_model.e_sto_out[(i, sit, 'Pump storage', 'Elec')]() -
-                   sto_df[sit][(('storage_Elec_'+sit, 'b_Elec_'+sit),
-                               'flow')][(i-1)]) >= 0.01:
+            if abs(urbs_model.e_sto_out[(i, sit, 'Pump', 'Elec')]() -
+                   sto_df[sit][(('storage_Pump_'+sit, 'b_Elec_'+sit),
+                               'flow')][(i-1)]) >= threshold:
 
                 print(i, '\t', 'Storage OUT', '\t', 'Diff:',
-                      urbs_model.e_sto_out[(i, sit, 'Pump storage', 'Elec')]() -
-                      sto_df[sit][(('storage_Elec_'+sit, 'b_Elec_'+sit),
+                      urbs_model.e_sto_out[(i, sit, 'Pump', 'Elec')]() -
+                      sto_df[sit][(('storage_Pump_'+sit, 'b_Elec_'+sit),
                                   'flow')][(i-1)])
             # storage unit content
-            if abs(urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]() -
-                   sto_con_df[sit][(('storage_Elec_'+sit, 'None'),
-                                   'capacity')][(i-1)]) >= 0.01:
+            if abs(urbs_model.e_sto_con[(i, sit, 'Pump', 'Elec')]() -
+                   sto_con_df[sit][(('storage_Pump_'+sit, 'None'),
+                                   'capacity')][(i-1)]) >= threshold:
 
                 print(i, '\t', 'Storage CON', '\t', 'Diff:',
-                      urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]() -
-                      sto_con_df[sit][(('storage_Elec_'+sit, 'None'),
+                      urbs_model.e_sto_con[(i, sit, 'Pump', 'Elec')]() -
+                      sto_con_df[sit][(('storage_Pump_'+sit, 'None'),
                                       'capacity')][(i-1)])
 
             # plot details
             iterations.append(i)
-            urbs_values.append(urbs_model.e_sto_con[(i, sit, 'Pump storage', 'Elec')]())
-            oemof_values.append(sto_con_df[sit][(('storage_Elec_'+sit, 'None'),
+            urbs_values.append(urbs_model.e_sto_con[(i, sit, 'Pump', 'Elec')]())
+            oemof_values.append(sto_con_df[sit][(('storage_Pump_'+sit, 'None'),
                                                 'capacity')][(i-1)])
 
         # plot
@@ -110,9 +190,8 @@ def compare_storages(urbs_model, oemof_model):
     return print('----------------------------------------------------')
 
 
-def compare_transmission(urbs_model, oemof_model):
-
-    # get oemof transmission variables
+def compare_transmission(urbs_model, oemof_model, threshold):
+    # restore oemof energysytem results
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
 
@@ -126,7 +205,7 @@ def compare_transmission(urbs_model, oemof_model):
         urbs_values = {}
         oemof_values = {}
 
-        # get transmission variables for all sites
+        # get transmission variable values
         results_bel = outputlib.views.node(oemof_model.results['main'],
                                            'b_Elec_'+sit)
 
@@ -142,32 +221,39 @@ def compare_transmission(urbs_model, oemof_model):
         print('i', '\t', 'Transmission', sit, '\t', '(urbs - oemof)')
 
         # transmission capacity
-        out = (sit_out for sit_out in urbs_model.sit if sit_out != sit)
-        for sit_out in out:
-            if abs(urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
-                   tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                    'invest')]) >= 0.01:
+        out = []
+        for sit_out in urbs_model.sit:
+            if sit_out is not sit:
+                try:
+                    urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]
+                    out.append(sit_out)
+                except KeyError:
+                    pass
 
-                print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t' 'Diff:',
-                      urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]() -
+        for sit_out in out:
+            if abs(urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]() -
+                   tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                    'invest')]) >= threshold:
+
+                print('\t', 'Transmission CAP', '\t', sit+'_'+sit_out, '\t', 'Diff:',
+                      urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]() -
                       tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                        'invest')])
 
             # plot details
             sit_outs.append(sit_out)
-            urbs_values[sit_out] = urbs_model.cap_tra[(sit, sit_out, 'hvac', 'Elec')]()
+            urbs_values[sit_out] = urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]()
             oemof_values[sit_out] = tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                                     'invest')]
 
-        out = (sit_out for sit_out in urbs_model.sit if sit_out != sit)
         for i in range(1, len(oemof_model.timeindex)):
             for sit_out in out:
                 # transmission in
                 if abs(urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
                        tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
-                                   'flow')][(i-1)]) >= 0.01:
+                                   'flow')][(i-1)]) >= threshold:
 
-                    print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                    print(i, '\t', 'Transmission IN', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                           urbs_model.e_tra_in[(i, sit, sit_out, 'hvac', 'Elec')]() -
                           tra_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                       'flow')][(i-1)])
@@ -175,9 +261,9 @@ def compare_transmission(urbs_model, oemof_model):
                 # transmission out
                 if abs(urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
                        tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
-                                   'flow')][(i-1)]) >= 0.01:
+                                   'flow')][(i-1)]) >= threshold:
 
-                    print(i, '\t', 'Transmission OUT', '\t', sit+'_'+sit_out, '\t' 'Diff:',
+                    print(i, '\t', 'Transmission OUT', '\t', sit+'_'+sit_out, '\t', 'Diff:',
                           urbs_model.e_tra_out[(i, sit_out, sit, 'hvac', 'Elec')]() -
                           tra_df[sit][(('line_'+sit_out+'_'+sit, 'b_Elec_'+sit),
                                       'flow')][(i-1)])
@@ -188,250 +274,122 @@ def compare_transmission(urbs_model, oemof_model):
     return print('----------------------------------------------------')
 
 
-def compare_process(urbs_model, oemof_model):
-
-    # get oemof process variables
+def compare_process(urbs_model, oemof_model, threshold):
+    # restore oemof energysytem results
     oemof_model = solph.EnergySystem()
     oemof_model.restore(dpath=None, filename=None)
 
-    # nRE process list
-    pro_list = ['Biomass', 'Coal', 'Gas', 'Lignite']
-
-    # Re process list
-    ren_list = ['Wind', 'Solar', 'Hydro']
-
-    # nRE process dictionaries
+    # non-f process dictionaries
     pro_df = {}
     pro_cap_df = {}
 
-    # Re process dictionaries
+    # f process dictionaries
     pro_r_df = {}
     pro_cap_r_df = {}
 
     for sit in urbs_model.sit:
+        # nf process list
+        p1 = urbs_model.commodity.index.get_level_values('Site') == sit
+        p2 = urbs_model.commodity.index.get_level_values('Type') == 'Stock'
+        pro_list = urbs_model.commodity[p1 & p2].index.remove_unused_levels() \
+            .get_level_values('Commodity')
+
+        # f process list
+        r1 = urbs_model.commodity.index.get_level_values('Type') == 'SupIm'
+        ren_list = urbs_model.commodity[p1 & r1].index.remove_unused_levels() \
+            .get_level_values('Commodity')
+
         # plot init
-        iterations = []
+        iterations = [i for i in range(1, len(oemof_model.timeindex))]
         urbs_values = dict([(key, []) for key in pro_list])
         oemof_values = dict([(key, []) for key in pro_list])
 
-        # get process unit variables for all sites
+        # get process unit variable values
         results_bel = outputlib.views.node(oemof_model.results['main'],
                                            'b_Elec_'+sit)
 
-        # nRE process unit
+        # nf process unit
         pro_df[sit] = results_bel['sequences']
         pro_df[sit] = pro_df[sit].filter(like='pp')
 
-        # RE process unit
+        # f process unit
         pro_r_df[sit] = results_bel['sequences']
         pro_r_df[sit] = pro_r_df[sit].filter(like='rs')
 
-        # RE process capacity
+        # f process capacity
         pro_cap_r_df[sit] = results_bel['scalars']
         pro_cap_r_df[sit] = pro_cap_r_df[sit].filter(like='rs')
 
         print('----------------------------------------------------')
         print('i', '\t', 'Process', sit, '\t', '(urbs - oemof)')
 
-        # get nRE process capacity variables for all sites
+        # get nf process capacity variable values
         for pro in pro_list:
             results_con = outputlib.views.node(oemof_model.results['main'], 'pp_'+pro+'_'+sit)
 
-            # nRE process capacity
+            # nf process capacity
             pro_cap_df[sit] = results_con['scalars']
 
-            if pro is 'Coal':
-                if abs(urbs_model.cap_pro[(sit, 'Coal plant')]() -
-                       pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.01:
+            if abs(urbs_model.cap_pro_new[(sit, pro+' plant')]() -
+                   pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
+                                   'invest')]) >= threshold:
 
-                    print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Coal plant')]() -
-                          pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                          'invest')])
+                print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
+                      urbs_model.cap_pro_new[(sit, pro+' plant')]() -
+                      pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
+                                      'invest')])
 
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    iterations.append(i)
-                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]())
-                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                                         'flow')][(i-1)])
+            for i in range(1, len(oemof_model.timeindex)):
+                # plot details
+                urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, pro+' plant', 'Elec')]())
+                oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
+                                                     'flow')][(i-1)])
+                # nf process unit
+                if abs(urbs_model.e_pro_out[(i, sit, pro+' plant', 'Elec')]() -
+                       pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
+                                   'flow')][(i-1)]) >= threshold:
 
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]() -
-                           pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Coal plant', 'Elec')]() -
-                              pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                           'flow')][(i-1)])
-
-            elif pro is 'Lignite':
-                if abs(urbs_model.cap_pro[(sit, 'Lignite plant')]() -
-                       pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.01:
-
-                    print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Lignite plant')]() -
-                          pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                          'invest')])
-
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]())
-                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                                         'flow')][(i-1)])
-
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]() -
-                           pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Lignite plant', 'Elec')]() -
-                              pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                           'flow')][(i-1)])
-
-            elif pro is 'Gas':
-                if abs(urbs_model.cap_pro[(sit, 'Gas plant')]() -
-                       pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.01:
-
-                    print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Gas plant')]() -
-                          pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                          'invest')])
-
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]())
-                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                                         'flow')][(i-1)])
-
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]() -
-                           pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Gas plant', 'Elec')]() -
-                              pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                           'flow')][(i-1)])
-
-            elif pro is 'Biomass':
-                if abs(urbs_model.cap_pro[(sit, 'Biomass plant')]() -
-                       pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                       'invest')]) >= 0.01:
-
-                    print('\t', 'CAP', '\t', pro, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Biomass plant')]() -
-                          pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
-                                          'invest')])
-
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    urbs_values[pro].append(urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]())
-                    oemof_values[pro].append(pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                                         'flow')][(i-1)])
-
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]() -
-                           pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                       'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Biomass plant', 'Elec')]() -
-                              pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
-                                          'flow')][(i-1)])
-
-            else:
-                raise TypeError('NON Recognised Value for PRO-LOOP')
+                    print(i, '\t', 'UNIT', '\t', pro, '\t', 'Diff:',
+                          urbs_model.e_pro_out[(i, sit, pro+' plant', 'Elec')]() -
+                          pro_df[sit][(('pp_'+pro+'_'+sit, 'b_Elec_'+sit),
+                                       'flow')][(i-1)])
 
         # plot
-        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (nRE)')
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (PP)')
 
         # plot init
         urbs_values = dict([(key, []) for key in ren_list])
         oemof_values = dict([(key, []) for key in ren_list])
 
+        # get f process capacity variable values
         for ren in ren_list:
-            if ren is 'Wind':
-                if abs(urbs_model.cap_pro[(sit, 'Wind park')]() -
-                       pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'invest')]) >= 0.01:
+            # f process capacity
+            if abs(urbs_model.cap_pro_new[(sit, ren+' plant')]() -
+                   pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
+                                     'invest')]) >= threshold:
 
-                    print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Wind park')]() -
-                          pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                            'invest')])
+                print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
+                      urbs_model.cap_pro_new[(sit, ren+' plant')]() -
+                      pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
+                                        'invest')])
 
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]())
-                    oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                                           'flow')][(i-1)])
+            for i in range(1, len(oemof_model.timeindex)):
+                # plot details
+                urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, ren+' plant', 'Elec')]())
+                oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
+                                                       'flow')][(i-1)])
+                # f process unit
+                if abs(urbs_model.e_pro_out[(i, sit, ren+' plant', 'Elec')]() -
+                       pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
+                                     'flow')][(i-1)]) >= threshold:
 
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]() -
-                           pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Wind park', 'Elec')]() -
-                              pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                            'flow')][(i-1)])
-
-            elif ren is 'Solar':
-                if abs(urbs_model.cap_pro[(sit, 'Solar plant')]() -
-                       pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'invest')]) >= 0.01:
-
-                    print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Solar plant')]() -
-                          pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                            'invest')])
-
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, 'Solar plant', 'Elec')]())
-                    oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                                           'flow')][(i-1)])
-
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Solar plant', 'Elec')]() -
-                           pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Solar plant', 'Elec')]() -
-                              pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                            'flow')][(i-1)])
-
-            elif ren is 'Hydro':
-                if abs(urbs_model.cap_pro[(sit, 'Hydro plant')]() -
-                       pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'invest')]) >= 0.01:
-
-                    print('\t', 'CAP', '\t', ren, '\t', 'Diff:',
-                          urbs_model.cap_pro[(sit, 'Hydro plant')]() -
-                          pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                            'invest')])
-
-                for i in range(1, len(oemof_model.timeindex)):
-                    # plot details
-                    urbs_values[ren].append(urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]())
-                    oemof_values[ren].append(pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                                           'flow')][(i-1)])
-
-                    if abs(urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]() -
-                           pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                         'flow')][(i-1)]) >= 0.01:
-
-                        print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
-                              urbs_model.e_pro_out[(i, sit, 'Hydro plant', 'Elec')]() -
-                              pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
-                                            'flow')][(i-1)])
-
-            else:
-                raise TypeError('NON Recognised Value for PRO-RE-LOOP')
+                    print(i, '\t', 'UNIT', '\t', ren, '\t', 'Diff:',
+                          urbs_model.e_pro_out[(i, sit, ren+' plant', 'Elec')]() -
+                          pro_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
+                                        'flow')][(i-1)])
 
         # plot
-        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (RE)')
+        draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (fPP)')
 
     return print('----------------------------------------------------')
 
@@ -459,7 +417,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # plot specs
         plt.xlabel('Timesteps [h]')
-        plt.ylabel('Flow [MWh]')
+        plt.ylabel('Content [MWh]')
         plt.title(site+' '+name)
         plt.grid(True)
         plt.legend()
@@ -467,6 +425,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)
 
     elif name is 'Transmission':
         # create figure
@@ -499,6 +458,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)
 
     elif 'Process' in name:
         # init
@@ -532,3 +492,4 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)

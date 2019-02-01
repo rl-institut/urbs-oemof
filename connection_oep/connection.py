@@ -1,6 +1,6 @@
-import pandas as pd
-import getpass
 import oedialect
+import getpass
+import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base

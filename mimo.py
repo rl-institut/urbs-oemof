@@ -41,27 +41,37 @@ def comparison(u_model, o_model, threshold=0.1):
         print('urbs\t', u_model.obj())
         print('oemof\t', o_model.objective())
         print('Diff\t', u_model.obj() - o_model.objective())
-
     print('----------------------------------------------------')
 
-    # memory info
+    # memory info & cpu time
     with open('urbs_log.txt', 'r') as urbslog:
-        mem_urbs = urbslog.read().replace('\n', ' ')
-        mem_urbs = float(mem_urbs[mem_urbs.find('Memory used:')+12:
-                                  mem_urbs.find('Mb')])
+        urbslog = urbslog.read().replace('\n', ' ')
+        mem_urbs = float(urbslog[urbslog.find('Memory used:')+12:
+                                 urbslog.find('Mb')])
+        cpu_urbs = float(urbslog[urbslog.find('Time used:')+10:
+                                 urbslog.find('secs')])
 
     with open('oemof_log.txt', 'r') as oemoflog:
-        mem_oemof = oemoflog.read().replace('\n', ' ')
-        mem_oemof = float(mem_oemof[mem_oemof.find('Memory used:')+12:
-                                    mem_oemof.find('Mb')])
+        oemoflog = oemoflog.read().replace('\n', ' ')
+        mem_oemof = float(oemoflog[oemoflog.find('Memory used:')+12:
+                                   oemoflog.find('Mb')])
+        cpu_oemof = float(oemoflog[oemoflog.find('Time used:')+10:
+                                   oemoflog.find('secs')])
+
+    # check cpu time difference
+    if cpu_urbs != cpu_oemof:
+        print('Time Used')
+        print('urbs\t', cpu_urbs, ' secs')
+        print('oemof\t', cpu_oemof, ' secs')
+        print('Diff\t', format(cpu_urbs - cpu_oemof, '.1f'), ' secs')
+    print('----------------------------------------------------')
 
     # check memory difference
     if mem_urbs != mem_oemof:
         print('Memory Used')
         print('urbs\t', mem_urbs, ' Mb')
         print('oemof\t', mem_oemof, ' Mb')
-        print('Diff\t', mem_urbs - mem_oemof, ' Mb')
-
+        print('Diff\t', format(mem_urbs - mem_oemof, '.1f'), ' Mb')
     print('----------------------------------------------------')
 
     # create oemof energysytem
@@ -75,7 +85,6 @@ def comparison(u_model, o_model, threshold=0.1):
         print('urbs\t', u_const)
         print('oemof\t', o_const)
         print('Diff\t', u_const - o_const)
-
     print('----------------------------------------------------')
 
     # compare model variables
@@ -85,7 +94,6 @@ def comparison(u_model, o_model, threshold=0.1):
         comp.compare_process(u_model, o_model, threshold)
     else:
         pass
-
     print('----------------------------------------------------')
 
 
@@ -207,7 +215,7 @@ if __name__ == '__main__':
         input_data = conn.write_data(input_data)
 
     # simulation timesteps
-    (offset, length) = (0, 10)  # time step selection
+    (offset, length) = (0, 100)  # time step selection
     timesteps = range(offset, offset + length + 1)
 
     # create models

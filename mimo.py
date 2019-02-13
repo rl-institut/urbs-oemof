@@ -19,10 +19,11 @@ import connection_oep as conn
 
 # misc.
 import os
+import time
 
 
 ###############################################################################
-# Comparison Function
+# Comparison & Benchmarking
 ###############################################################################
 def comparison(u_model, o_model, threshold=0.1):
     """
@@ -171,18 +172,24 @@ def create_om(input_data, timesteps):
 
 
 if __name__ == '__main__':
-    # connection
+    # connection to OEP
     connection = False
+
+    # benchmarking
+    benchmark = False
 
     # input file
     input_file = 'mimo.xlsx'
+
+    # simulation timesteps
+    (offset, length) = (0, 10)  # time step selection
+    timesteps = range(offset, offset + length + 1)
 
     # load data
     data = conn.read_data(input_file)
 
     # establish connection to OEP
     if connection:
-
         # config for OEP
         username, token = open("config.ini", "r").readlines()
 
@@ -214,17 +221,33 @@ if __name__ == '__main__':
         input_data = data
         input_data = conn.write_data(input_data)
 
-    # simulation timesteps
-    (offset, length) = (0, 100)  # time step selection
-    timesteps = range(offset, offset + length + 1)
-
     # create models
-    print('----------------------------------------------------')
-    print('CREATING urbs MODEL')
-    urbs_model = create_um(input_data, timesteps)
-    print('CREATING oemof MODEL')
-    oemof_model = create_om(input_data, timesteps)
-    print('----------------------------------------------------')
+    if benchmark:
+        print('----------------------------------------------------')
 
-    # comparison
-    comparison(urbs_model, oemof_model, threshold=0.1)
+        start = time.perf_counter()
+        urbs_model = create_um(input_data, timesteps)
+        end = time.perf_counter()
+
+        print('CREATING urbs MODEL  [' + format(end-start, '.1f') + ' secs]')
+
+        start = time.perf_counter()
+        oemof_model = create_om(input_data, timesteps)
+        end = time.perf_counter()
+
+        print('CREATING oemof MODEL [' + format(end-start, '.1f') + ' secs]')
+
+        print('----------------------------------------------------')
+
+        # comparison
+        comparison(urbs_model, oemof_model, threshold=0.1)
+    else:
+        print('----------------------------------------------------')
+        print('CREATING urbs MODEL')
+        urbs_model = create_um(input_data, timesteps)
+        print('CREATING oemof MODEL')
+        oemof_model = create_om(input_data, timesteps)
+        print('----------------------------------------------------')
+
+        # comparison
+        comparison(urbs_model, oemof_model, threshold=0.1)

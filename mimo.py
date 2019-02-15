@@ -45,6 +45,11 @@ def benchmarking(input_data):
             bench[i] = comparison(urbs_model, oemof_model,
                                   threshold=0.1, benchmark=True)
 
+            # setting build time for urbs
+            bench[i][0]['build'] = mid - start
+            # setting build time for oemof
+            bench[i][1]['build'] = end - mid
+
         elif i <= 100 and i % 10 == 0:
             start = time.perf_counter()
             urbs_model = create_um(input_data, timesteps)
@@ -55,6 +60,11 @@ def benchmarking(input_data):
             bench[i] = comparison(urbs_model, oemof_model,
                                   threshold=0.1, benchmark=True)
 
+            # setting build time for urbs
+            bench[i][0]['build'] = mid - start
+            # setting build time for oemof
+            bench[i][1]['build'] = end - mid
+
         elif i > 100 and i % 100 == 0:
             start = time.perf_counter()
             urbs_model = create_um(input_data, timesteps)
@@ -64,6 +74,12 @@ def benchmarking(input_data):
 
             bench[i] = comparison(urbs_model, oemof_model,
                                   threshold=0.1, benchmark=True)
+
+            # setting build time for urbs
+            bench[i][0]['build'] = mid - start
+            # setting build time for oemof
+            bench[i][1]['build'] = end - mid
+
         else:
             pass
 
@@ -253,6 +269,7 @@ if __name__ == '__main__':
     if benchmark:
         print('BENCHMARKING---------------------------------------')
         bench = benchmarking(input_data)
+        print('BENCHMARKING-COMPLETED-----------------------------')
 
     else:
         # comparing
@@ -260,5 +277,5 @@ if __name__ == '__main__':
         urbs_model = create_um(input_data, timesteps)
         oemof_model = create_om(input_data, timesteps)
 
-        # comparison
         comparison(urbs_model, oemof_model, threshold=0.1)
+        print('COMPARING-COMPLETED-------------------------------')

@@ -536,35 +536,50 @@ def process_benchmark(benchmark_data):
     # result directory
     result_dir = prepare_result_directory('benchmark')
 
-    # create figure
-    fig = plt.figure()
+    for item in ['obj', 'cpu', 'memory', 'const', 'build']:
+        # create figure
+        fig = plt.figure()
 
-    # x-Axis (timesteps)
-    ts = np.array(list(benchmark_data.keys()))
+        # x-Axis (timesteps)
+        ts = np.array(list(benchmark_data.keys()))
 
-    # y-Axis (values)
-    u = []
-    o = []
-    for i in ts:
-        u.append(benchmark_data[i][0]['memory'])
-        o.append(benchmark_data[i][1]['memory'])
-    u_mem = np.array(u)
-    o_mem = np.array(o)
+        # y-Axis (values)
+        u = []
+        o = []
+        for i in ts:
+            u.append(benchmark_data[i][0][item])
+            o.append(benchmark_data[i][1][item])
+        u_array = np.array(u)
+        o_array = np.array(o)
 
-    # draw plots
-    plt.plot(ts, u_mem, label='urbs', linestyle='None', marker='x')
-    plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-    plt.plot(ts, o_mem, label='oemof', linestyle='None', marker='.')
-    plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+        # draw plots
+        plt.plot(ts, u_array, label='urbs', linestyle='None', marker='x')
+        plt.ticklabel_format(axis='y')
+        plt.plot(ts, o_array, label='oemof', linestyle='None', marker='.')
+        plt.ticklabel_format(axis='y')
 
-    # plot specs
-    plt.xlabel('Timesteps [h]')
-    plt.ylabel('Memory [Mb]')
-    plt.title('Memory Used')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+        # plot specs
+        plt.xlabel('Timesteps [h]')
 
-    # save plot
-    fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
-    plt.close(fig)
+        if item is 'obj':
+            plt.ylabel('Objective Value [€]')
+            plt.title('Objective Values')
+        elif item is 'cpu':
+            plt.ylabel('CPU Time [secs]')
+            plt.title('Solver CPU Time')
+        elif item is 'memory':
+            plt.ylabel('Memory [Mb]')
+            plt.title('Solver Memory Used')
+        elif item is 'const':
+            plt.ylabel('Constraint')
+            plt.title('Model Constraint Amount')
+        elif item is 'build':
+            plt.ylabel('Build Time [secs]')
+            plt.title('Model Build Time')
+        plt.grid(True)
+        plt.legend()
+        #plt.show()
+
+        # save plot
+        fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
+        plt.close(fig)

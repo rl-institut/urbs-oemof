@@ -134,7 +134,6 @@ def comparison(u_model, o_model, threshold=0.1, benchmark=False):
         pro = comp.compare_process(u_model, o_model, threshold)
     else:
         pass
-    print('----------------------------------------------------')
 
     return urbs, oemof
 
@@ -219,7 +218,7 @@ if __name__ == '__main__':
     connection = False
 
     # benchmarking
-    benchmark = True
+    benchmark = False
 
     # input file
     input_file = 'mimo.xlsx'
@@ -269,7 +268,7 @@ if __name__ == '__main__':
     if benchmark:
         print('BENCHMARKING---------------------------------------')
         bench = benchmarking(input_data)
-        print('BENCHMARKING-COMPLETED-----------------------------')
+        print('BENCHMARKING-COMPLETED------------------------------')
 
     else:
         # comparing
@@ -278,4 +277,4 @@ if __name__ == '__main__':
         oemof_model = create_om(input_data, timesteps)
 
         comparison(urbs_model, oemof_model, threshold=0.1)
-        print('COMPARING-COMPLETED-------------------------------')
+        print('COMPARING-COMPLETED---------------------------------')

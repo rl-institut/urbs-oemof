@@ -25,7 +25,54 @@ import time
 ###############################################################################
 # Comparison & Benchmarking
 ###############################################################################
-def comparison(u_model, o_model, threshold=0.1):
+def benchmarking(input_data):
+    # init
+    bench = {}
+
+    # [1,10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900,1000]
+    for i in range(1, 1001):
+        # simulation timesteps
+        (offset, length) = (0, i)  # time step selection
+        timesteps = range(offset, offset + length + 1)
+
+        if i == 1:
+            start = time.perf_counter()
+            urbs_model = create_um(input_data, timesteps)
+            mid = time.perf_counter()
+            oemof_model = create_om(input_data, timesteps)
+            end = time.perf_counter()
+
+            bench[i] = comparison(urbs_model, oemof_model,
+                                  threshold=0.1, benchmark=True)
+
+        elif i <= 100 and i % 10 == 0:
+            start = time.perf_counter()
+            urbs_model = create_um(input_data, timesteps)
+            mid = time.perf_counter()
+            oemof_model = create_om(input_data, timesteps)
+            end = time.perf_counter()
+
+            bench[i] = comparison(urbs_model, oemof_model,
+                                  threshold=0.1, benchmark=True)
+
+        elif i > 100 and i % 100 == 0:
+            start = time.perf_counter()
+            urbs_model = create_um(input_data, timesteps)
+            mid = time.perf_counter()
+            oemof_model = create_om(input_data, timesteps)
+            end = time.perf_counter()
+
+            bench[i] = comparison(urbs_model, oemof_model,
+                                  threshold=0.1, benchmark=True)
+        else:
+            pass
+
+    # process benchmark
+    comp.process_benchmark(bench)
+    return bench
+
+
+def comparison(u_model, o_model, threshold=0.1, benchmark=False):
     """
     Function for comparing urbs & oemof
 
@@ -36,7 +83,16 @@ def comparison(u_model, o_model, threshold=0.1):
     Returns:
         None
     """
-    # check objective difference
+    # init
+    urbs = {}
+    oemof = {}
+
+    # compare objective
+    urbs['obj'] = u_model.obj()
+    oemof['obj'] = o_model.objective()
+
+    # terminal output
+    print('----------------------------------------------------')
     if u_model.obj() != o_model.objective():
         print('OBJECTIVE')
         print('urbs\t', u_model.obj())
@@ -44,58 +100,27 @@ def comparison(u_model, o_model, threshold=0.1):
         print('Diff\t', u_model.obj() - o_model.objective())
     print('----------------------------------------------------')
 
-    # memory info & cpu time
-    with open('urbs_log.txt', 'r') as urbslog:
-        urbslog = urbslog.read().replace('\n', ' ')
-        mem_urbs = float(urbslog[urbslog.find('Memory used:')+12:
-                                 urbslog.find('Mb')])
-        cpu_urbs = float(urbslog[urbslog.find('Time used:')+10:
-                                 urbslog.find('secs')])
-
-    with open('oemof_log.txt', 'r') as oemoflog:
-        oemoflog = oemoflog.read().replace('\n', ' ')
-        mem_oemof = float(oemoflog[oemoflog.find('Memory used:')+12:
-                                   oemoflog.find('Mb')])
-        cpu_oemof = float(oemoflog[oemoflog.find('Time used:')+10:
-                                   oemoflog.find('secs')])
-
-    # check cpu time difference
-    if cpu_urbs != cpu_oemof:
-        print('Time Used')
-        print('urbs\t', cpu_urbs, ' secs')
-        print('oemof\t', cpu_oemof, ' secs')
-        print('Diff\t', format(cpu_urbs - cpu_oemof, '.1f'), ' secs')
-    print('----------------------------------------------------')
-
-    # check memory difference
-    if mem_urbs != mem_oemof:
-        print('Memory Used')
-        print('urbs\t', mem_urbs, ' Mb')
-        print('oemof\t', mem_oemof, ' Mb')
-        print('Diff\t', format(mem_urbs - mem_oemof, '.1f'), ' Mb')
-    print('----------------------------------------------------')
-
     # create oemof energysytem
     o_model = solph.EnergySystem()
     o_model.restore(dpath=None, filename=None)
 
+    # compare cpu and memory
+    urbs['cpu'], urbs['memory'], oemof['cpu'], oemof['memory'] = \
+        comp.compare_cpu_and_memory()
+
     # compare lp files
-    u_const, o_const = comp.compare_lp_files()
-    if u_const != o_const:
-        print('Constraint Amount')
-        print('urbs\t', u_const)
-        print('oemof\t', o_const)
-        print('Diff\t', u_const - o_const)
-    print('----------------------------------------------------')
+    urbs['const'], oemof['const'] = comp.compare_lp_files()
 
     # compare model variables
-    if len(u_model.tm) >= 2:
-        comp.compare_storages(u_model, o_model, threshold)
-        comp.compare_transmission(u_model, o_model, threshold)
-        comp.compare_process(u_model, o_model, threshold)
+    if len(u_model.tm) >= 2 and not benchmark:
+        sto = comp.compare_storages(u_model, o_model, threshold)
+        tra = comp.compare_transmission(u_model, o_model, threshold)
+        pro = comp.compare_process(u_model, o_model, threshold)
     else:
         pass
     print('----------------------------------------------------')
+
+    return urbs, oemof
 
 
 ###############################################################################
@@ -115,6 +140,7 @@ def create_um(input_data, timesteps):
         model instance
     """
     # create model
+    print('CREATING urbs MODEL')
     model = urbs.create_model(input_data, 1, timesteps)
 
     # solve model and read results
@@ -145,6 +171,7 @@ def create_om(input_data, timesteps):
         model instance
     """
     # create oemof energy system
+    print('CREATING oemof MODEL')
     es, model = oemofm.create_model(input_data, timesteps)
 
     # solve model and read results
@@ -176,7 +203,7 @@ if __name__ == '__main__':
     connection = False
 
     # benchmarking
-    benchmark = False
+    benchmark = True
 
     # input file
     input_file = 'mimo.xlsx'
@@ -218,36 +245,20 @@ if __name__ == '__main__':
         input_data = conn.write_data(input_data)
 
     else:
+        # write data
         input_data = data
         input_data = conn.write_data(input_data)
 
-    # create models
+    # benchmarking
     if benchmark:
-        print('----------------------------------------------------')
+        print('BENCHMARKING---------------------------------------')
+        bench = benchmarking(input_data)
 
-        start = time.perf_counter()
-        urbs_model = create_um(input_data, timesteps)
-        end = time.perf_counter()
-
-        print('CREATING urbs MODEL  [' + format(end-start, '.1f') + ' secs]')
-
-        start = time.perf_counter()
-        oemof_model = create_om(input_data, timesteps)
-        end = time.perf_counter()
-
-        print('CREATING oemof MODEL [' + format(end-start, '.1f') + ' secs]')
-
-        print('----------------------------------------------------')
-
-        # comparison
-        comparison(urbs_model, oemof_model, threshold=0.1)
     else:
-        print('----------------------------------------------------')
-        print('CREATING urbs MODEL')
+        # comparing
+        print('COMPARING------------------------------------------')
         urbs_model = create_um(input_data, timesteps)
-        print('CREATING oemof MODEL')
         oemof_model = create_om(input_data, timesteps)
-        print('----------------------------------------------------')
 
         # comparison
         comparison(urbs_model, oemof_model, threshold=0.1)

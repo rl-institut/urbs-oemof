@@ -205,7 +205,7 @@ def create_model(data, timesteps=None):
     Creates an oemof model for given input, time steps
 
     Args:
-        input_file: input file
+        data: input data
         timesteps: simulation timesteps
 
     Returns:

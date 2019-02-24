@@ -26,6 +26,15 @@ import time
 # Comparison & Benchmarking
 ###############################################################################
 def benchmarking(input_data):
+    """
+    Function for benchmarking urbs & oemof
+
+    Args:
+        input_data: input data
+
+    Returns:
+        bench: a dictionary containing benchmarking values
+    """
     # init
     bench = {}
 
@@ -95,9 +104,12 @@ def comparison(u_model, o_model, threshold=0.1, benchmark=False):
     Args:
         u_model: urbs model instance use create_um() to generate
         o_model: oemof model instance use create_om() to generate
+        threshold: threshold value for outputting the differences
+        benchmark: a parameter for activate/deactivate benchmarking
 
     Returns:
-        None
+        urbs: a dictionary containing the specific values
+        oemof:  a dictionary containing the specific values
     """
     # init
     urbs = {}
@@ -148,11 +160,11 @@ def create_um(input_data, timesteps):
     Creates an urbs model for given input, time steps
 
     Args:
-        input_file: input file
+        input_data: input data
         timesteps: simulation timesteps
 
     Returns:
-        model instance
+        model: a model instance
     """
     # create model
     print('CREATING urbs MODEL')
@@ -179,11 +191,11 @@ def create_om(input_data, timesteps):
     Creates an oemof model for given input, time steps
 
     Args:
-        input_file: input file
+        input_data: input data
         timesteps: simulation timesteps
 
     Returns:
-        model instance
+        model: a model instance
     """
     # create oemof energy system
     print('CREATING oemof MODEL')
@@ -218,7 +230,7 @@ if __name__ == '__main__':
     connection = False
 
     # benchmarking
-    benchmark = False
+    benchmark = True
 
     # input file
     input_file = 'mimo.xlsx'
@@ -266,13 +278,13 @@ if __name__ == '__main__':
 
     # benchmarking
     if benchmark:
-        print('BENCHMARKING---------------------------------------')
+        print('BENCHMARKING----------------------------------------')
         bench = benchmarking(input_data)
         print('BENCHMARKING-COMPLETED------------------------------')
 
     else:
         # comparing
-        print('COMPARING------------------------------------------')
+        print('COMPARING-------------------------------------------')
         urbs_model = create_um(input_data, timesteps)
         oemof_model = create_om(input_data, timesteps)
 

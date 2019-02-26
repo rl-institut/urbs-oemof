@@ -76,7 +76,7 @@ def setup_table(table_name, schema_name='sandbox',
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
             sa.Column('Name', sa.VARCHAR(50)),
-            sa.Column('area', sa.VARCHAR(50)),
+            sa.Column('area', sa.Float()),
             schema=schema_name)
 
     if table_name == 'ubbb_commodity':

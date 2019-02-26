@@ -230,7 +230,7 @@ if __name__ == '__main__':
     connection = False
 
     # benchmarking
-    benchmark = True
+    benchmark = False
 
     # input file
     input_file = 'mimo.xlsx'

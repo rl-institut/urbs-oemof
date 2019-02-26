@@ -1,0 +1,72 @@
+{"name": "ger_site",
+"title": "Germany Regions",
+"id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_site",
+"description": "List of Germany federal states",
+"language": [ "en-US" ],
+"keywords": [ "germany", "region" ],
+"publicationDate": "2019",
+"context":
+    {"homepage": "https://github.com/rl-institut/urbs-oemof",
+    "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
+    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_site.json",
+    "contact": "https://github.com/oakca",
+    "grantNo": "none"},
+"spatial":
+    {"location": "none",
+    "extent": "germany",
+    "resolution": "federal state"},
+"temporal":
+    {"referenceDate": "2018-04-26",
+    "start": "2018-01-01T00:00:00+00:01",
+    "end": "2019-01-01T00:00:00+00:01",
+    "resolution": "1 h"},
+"sources": [
+    {"title": "maledo/urbs: urbs v0.7.3 Germany",
+     "description": "urbs v0.7.3 with input file of Germany and three scenarios (base, nuclear-free and co2-2030 targets)",
+     "path": "https://zenodo.org/record/1230277#.XHVJa4UxlhE",
+     "license": "GNU v3",
+     "copyright": "© TU-München"} ],
+"licenses": [
+    {"name": "GNU v3",
+    "title": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
+    "path": "https://www.gnu.org/licenses",
+    "instruction": "Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.",
+    "attribution": "© TU-München"} ],
+"contributors": [
+    {"title": "oakca",
+     "email": "none",
+     "date": "2019-02-26",
+     "object": "metadata",
+     "comment": "Create metadata for germany site"} ],
+"resources": [
+    {"profile": "tabular-data-resource",
+    "name": "model_draft.ger_site",
+    "path": "http://openenergyplatform.org/dataedit/view/model_draft/ger_site",
+    "format": "PostgreSQL",
+    "encoding" : "UTF-8",
+    "schema": {
+        "fields": [
+            {"name": "index", "description": "Unique identifier", "type": "serial", "unit": "none"},
+            {"name": "name", "description": "Name of the region", "type": "varchar", "unit": "none"},
+            {"name": "area", "description": "Amount of area in the region", "type": "float", "unit": "none"} ],
+        "primaryKey": "index"},
+    "dialect":
+        {"delimiter": "none",
+        "decimalSeparator": "."} } ],
+"review": {
+    "path": "none",
+    "badge": "none"},
+"metaMetadata":
+    {"metadataVersion": "OEP-1.4",
+    "metadataLicense":
+        {"name": "CC0-1.0",
+        "title": "Creative Commons Zero v1.0 Universal",
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+"_comment":
+    {"metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
+    "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+    "units": "Use a space between numbers and units (100 m)",
+    "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+    "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+    "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
+    "none": "If not applicable use (none)"}}

@@ -29,6 +29,39 @@ def _file_len(filename):
     return i
 
 
+def compare_cpu_and_memory():
+    # memory info & cpu time
+    with open('urbs_log.txt', 'r') as urbslog:
+        urbslog = urbslog.read().replace('\n', ' ')
+        mem_urbs = float(urbslog[urbslog.find('Memory used:')+12:
+                                 urbslog.find('Mb')])
+        cpu_urbs = float(urbslog[urbslog.find('Time used:')+10:
+                                 urbslog.find('secs')])
+
+    with open('oemof_log.txt', 'r') as oemoflog:
+        oemoflog = oemoflog.read().replace('\n', ' ')
+        mem_oemof = float(oemoflog[oemoflog.find('Memory used:')+12:
+                                   oemoflog.find('Mb')])
+        cpu_oemof = float(oemoflog[oemoflog.find('Time used:')+10:
+                                   oemoflog.find('secs')])
+
+    # Terminal Output CPU
+    print('Time Used')
+    print('urbs\t', cpu_urbs, ' secs')
+    print('oemof\t', cpu_oemof, ' secs')
+    print('Diff\t', format(cpu_urbs - cpu_oemof, '.1f'), ' secs')
+    print('----------------------------------------------------')
+
+    # Terminal Output Memory
+    print('Memory Used')
+    print('urbs\t', mem_urbs, ' Mb')
+    print('oemof\t', mem_oemof, ' Mb')
+    print('Diff\t', format(mem_urbs - mem_oemof, '.1f'), ' Mb')
+    print('----------------------------------------------------')
+
+    return cpu_urbs, mem_urbs, cpu_oemof, mem_oemof
+
+
 def compare_lp_files():
     # open urbs lp file
     with open('mimo_urbs.lp', 'r') as urbslp:
@@ -47,15 +80,12 @@ def compare_lp_files():
             if ce:
                 const.write(ce.group(1))
                 const.write('\n')
-
             if cu:
                 const.write(cu.group(1))
                 const.write('\n')
-
             if re:
                 const.write(re.group(1))
                 const.write('\n')
-
             if rl:
                 const.write(rl.group(1))
                 const.write('\n')
@@ -83,6 +113,13 @@ def compare_lp_files():
 
     u_const_amount = _file_len('constraints_urbs.txt')
     o_const_amount = _file_len('constraints_oemof.txt')
+
+    # Terminal Output
+    print('Constraint Amount')
+    print('urbs\t', u_const_amount)
+    print('oemof\t', o_const_amount)
+    print('Diff\t', u_const_amount - o_const_amount)
+    print('----------------------------------------------------')
 
     return u_const_amount, o_const_amount
 
@@ -492,4 +529,57 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
 
         # save plot
         fig.savefig(os.path.join(result_dir, 'comp_'+name+'_'+site+'.png'), dpi=300)
+        plt.close(fig)
+
+
+def process_benchmark(benchmark_data):
+    # result directory
+    result_dir = prepare_result_directory('benchmark')
+
+    for item in ['obj', 'cpu', 'memory', 'const', 'build']:
+        # create figure
+        fig = plt.figure()
+
+        # x-Axis (timesteps)
+        ts = np.array(list(benchmark_data.keys()))
+
+        # y-Axis (values)
+        u = []
+        o = []
+        for i in ts:
+            u.append(benchmark_data[i][0][item])
+            o.append(benchmark_data[i][1][item])
+        u_array = np.array(u)
+        o_array = np.array(o)
+
+        # draw plots
+        plt.plot(ts, u_array, label='urbs', linestyle='None', marker='x')
+        plt.ticklabel_format(axis='y')
+        plt.plot(ts, o_array, label='oemof', linestyle='None', marker='.')
+        plt.ticklabel_format(axis='y')
+
+        # plot specs
+        plt.xlabel('Timesteps [h]')
+
+        if item is 'obj':
+            plt.ylabel('Objective Value [€]')
+            plt.title('Objective Values')
+        elif item is 'cpu':
+            plt.ylabel('CPU Time [secs]')
+            plt.title('Solver CPU Time')
+        elif item is 'memory':
+            plt.ylabel('Memory [Mb]')
+            plt.title('Solver Memory Used')
+        elif item is 'const':
+            plt.ylabel('Constraint')
+            plt.title('Model Constraint Amount')
+        elif item is 'build':
+            plt.ylabel('Build Time [secs]')
+            plt.title('Model Build Time')
+        plt.grid(True)
+        plt.legend()
+        #plt.show()
+
+        # save plot
+        fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
         plt.close(fig)

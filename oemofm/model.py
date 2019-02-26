@@ -201,14 +201,16 @@ class Line:
 
 
 def create_model(data, timesteps=None):
-    """Creates an oemof model for given input, time steps
+    """
+    Creates an oemof model for given input, time steps
 
     Args:
-        input_file: input file
+        data: input data
         timesteps: simulation timesteps
 
     Returns:
-        model instance
+        es: an oemof energy system
+        model: an oemof model instance
     """
     # Parameters
     weight = float(8760)/(len(timesteps))

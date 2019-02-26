@@ -12,9 +12,9 @@
     "contact": "https://github.com/oakca",
     "grantNo": ""},
 "spatial":
-    {"location": "germany",
+    {"location": "none",
     "extent": "germany",
-    "resolution": ""},
+    "resolution": "federal state"},
 "temporal":
     {"referenceDate": "2018-04-26",
     "start": "2018-01-01T00:00:00+00:01",
@@ -25,13 +25,13 @@
      "description": "urbs v0.7.3 with input file of Germany and three scenarios (base, nuclear-free and co2-2030 targets)",
      "path": "https://zenodo.org/record/1230277#.XHVJa4UxlhE",
      "license": "GNU v3",
-     "copyright": "Copyright (C) 2007 Free Software Foundation, Inc. http://fsf.org/"} ],
+     "copyright": "© TU-München"} ],
 "licenses": [
     {"name": "GNU v3",
     "title": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
     "path": "https://www.gnu.org/licenses",
     "instruction": "Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.",
-    "attribution": "© TU-München"}],
+    "attribution": "© TU-München"} ],
 "contributors": [
     {"title": "oakca",
      "email": "none",
@@ -57,8 +57,8 @@
         {"delimiter": "none",
         "decimalSeparator": "."} } ],
 "review": {
-    "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/wiki",
-    "badge": "platin"},
+    "path": "none",
+    "badge": "none"},
 "metaMetadata":
     {"metadataVersion": "OEP-1.4",
     "metadataLicense":

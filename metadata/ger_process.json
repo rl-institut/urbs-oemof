@@ -1,7 +1,7 @@
 {"name": "ger_process",
 "title": "Germany Process",
 "id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_process",
-"description": "Germany processes, power plants",
+"description": "List of Germany processes and power plants",
 "language": [ "en-US" ],
 "keywords": [ "germany", "process", "power-plant" ],
 "publicationDate": "2019",
@@ -10,11 +10,11 @@
     "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
     "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_process.json",
     "contact": "https://github.com/oakca",
-    "grantNo": ""},
+    "grantNo": "none"},
 "spatial":
-    {"location": "germany",
+    {"location": "none",
     "extent": "germany",
-    "resolution": ""},
+    "resolution": "federal state"},
 "temporal":
     {"referenceDate": "2018-04-26",
     "start": "2018-01-01T00:00:00+00:01",
@@ -25,19 +25,19 @@
      "description": "urbs v0.7.3 with input file of Germany and three scenarios (base, nuclear-free and co2-2030 targets)",
      "path": "https://zenodo.org/record/1230277#.XHVJa4UxlhE",
      "license": "GNU v3",
-     "copyright": "Copyright (C) 2007 Free Software Foundation, Inc. http://fsf.org/"} ],
+     "copyright": "© TU-München"} ],
 "licenses": [
     {"name": "GNU v3",
     "title": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
     "path": "https://www.gnu.org/licenses",
     "instruction": "Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.",
-    "attribution": "© TU-München"}],
+    "attribution": "© TU-München"} ],
 "contributors": [
     {"title": "oakca",
      "email": "none",
      "date": "2019-02-26",
      "object": "metadata",
-     "comment": "Create metadata for germany process"}],
+     "comment": "Create metadata for germany process"} ],
 "resources": [
     {"profile": "tabular-data-resource",
     "name": "model_draft.ger_process",
@@ -57,8 +57,8 @@
         {"delimiter": "none",
         "decimalSeparator": "."} } ],
 "review": {
-    "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/wiki",
-    "badge": "platin"},
+    "path": "none",
+    "badge": "none"},
 "metaMetadata":
     {"metadataVersion": "OEP-1.4",
     "metadataLicense":

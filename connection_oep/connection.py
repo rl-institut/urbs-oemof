@@ -57,153 +57,121 @@ def connect_oep(user=None, token=None):
 
 def setup_table(table_name, schema_name='sandbox',
                 metadata=None):
-    if table_name == 'ubbb_global_prop':
+    if table_name == 'mimo_global_prop':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Property', sa.VARCHAR(50)),
+            sa.Column('property', sa.VARCHAR(50)),
             sa.Column('value', sa.Float()),
             schema=schema_name)
 
-    if table_name == 'ubbb_site':
+    if table_name == 'mimo_site':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Name', sa.VARCHAR(50)),
-            sa.Column('area', sa.Float()),
+            sa.Column('name', sa.VARCHAR(50)),
             schema=schema_name)
 
-    if table_name == 'ubbb_commodity':
+    if table_name == 'mimo_commodity':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Site', sa.VARCHAR(50)),
-            sa.Column('Commodity', sa.VARCHAR(50)),
-            sa.Column('Type', sa.VARCHAR(50)),
+            sa.Column('site', sa.VARCHAR(50)),
+            sa.Column('commodity', sa.VARCHAR(50)),
+            sa.Column('type', sa.VARCHAR(50)),
             sa.Column('price', sa.Float()),
             sa.Column('max', sa.Float()),
             sa.Column('maxperhour', sa.Float()),
             schema=schema_name)
 
-    if table_name == 'ubbb_process':
+    if table_name == 'mimo_process':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Site', sa.VARCHAR(50)),
-            sa.Column('Process', sa.VARCHAR(50)),
-            sa.Column('inst-cap', sa.Float()),
-            sa.Column('cap-lo', sa.Float()),
-            sa.Column('cap-up', sa.Float()),
-            sa.Column('max-grad', sa.Float()),
-            sa.Column('min-fraction', sa.Float()),
-            sa.Column('inv-cost', sa.Float()),
-            sa.Column('fix-cost', sa.Float()),
-            sa.Column('var-cost', sa.Float()),
-            sa.Column('wacc', sa.Float()),
-            sa.Column('depreciation', sa.Float()),
-            sa.Column('area-per-cap', sa.Float()),
+            sa.Column('site', sa.VARCHAR(50)),
+            sa.Column('process', sa.VARCHAR(50)),
+            sa.Column('parameter', sa.VARCHAR(50)),
+            sa.Column('value', sa.Float()),
+            sa.Column('unit', sa.VARCHAR(50)),
             schema=schema_name)
 
-    if table_name == 'ubbb_process_commodity':
+    if table_name == 'mimo_process_commodity':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Process', sa.VARCHAR(50)),
-            sa.Column('Commodity', sa.VARCHAR(50)),
-            sa.Column('Direction', sa.VARCHAR(50)),
+            sa.Column('process', sa.VARCHAR(50)),
+            sa.Column('commodity', sa.VARCHAR(50)),
+            sa.Column('direction', sa.VARCHAR(50)),
             sa.Column('ratio', sa.Float()),
-            sa.Column('ratio-min', sa.Float()),
             schema=schema_name)
 
-    if table_name == 'ubbb_transmission':
+    if table_name == 'mimo_transmission':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Site In', sa.VARCHAR(50)),
-            sa.Column('Site Out', sa.VARCHAR(50)),
-            sa.Column('Transmission', sa.VARCHAR(50)),
-            sa.Column('Commodity', sa.VARCHAR(50)),
-            sa.Column('eff', sa.Float()),
-            sa.Column('inv-cost', sa.Float()),
-            sa.Column('fix-cost', sa.Float()),
-            sa.Column('var-cost', sa.Float()),
-            sa.Column('inst-cap', sa.Float()),
-            sa.Column('cap-lo', sa.Float()),
-            sa.Column('cap-up', sa.Float()),
-            sa.Column('wacc', sa.Float()),
-            sa.Column('depreciation', sa.Float()),
+            sa.Column('site_in', sa.VARCHAR(50)),
+            sa.Column('site_out', sa.VARCHAR(50)),
+            sa.Column('transmission', sa.VARCHAR(50)),
+            sa.Column('commodity', sa.VARCHAR(50)),
+            sa.Column('parameter', sa.VARCHAR(50)),
+            sa.Column('value', sa.Float()),
+            sa.Column('unit', sa.VARCHAR(50)),
             schema=schema_name)
 
-    if table_name == 'ubbb_storage':
+    if table_name == 'mimo_storage':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
-            sa.Column('Site', sa.VARCHAR(50)),
-            sa.Column('Storage', sa.VARCHAR(50)),
-            sa.Column('Commodity', sa.VARCHAR(50)),
-            sa.Column('inst-cap-c', sa.Float()),
-            sa.Column('cap-lo-c', sa.Float()),
-            sa.Column('cap-up-c', sa.Float()),
-            sa.Column('inst-cap-p', sa.Float()),
-            sa.Column('cap-lo-p', sa.Float()),
-            sa.Column('cap-up-p', sa.Float()),
-            sa.Column('eff-in', sa.Float()),
-            sa.Column('eff-out', sa.Float()),
-            sa.Column('inv-cost-p', sa.Float()),
-            sa.Column('inv-cost-c', sa.Float()),
-            sa.Column('fix-cost-p', sa.Float()),
-            sa.Column('fix-cost-c', sa.Float()),
-            sa.Column('var-cost-p', sa.Float()),
-            sa.Column('var-cost-c', sa.Float()),
-            sa.Column('wacc', sa.Float()),
-            sa.Column('depreciation', sa.Float()),
-            sa.Column('init', sa.Float()),
-            sa.Column('discharge', sa.Float()),
-            sa.Column('ep-ratio', sa.Float()),
+            sa.Column('site', sa.VARCHAR(50)),
+            sa.Column('storage', sa.VARCHAR(50)),
+            sa.Column('commodity', sa.VARCHAR(50)),
+            sa.Column('parameter', sa.VARCHAR(50)),
+            sa.Column('value', sa.Float()),
+            sa.Column('unit', sa.VARCHAR(50)),
             schema=schema_name)
 
-    if table_name == 'ubbb_demand':
+    if table_name == 'mimo_demand':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
             sa.Column('t', sa.Integer),
-            sa.Column('Mid.Elec', sa.Float()),
-            sa.Column('South.Elec', sa.Float()),
-            sa.Column('North.Elec', sa.Float()),
+            sa.Column('mid_elec', sa.Float()),
+            sa.Column('south_elec', sa.Float()),
+            sa.Column('north_elec', sa.Float()),
             schema=schema_name)
 
-    if table_name == 'ubbb_supim':
+    if table_name == 'mimo_supim':
         table = sa.Table(
             table_name,
             metadata,
             sa.Column('index', sa.Integer, primary_key=True,
                       autoincrement=True, nullable=False),
             sa.Column('t', sa.Integer),
-            sa.Column('Mid.Wind', sa.Float()),
-            sa.Column('Mid.Solar', sa.Float()),
-            sa.Column('Mid.Hydro', sa.Float()),
-            sa.Column('South.Wind', sa.Float()),
-            sa.Column('South.Solar', sa.Float()),
-            sa.Column('South.Hydro', sa.Float()),
-            sa.Column('North.Wind', sa.Float()),
-            sa.Column('North.Solar', sa.Float()),
-            sa.Column('North.Hydro', sa.Float()),
+            sa.Column('mid_wind', sa.Float()),
+            sa.Column('mid_solar', sa.Float()),
+            sa.Column('mid_hydro', sa.Float()),
+            sa.Column('south_wind', sa.Float()),
+            sa.Column('south_solar', sa.Float()),
+            sa.Column('south_hydro', sa.Float()),
+            sa.Column('north_wind', sa.Float()),
+            sa.Column('north_solar', sa.Float()),
+            sa.Column('north_hydro', sa.Float()),
             schema=schema_name)
 
     return table
@@ -286,3 +254,90 @@ def split_columns(columns, sep='.'):
         return columns
     column_tuples = [tuple(col.split('.')) for col in columns]
     return pd.MultiIndex.from_tuples(column_tuples)
+
+
+def normalize(data, key):
+    pd.options.mode.chained_assignment = None
+
+    if key == 'global_prop':
+        data = data.rename(columns={'Property': 'property'})
+
+    elif key == 'site':
+        data = data.rename(columns={'Name': 'name'})
+
+    elif key == 'commodity':
+        data = data.rename(columns={'Site': 'site',
+                                    'Commodity': 'commodity',
+                                    'Type': 'type'})
+
+    elif key == 'process':
+        data = data.melt(['Site', 'Process']).assign(unit='')\
+            .sort_values(['Site', 'Process']).reset_index(drop=True)
+
+        data = data.rename(columns={'Site': 'site', 'Process': 'process',
+                                    'variable': 'parameter'})
+
+        unit = {'inst-cap': 'MW', 'cap-lo': 'MW', 'cap-up': 'MW',
+                'inv-cost': '€/MW', 'fix-cost': '€/MW/a', 'var-cost': '€/MWh',
+                'wacc': None, 'depreciation': 'a'}
+        data['unit'] = data['parameter'].map(unit)
+
+    elif key == 'process_commodity':
+        data = data.rename(columns={'Process': 'process',
+                                    'Commodity': 'commodity',
+                                    'Direction': 'direction'})
+
+    elif key == 'transmission':
+        data = data.melt(['Site In', 'Site Out', 'Transmission', 'Commodity'])\
+            .assign(unit='')\
+            .sort_values(['Site In', 'Site Out', 'Transmission', 'Commodity'])\
+            .reset_index(drop=True)
+
+        data = data.rename(columns={'Site In': 'site_in',
+                                    'Site Out': 'site_out',
+                                    'Transmission': 'transmission',
+                                    'Commodity': 'commodity',
+                                    'variable': 'parameter'})
+
+        unit = {'eff': None, 'inv-cost': '€/MW', 'fix-cost': '€/MW/a',
+                'var-cost': '€/MWh', 'inst-cap': 'MW', 'cap-lo': 'MW',
+                'cap-up': 'MW', 'wacc': None, 'depreciation': 'a'}
+        data['unit'] = data['parameter'].map(unit)
+
+    elif key == 'storage':
+        data = data.melt(['Site', 'Storage', 'Commodity']).assign(unit='')\
+            .sort_values(['Site', 'Storage', 'Commodity'])\
+            .reset_index(drop=True)
+
+        data = data.rename(columns={'Site': 'site',
+                                    'Storage': 'storage',
+                                    'Commodity': 'commodity',
+                                    'variable': 'parameter'})
+
+        unit = {'inst-cap-c': 'MWh', 'cap-lo-c': 'MWh', 'cao-up-c': 'MWh',
+                'inst-cap-p': 'MW', 'cap-lo-p': 'MW', 'cap-up-p': 'MW',
+                'eff-in': None, 'eff-out': None, 'inv-cost-p': '€/MW',
+                'inv-cost-c': '€/MWh', 'fix-cost-p': '€/MW/a',
+                'fix-cost-c': '€/MWh/a', 'var-cost-p': '€/MWh',
+                'var-cost-c': '€/MWh', 'wacc': None, 'depreciation': 'a',
+                'init': None, 'discharge': None, 'ep-ratio': None}
+        data['unit'] = data['parameter'].map(unit)
+
+    elif key == 'demand':
+        data = data.rename(columns={'Mid.Elec': 'mid_elec',
+                                    'South.Elec': 'south_elec',
+                                    'North.Elec': 'north_elec'})
+    elif key == 'supim':
+        data = data.rename(columns={'Mid.Wind': 'mid_wind',
+                                    'Mid.Solar': 'mid_solar',
+                                    'Mid.Hydro': 'mid_hydro',
+                                    'South.Wind': 'south_wind',
+                                    'South.Solar': 'south_solar',
+                                    'South.Hydro': 'south_hydro',
+                                    'North.Wind': 'north_wind',
+                                    'North.Solar': 'south_solar',
+                                    'North.Hydro': 'north_hydro'})
+    else:
+        pass
+
+    return data

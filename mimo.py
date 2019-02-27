@@ -227,7 +227,7 @@ def create_om(input_data, timesteps):
 
 if __name__ == '__main__':
     # connection to OEP
-    connection = False
+    connection = True
 
     # benchmarking
     benchmark = False
@@ -255,19 +255,22 @@ if __name__ == '__main__':
         table = {}
         input_data = {}
         for key in data:
+            # normalize data for database
+            data[key] = conn.normalize(data[key], key)
+
             # setup table
-            table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
+            table['mimo_'+key] = conn.setup_table('mimo_'+key,
                                                   schema_name='sandbox',
                                                   metadata=metadata)
-            # upload to OEP
-            '''
-            table['ubbb_'+key] = conn.upload_to_oep(data[key],
-                                                    table['ubbb_'+key],
-                                                    engine, metadata)
-            '''
-            # download from OEP
-            input_data[key] = conn.get_df(engine, table['ubbb_'+key])
 
+            # upload to OEP
+            table['mimo_'+key] = conn.upload_to_oep(data[key],
+                                                    table['mimo_'+key],
+                                                    engine, metadata)
+
+            # download from OEP
+            input_data[key] = conn.get_df(engine, table['mimo_'+key])
+        import pdb; pdb.set_trace()
         # write data
         input_data = conn.write_data(input_data)
 

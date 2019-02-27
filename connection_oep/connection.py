@@ -327,6 +327,7 @@ def normalize(data, key):
         data = data.rename(columns={'Mid.Elec': 'mid_elec',
                                     'South.Elec': 'south_elec',
                                     'North.Elec': 'north_elec'})
+
     elif key == 'supim':
         data = data.rename(columns={'Mid.Wind': 'mid_wind',
                                     'Mid.Solar': 'mid_solar',
@@ -337,6 +338,7 @@ def normalize(data, key):
                                     'North.Wind': 'north_wind',
                                     'North.Solar': 'south_solar',
                                     'North.Hydro': 'north_hydro'})
+
     else:
         pass
 

@@ -279,7 +279,7 @@ if __name__ == '__main__':
     # benchmarking
     if benchmark:
         print('BENCHMARKING----------------------------------------')
-        bench = benchmarking(input_data)
+        benchmarking(input_data)
         print('BENCHMARKING-COMPLETED------------------------------')
 
     else:

@@ -106,41 +106,17 @@ def pyomo_model_prep(data, timesteps):
     m.demand = data['demand']
     m.supim = data['supim']
     m.timesteps = timesteps
-    m.eff_factor = data['eff_factor']
 
     # Converting Data frames to dict
     m.commodity_dict = m.commodity.to_dict()
     m.demand_dict = m.demand.to_dict()
     m.supim_dict = m.supim.to_dict()
-    m.eff_factor_dict = m.eff_factor.to_dict()
 
     # process input/output ratios
     m.r_in = m.process_commodity.xs('In', level='Direction')['ratio']
     m.r_out = m.process_commodity.xs('Out', level='Direction')['ratio']
     m.r_in_dict = m.r_in.to_dict()
     m.r_out_dict = m.r_out.to_dict()
-
-    # process areas
-    m.proc_area = m.process['area-per-cap']
-    m.sit_area = m.site['area']
-    m.proc_area = m.proc_area[m.proc_area >= 0]
-    m.sit_area = m.sit_area[m.sit_area >= 0]
-
-    # input ratios for partial efficiencies
-    # only keep those entries whose values are
-    # a) positive and
-    # b) numeric (implicitely, as NaN or NV compare false against 0)
-    m.r_in_min_fraction = m.process_commodity.xs('In', level='Direction')
-    m.r_in_min_fraction = m.r_in_min_fraction['ratio-min']
-    m.r_in_min_fraction = m.r_in_min_fraction[m.r_in_min_fraction > 0]
-
-    # output ratios for partial efficiencies
-    # only keep those entries whose values are
-    # a) positive and
-    # b) numeric (implicitely, as NaN or NV compare false against 0)
-    m.r_out_min_fraction = m.process_commodity.xs('Out', level='Direction')
-    m.r_out_min_fraction = m.r_out_min_fraction['ratio-min']
-    m.r_out_min_fraction = m.r_out_min_fraction[m.r_out_min_fraction > 0]
 
     # storages with fixed initial state
     m.stor_init_bound = m.storage['init']

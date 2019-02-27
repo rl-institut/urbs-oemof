@@ -23,7 +23,6 @@ def read_data(filename):
         demand = xls.parse('Demand')
         supim = xls.parse('SupIm')
         global_prop = xls.parse('Global')
-        eff_factor = xls.parse('TimeVarEff')
 
     data = {
         'global_prop': global_prop,
@@ -35,7 +34,6 @@ def read_data(filename):
         'storage': storage,
         'demand': demand,
         'supim': supim,
-        'eff_factor': eff_factor
         }
 
     return data
@@ -208,15 +206,6 @@ def setup_table(table_name, schema_name='sandbox',
             sa.Column('North.Hydro', sa.Float()),
             schema=schema_name)
 
-    if table_name == 'ubbb_eff_factor':
-        table = sa.Table(
-            table_name,
-            metadata,
-            sa.Column('index', sa.Integer, primary_key=True,
-                      autoincrement=True, nullable=False),
-            sa.Column('t', sa.Integer),
-            schema=schema_name)
-
     return table
 
 
@@ -285,8 +274,6 @@ def write_data(data):
     data['demand'].columns = split_columns(data['demand'].columns, '.')
     data['supim'] = data['supim'].set_index(['t'])
     data['supim'].columns = split_columns(data['supim'].columns, '.')
-    data['eff_factor'] = data['eff_factor'].set_index(['t'])
-    data['eff_factor'].columns = split_columns(data['eff_factor'].columns, '.')
 
     for key in data:
         if isinstance(data[key].index, pd.core.index.MultiIndex):

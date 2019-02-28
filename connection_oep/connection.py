@@ -10,9 +10,6 @@ Base = declarative_base()
 
 def read_data(filename):
     with pd.ExcelFile(filename) as xls:
-
-        sheetnames = xls.sheet_names
-
         site = xls.parse('Site')
         commodity = xls.parse('Commodity')
         process = xls.parse('Process')

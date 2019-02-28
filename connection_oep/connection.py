@@ -4,10 +4,8 @@ import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from geoalchemy2.types import Geometry
 
 Base = declarative_base()
-pd.options.mode.chained_assignment = None
 
 
 def read_data(filename):
@@ -307,7 +305,7 @@ def normalize(data, key):
                                     'Commodity': 'commodity',
                                     'variable': 'parameter'})
 
-        unit = {'inst-cap-c': 'MWh', 'cap-lo-c': 'MWh', 'cao-up-c': 'MWh',
+        unit = {'inst-cap-c': 'MWh', 'cap-lo-c': 'MWh', 'cap-up-c': 'MWh',
                 'inst-cap-p': 'MW', 'cap-lo-p': 'MW', 'cap-up-p': 'MW',
                 'eff-in': None, 'eff-out': None, 'inv-cost-p': '€/MW',
                 'inv-cost-c': '€/MWh', 'fix-cost-p': '€/MW/a',
@@ -343,7 +341,6 @@ def denormalize(data, key):
         data = data.drop(columns=['index', 'unit'])
     except KeyError:
         pass
-    data.fillna(value=pd.np.nan, inplace=True)
 
     if key == 'global_prop':
         data = data.rename(columns={'property': 'Property'})
@@ -360,8 +357,10 @@ def denormalize(data, key):
         data = data.rename(columns={'site': 'Site',
                                     'process': 'Process'})
 
-        data = data.pivot_table(values='value', index=['Site', 'Process'],
-                                columns='parameter').reset_index()
+        data = data.pivot_table(values='value',
+                                index=['Site', 'Process'],
+                                columns='parameter',
+                                dropna=False).reset_index()
         data = data.rename_axis(None, axis=1)
 
     elif key == 'process_commodity':
@@ -378,13 +377,20 @@ def denormalize(data, key):
         data = data.pivot_table(values='value',
                                 index=['Site In', 'Site Out',
                                        'Transmission', 'Commodity'],
-                                columns='parameter').reset_index()
+                                columns='parameter',
+                                dropna=False).reset_index()
         data = data.rename_axis(None, axis=1)
 
     elif key == 'storage':
         data = data.rename(columns={'site': 'Site',
                                     'storage': 'Storage',
                                     'commodity': 'Commodity'})
+
+        data = data.pivot_table(values='value',
+                                index=['Site', 'Storage', 'Commodity'],
+                                columns='parameter',
+                                dropna=False).reset_index()
+        data = data.rename_axis(None, axis=1)
 
     elif key == 'demand':
         data = data.rename(columns={'mid_elec': 'Mid.Elec',

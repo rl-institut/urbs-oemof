@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2.types import Geometry
 
 Base = declarative_base()
+pd.options.mode.chained_assignment = None
 
 
 def read_data(filename):
@@ -219,13 +220,6 @@ def get_df(engine, table):
 
 
 def write_data(data):
-    for key in data:
-        try:
-            data[key] = data[key].drop(columns='index')
-        except KeyError:
-            pass
-        data[key].fillna(value=pd.np.nan, inplace=True)
-
     data['global_prop'] = data['global_prop'].set_index(['Property'])
     data['site'] = data['site'].set_index(['Name'])
     data['commodity'] = data['commodity'].set_index(
@@ -257,8 +251,6 @@ def split_columns(columns, sep='.'):
 
 
 def normalize(data, key):
-    pd.options.mode.chained_assignment = None
-
     if key == 'global_prop':
         data = data.rename(columns={'Property': 'property'})
 
@@ -274,7 +266,8 @@ def normalize(data, key):
         data = data.melt(['Site', 'Process']).assign(unit='')\
             .sort_values(['Site', 'Process']).reset_index(drop=True)
 
-        data = data.rename(columns={'Site': 'site', 'Process': 'process',
+        data = data.rename(columns={'Site': 'site',
+                                    'Process': 'process',
                                     'variable': 'parameter'})
 
         unit = {'inst-cap': 'MW', 'cap-lo': 'MW', 'cap-up': 'MW',
@@ -336,8 +329,78 @@ def normalize(data, key):
                                     'South.Solar': 'south_solar',
                                     'South.Hydro': 'south_hydro',
                                     'North.Wind': 'north_wind',
-                                    'North.Solar': 'south_solar',
+                                    'North.Solar': 'north_solar',
                                     'North.Hydro': 'north_hydro'})
+
+    else:
+        pass
+
+    return data
+
+
+def denormalize(data, key):
+    try:
+        data = data.drop(columns=['index', 'unit'])
+    except KeyError:
+        pass
+    data.fillna(value=pd.np.nan, inplace=True)
+
+    if key == 'global_prop':
+        data = data.rename(columns={'property': 'Property'})
+
+    elif key == 'site':
+        data = data.rename(columns={'name': 'Name'})
+
+    elif key == 'commodity':
+        data = data.rename(columns={'site': 'Site',
+                                    'commodity': 'Commodity',
+                                    'type': 'Type'})
+
+    elif key == 'process':
+        data = data.rename(columns={'site': 'Site',
+                                    'process': 'Process'})
+
+        data = data.pivot_table(values='value', index=['Site', 'Process'],
+                                columns='parameter').reset_index()
+        data = data.rename_axis(None, axis=1)
+
+    elif key == 'process_commodity':
+        data = data.rename(columns={'process': 'Process',
+                                    'commodity': 'Commodity',
+                                    'direction': 'Direction'})
+
+    elif key == 'transmission':
+        data = data.rename(columns={'site_in': 'Site In',
+                                    'site_out': 'Site Out',
+                                    'transmission': 'Transmission',
+                                    'commodity': 'Commodity'})
+
+        data = data.pivot_table(values='value',
+                                index=['Site In', 'Site Out',
+                                       'Transmission', 'Commodity'],
+                                columns='parameter').reset_index()
+        data = data.rename_axis(None, axis=1)
+
+    elif key == 'storage':
+        data = data.rename(columns={'site': 'Site',
+                                    'storage': 'Storage',
+                                    'commodity': 'Commodity'})
+
+    elif key == 'demand':
+        data = data.rename(columns={'mid_elec': 'Mid.Elec',
+                                    'south_elec': 'South.Elec',
+                                    'north_elec': 'North.Elec'})
+
+    elif key == 'supim':
+        data = data.rename(columns={'mid_wind': 'Mid.Wind',
+                                    'mid_solar': 'Mid.Solar',
+                                    'mid_hydro': 'Mid.Hydro',
+                                    'south_wind': 'South.Wind',
+                                    'south_solar': 'South.Solar',
+                                    'south_hydro': 'South.Hydro',
+                                    'north_wind': 'North.Wind',
+                                    'north_solar': 'North.Solar',
+                                    'north_hydro': 'North.Hydro'})
 
     else:
         pass

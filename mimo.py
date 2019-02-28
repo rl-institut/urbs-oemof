@@ -270,7 +270,10 @@ if __name__ == '__main__':
 
             # download from OEP
             input_data[key] = conn.get_df(engine, table['mimo_'+key])
-        import pdb; pdb.set_trace()
+
+            # denormalize data for models
+            input_data[key] = conn.denormalize(input_data[key], key)
+
         # write data
         input_data = conn.write_data(input_data)
 
@@ -285,11 +288,10 @@ if __name__ == '__main__':
         benchmarking(input_data)
         print('BENCHMARKING-COMPLETED------------------------------')
 
+    # comparing
     else:
-        # comparing
         print('COMPARING-------------------------------------------')
         urbs_model = create_um(input_data, timesteps)
         oemof_model = create_om(input_data, timesteps)
-
         comparison(urbs_model, oemof_model, threshold=0.1)
         print('COMPARING-COMPLETED---------------------------------')

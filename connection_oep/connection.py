@@ -339,6 +339,9 @@ def denormalize(data, key):
     except KeyError:
         pass
 
+    # change NaN to None
+    # data = data.replace({pd.np.nan: None})
+
     if key == 'global_prop':
         data = data.rename(columns={'property': 'Property'})
 
@@ -356,8 +359,7 @@ def denormalize(data, key):
 
         data = data.pivot_table(values='value',
                                 index=['Site', 'Process'],
-                                columns='parameter',
-                                dropna=False).reset_index()
+                                columns='parameter').reset_index()
         data = data.rename_axis(None, axis=1)
 
     elif key == 'process_commodity':
@@ -374,8 +376,7 @@ def denormalize(data, key):
         data = data.pivot_table(values='value',
                                 index=['Site In', 'Site Out',
                                        'Transmission', 'Commodity'],
-                                columns='parameter',
-                                dropna=False).reset_index()
+                                columns='parameter').reset_index()
         data = data.rename_axis(None, axis=1)
 
     elif key == 'storage':

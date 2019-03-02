@@ -339,9 +339,6 @@ def denormalize(data, key):
     except KeyError:
         pass
 
-    # change NaN to None
-    # data = data.replace({pd.np.nan: None})
-
     if key == 'global_prop':
         data = data.rename(columns={'property': 'Property'})
 
@@ -356,11 +353,10 @@ def denormalize(data, key):
     elif key == 'process':
         data = data.rename(columns={'site': 'Site',
                                     'process': 'Process'})
-
-        data = data.pivot_table(values='value',
-                                index=['Site', 'Process'],
-                                columns='parameter').reset_index()
-        data = data.rename_axis(None, axis=1)
+        data = (data.set_index(['Site', 'Process', 'parameter'])['value']
+                .unstack()
+                .reset_index()
+                .rename_axis(None, axis=1))
 
     elif key == 'process_commodity':
         data = data.rename(columns={'process': 'Process',
@@ -372,24 +368,22 @@ def denormalize(data, key):
                                     'site_out': 'Site Out',
                                     'transmission': 'Transmission',
                                     'commodity': 'Commodity'})
-
-        data = data.pivot_table(values='value',
-                                index=['Site In', 'Site Out',
-                                       'Transmission', 'Commodity'],
-                                columns='parameter').reset_index()
-        data = data.rename_axis(None, axis=1)
+        data = (data.set_index(['Site In', 'Site Out',
+                                'Transmission', 'Commodity',
+                                'parameter'])['value']
+                .unstack()
+                .reset_index()
+                .rename_axis(None, axis=1))
 
     elif key == 'storage':
         data = data.rename(columns={'site': 'Site',
                                     'storage': 'Storage',
                                     'commodity': 'Commodity'})
-
-        data = data.pivot_table(values='value',
-                                index=['Site', 'Storage', 'Commodity'],
-                                columns='parameter',
-                                dropna=False).reset_index()
-        data = data.rename_axis(None, axis=1)
-
+        data = (data.set_index(['Site', 'Storage',
+                                'Commodity', 'parameter'])['value']
+                .unstack()
+                .reset_index()
+                .rename_axis(None, axis=1))
     elif key == 'demand':
         data = data.rename(columns={'mid_elec': 'Mid.Elec',
                                     'south_elec': 'South.Elec',

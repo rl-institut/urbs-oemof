@@ -257,7 +257,7 @@ if __name__ == '__main__':
         for key in data:
             # normalize data for database
             data[key] = conn.normalize(data[key], key)
-            """
+
             # setup table
             table['mimo_'+key] = conn.setup_table('mimo_'+key,
                                                   schema_name='sandbox',
@@ -267,7 +267,7 @@ if __name__ == '__main__':
             table['mimo_'+key] = conn.upload_to_oep(data[key],
                                                     table['mimo_'+key],
                                                     engine, metadata)
-
+            """
             # download from OEP
             input_data[key] = conn.get_df(engine, table['mimo_'+key])
 

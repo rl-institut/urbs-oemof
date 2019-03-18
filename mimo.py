@@ -255,18 +255,24 @@ if __name__ == '__main__':
         table = {}
         input_data = {}
         for key in data:
+            # normalize data for database
+            data[key] = conn.normalize(data[key], key)
+
             # setup table
-            table['ubbb_'+key] = conn.setup_table('ubbb_'+key,
+            table['mimo_'+key] = conn.setup_table('mimo_'+key,
                                                   schema_name='sandbox',
                                                   metadata=metadata)
+            """
             # upload to OEP
-            '''
-            table['ubbb_'+key] = conn.upload_to_oep(data[key],
-                                                    table['ubbb_'+key],
+            table['mimo_'+key] = conn.upload_to_oep(data[key],
+                                                    table['mimo_'+key],
                                                     engine, metadata)
-            '''
+            """
             # download from OEP
-            input_data[key] = conn.get_df(engine, table['ubbb_'+key])
+            input_data[key] = conn.get_df(engine, table['mimo_'+key])
+
+            # denormalize data for models
+            input_data[key] = conn.denormalize(input_data[key], key)
 
         # write data
         input_data = conn.write_data(input_data)
@@ -279,14 +285,13 @@ if __name__ == '__main__':
     # benchmarking
     if benchmark:
         print('BENCHMARKING----------------------------------------')
-        bench = benchmarking(input_data)
+        benchmarking(input_data)
         print('BENCHMARKING-COMPLETED------------------------------')
 
+    # comparing
     else:
-        # comparing
         print('COMPARING-------------------------------------------')
         urbs_model = create_um(input_data, timesteps)
         oemof_model = create_om(input_data, timesteps)
-
         comparison(urbs_model, oemof_model, threshold=0.1)
         print('COMPARING-COMPLETED---------------------------------')

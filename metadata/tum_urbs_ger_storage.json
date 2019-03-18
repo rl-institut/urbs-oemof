@@ -1,14 +1,14 @@
-{"name": "ger_site",
-"title": "Germany Regions",
-"id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_site",
-"description": "List of Germany federal states",
+{"name": "tum_urbs_ger_storage",
+"title": "Germany Storage Unit",
+"id": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_storage",
+"description": "List of Germany storage units",
 "language": [ "en-US" ],
-"keywords": [ "germany", "region" ],
+"keywords": [ "germany", "storage" ],
 "publicationDate": "2019",
 "context":
     {"homepage": "https://github.com/rl-institut/urbs-oemof",
     "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
-    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_site.json",
+    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/tum_urbs_ger_storage.json",
     "contact": "https://github.com/oakca",
     "grantNo": "none"},
 "spatial":
@@ -25,7 +25,17 @@
      "description": "urbs v0.7.3 with input file of Germany and three scenarios (base, nuclear-free and co2-2030 targets)",
      "path": "https://zenodo.org/record/1230277#.XHVJa4UxlhE",
      "license": "GNU v3",
-     "copyright": "© TU-München"} ],
+     "copyright": "© TU-München"},
+    {"title": "Liste von Pumpspeicherkraftwerken",
+     "description": "From the German wikipedia site, checked on the 12.01.2018",
+     "path": "https://de.wikipedia.org/wiki/Liste_von_Pumpspeicherkraftwerken",
+     "license": "CC BY SA 3.0",
+     "copyright": "© Wikipedia"},
+    {"title": "Kraftwerksliste from the Bundesnetzagentur",
+     "description": "Stand: 16.11.2016",
+     "path": "none",
+     "license": "dl-de/by-2-0",
+     "copyright": "none"} ],
 "licenses": [
     {"name": "GNU v3",
     "title": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
@@ -37,18 +47,22 @@
      "email": "none",
      "date": "2019-02-26",
      "object": "metadata",
-     "comment": "Create metadata for germany site"} ],
+     "comment": "Create metadata for germany storage"} ],
 "resources": [
     {"profile": "tabular-data-resource",
-    "name": "model_draft.ger_site",
-    "path": "http://openenergyplatform.org/dataedit/view/model_draft/ger_site",
+    "name": "model_draft.tum_urbs_ger_storage",
+    "path": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_storage",
     "format": "PostgreSQL",
     "encoding" : "UTF-8",
     "schema": {
         "fields": [
             {"name": "index", "description": "Unique identifier", "type": "serial", "unit": "none"},
-            {"name": "name", "description": "Name of the region", "type": "varchar", "unit": "none"},
-            {"name": "area", "description": "Amount of area in the region", "type": "float", "unit": "none"} ],
+            {"name": "site", "description": "Name of the region", "type": "varchar", "unit": "none"},
+            {"name": "storage", "description": "Name of the storage technology", "type": "varchar", "unit": "none"},
+            {"name": "commodity", "description": "Name of the stored commodity", "type": "varchar", "unit": "none"},
+            {"name": "parameter", "description": "Name of the parameter", "type": "varchar", "unit": "none"},
+            {"name": "value", "description": "Value of the parameter", "type": "float", "unit": "none"}
+            {"name": "unit", "description": "Unit of the parameter", "type": "varchar", "unit": "none"} ],
         "primaryKey": "index"},
     "dialect":
         {"delimiter": "none",
@@ -61,7 +75,7 @@
     "metadataLicense":
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",
-        "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/"} },
 "_comment":
     {"metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
     "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
@@ -69,4 +83,4 @@
     "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
     "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
     "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-    "none": "If not applicable use (none)"}}
+    "none": "If not applicable use (none)"} }

@@ -245,7 +245,7 @@ def create_model(data, timesteps=None):
                                initial-cap, eff-in, eff-out, discharge)}
         )
     """
-    sites = data['site'].to_dict()['area']
+    sites = dict.fromkeys(data['site'].index)
 
     for site in sites:
         # Create Lists and Dicts for Sites

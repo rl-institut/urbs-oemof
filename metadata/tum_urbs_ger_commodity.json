@@ -1,14 +1,14 @@
-{"name": "ger_transmission",
-"title": "Germany Transmission Lines",
-"id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_transmission",
-"description": "List of Germany transmission lines",
+{"name": "tum_urbs_ger_commodity",
+"title": "Germany Commodity",
+"id": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_commodity",
+"description": "Germany commodities, resources",
 "language": [ "en-US" ],
-"keywords": [ "germany", "transmission", "line" ],
+"keywords": [ "germany", "commodity" ],
 "publicationDate": "2019",
 "context":
     {"homepage": "https://github.com/rl-institut/urbs-oemof",
     "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
-    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_transmission.json",
+    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/tum_urbs_ger_commodity.json",
     "contact": "https://github.com/oakca",
     "grantNo": "none"},
 "spatial":
@@ -25,7 +25,17 @@
      "description": "urbs v0.7.3 with input file of Germany and three scenarios (base, nuclear-free and co2-2030 targets)",
      "path": "https://zenodo.org/record/1230277#.XHVJa4UxlhE",
      "license": "GNU v3",
-     "copyright": "© TU-München"} ],
+     "copyright": "© TU-München"},
+    {"title": "Data from Länderarbeitskreis Energiebilanzen",
+     "description": "none",
+     "path": "http://www.lak-energiebilanzen.de/co2-emissionen-im-umwandlungsbereich-nach-emittentensektoren-aktuell",
+     "license": "none",
+     "copyright": "© 2018 Länderarbeitskreis Energiebilanzen"},
+    {"title": "Stromerzeugungskosten im Vergleich",
+     "description": "Based on Working Paper, Autors: S. Wissel, S. Rath-Nagel, M. Blesl, U. Fahl, A. Voß",
+     "path": "http://www.ier.uni-stuttgart.de/publikationen/arbeitsberichte/downloads/Arbeitsbericht_04.pdf",
+     "license": "none",
+     "copyright": "© Institute of Energy Economics and the Rational Use of Energy"} ],
 "licenses": [
     {"name": "GNU v3",
     "title": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
@@ -37,23 +47,21 @@
      "email": "none",
      "date": "2019-02-26",
      "object": "metadata",
-     "comment": "Create metadata for germany transmission"} ],
+     "comment": "Create metadata for germany commodity"} ],
 "resources": [
     {"profile": "tabular-data-resource",
-    "name": "model_draft.ger_transmission",
-    "path": "http://openenergyplatform.org/dataedit/view/model_draft/ger_transmission",
+    "name": "model_draft.tum_urbs_ger_commodity",
+    "path": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_commodity",
     "format": "PostgreSQL",
     "encoding" : "UTF-8",
     "schema": {
         "fields": [
             {"name": "index", "description": "Unique identifier", "type": "serial", "unit": "none"},
-            {"name": "site_in", "description": "Name of the ingoing transmission target", "type": "varchar", "unit": "none"},
-            {"name": "site_out", "description": "Name of the outgoing transmission target", "type": "varchar", "unit": "none"},
-            {"name": "transmission", "description": "Name of the transmission", "type": "varchar", "unit": "none"},
-            {"name": "commodity", "description": "Name of the transferred commodity", "type": "varchar", "unit": "none"},
-            {"name": "parameter", "description": "Name of the parameter", "type": "varchar", "unit": "none"},
-            {"name": "value", "description": "Value of the parameter", "type": "float", "unit": "none"}
-            {"name": "unit", "description": "Unit of the parameter", "type": "varchar", "unit": "none"} ],
+            {"name": "site", "description": "Name of the region", "type": "varchar", "unit": "none"},
+            {"name": "type", "description": "Type of the commodity", "type": "varchar", "unit": "none"},
+            {"name": "price", "description": "Price of the commodity", "type": "float", "unit": "Euro"},
+            {"name": "max", "description": "Max available commodity", "type": "float", "unit": "none"},
+            {"name": "maxperhour", "description": "Max available commodity per hour", "type": "float", "unit": "none"} ],
         "primaryKey": "index"},
     "dialect":
         {"delimiter": "none",
@@ -66,7 +74,7 @@
     "metadataLicense":
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",
-        "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/"} },
 "_comment":
     {"metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
     "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
@@ -74,4 +82,4 @@
     "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
     "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
     "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-    "none": "If not applicable use (none)"}}
+    "none": "If not applicable use (none)"} }

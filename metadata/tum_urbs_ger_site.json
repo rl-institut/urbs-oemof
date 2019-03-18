@@ -1,14 +1,14 @@
-{"name": "ger_global_prop",
-"title": "Germany Global Property",
-"id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_global_prop",
-"description": "Limits the sum of all created CO2 in all regions",
+{"name": "tum_urbs_ger_site",
+"title": "Germany Regions",
+"id": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_site",
+"description": "List of Germany federal states",
 "language": [ "en-US" ],
-"keywords": [ "germany", "global", "parameter" ],
+"keywords": [ "germany", "region" ],
 "publicationDate": "2019",
 "context":
     {"homepage": "https://github.com/rl-institut/urbs-oemof",
     "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
-    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_global_prop.json",
+    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/tum_urbs_ger_site.json",
     "contact": "https://github.com/oakca",
     "grantNo": "none"},
 "spatial":
@@ -37,18 +37,18 @@
      "email": "none",
      "date": "2019-02-26",
      "object": "metadata",
-     "comment": "Create metadata for germany global prop"} ],
+     "comment": "Create metadata for germany site"} ],
 "resources": [
     {"profile": "tabular-data-resource",
-    "name": "model_draft.ger_global_prop",
-    "path": "http://openenergyplatform.org/dataedit/view/model_draft/ger_global_prop",
+    "name": "model_draft.tum_urbs_ger_site",
+    "path": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_site",
     "format": "PostgreSQL",
     "encoding" : "UTF-8",
     "schema": {
         "fields": [
             {"name": "index", "description": "Unique identifier", "type": "serial", "unit": "none"},
-            {"name": "property", "description": "Property", "type": "varchar", "unit": "none"},
-            {"name": "value", "description": "Value", "type": "float", "unit": "none"} ],
+            {"name": "name", "description": "Name of the region", "type": "varchar", "unit": "none"},
+            {"name": "area", "description": "Amount of area in the region", "type": "float", "unit": "none"} ],
         "primaryKey": "index"},
     "dialect":
         {"delimiter": "none",
@@ -61,7 +61,7 @@
     "metadataLicense":
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",
-        "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/"} },
 "_comment":
     {"metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
     "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
@@ -69,4 +69,4 @@
     "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
     "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
     "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-    "none": "If not applicable use (none)"}}
+    "none": "If not applicable use (none)"} }

@@ -1,6 +1,6 @@
-{"name": "ger_storage",
+{"name": "tum_urbs_ger_storage",
 "title": "Germany Storage Unit",
-"id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_storage",
+"id": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_storage",
 "description": "List of Germany storage units",
 "language": [ "en-US" ],
 "keywords": [ "germany", "storage" ],
@@ -8,7 +8,7 @@
 "context":
     {"homepage": "https://github.com/rl-institut/urbs-oemof",
     "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
-    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_storage.json",
+    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/tum_urbs_ger_storage.json",
     "contact": "https://github.com/oakca",
     "grantNo": "none"},
 "spatial":
@@ -40,8 +40,8 @@
      "comment": "Create metadata for germany storage"}],
 "resources": [
     {"profile": "tabular-data-resource",
-    "name": "model_draft.ger_storage",
-    "path": "http://openenergyplatform.org/dataedit/view/model_draft/ger_storage",
+    "name": "model_draft.tum_urbs_ger_storage",
+    "path": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_storage",
     "format": "PostgreSQL",
     "encoding" : "UTF-8",
     "schema": {

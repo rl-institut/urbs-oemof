@@ -1,6 +1,6 @@
-{"name": "ger_transmission",
+{"name": "tum_urbs_ger_transmission",
 "title": "Germany Transmission Lines",
-"id": "http://openenergyplatform.org/dataedit/view/model_draft/ger_transmission",
+"id": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_transmission",
 "description": "List of Germany transmission lines",
 "language": [ "en-US" ],
 "keywords": [ "germany", "transmission", "line" ],
@@ -8,7 +8,7 @@
 "context":
     {"homepage": "https://github.com/rl-institut/urbs-oemof",
     "documentation": "https://github.com/rl-institut/urbs-oemof/blob/master/README.md",
-    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/ger_transmission.json",
+    "sourceCode": "https://github.com/rl-institut/urbs-oemof/blob/master/metadata/tum_urbs_ger_transmission.json",
     "contact": "https://github.com/oakca",
     "grantNo": "none"},
 "spatial":
@@ -40,8 +40,8 @@
      "comment": "Create metadata for germany transmission"} ],
 "resources": [
     {"profile": "tabular-data-resource",
-    "name": "model_draft.ger_transmission",
-    "path": "http://openenergyplatform.org/dataedit/view/model_draft/ger_transmission",
+    "name": "model_draft.tum_urbs_ger_transmission",
+    "path": "http://openenergyplatform.org/dataedit/view/model_draft/tum_urbs_ger_transmission",
     "format": "PostgreSQL",
     "encoding" : "UTF-8",
     "schema": {

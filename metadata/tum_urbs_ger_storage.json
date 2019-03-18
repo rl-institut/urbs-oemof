@@ -25,7 +25,17 @@
      "description": "urbs v0.7.3 with input file of Germany and three scenarios (base, nuclear-free and co2-2030 targets)",
      "path": "https://zenodo.org/record/1230277#.XHVJa4UxlhE",
      "license": "GNU v3",
-     "copyright": "© TU-München"} ],
+     "copyright": "© TU-München"},
+    {"title": "Liste von Pumpspeicherkraftwerken",
+     "description": "From the German wikipedia site, checked on the 12.01.2018",
+     "path": "https://de.wikipedia.org/wiki/Liste_von_Pumpspeicherkraftwerken",
+     "license": "CC BY SA 3.0",
+     "copyright": "© Wikipedia"},
+    {"title": "Kraftwerksliste from the Bundesnetzagentur",
+     "description": "Stand: 16.11.2016",
+     "path": "none",
+     "license": "dl-de/by-2-0",
+     "copyright": "none"} ],
 "licenses": [
     {"name": "GNU v3",
     "title": "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007",
@@ -37,7 +47,7 @@
      "email": "none",
      "date": "2019-02-26",
      "object": "metadata",
-     "comment": "Create metadata for germany storage"}],
+     "comment": "Create metadata for germany storage"} ],
 "resources": [
     {"profile": "tabular-data-resource",
     "name": "model_draft.tum_urbs_ger_storage",
@@ -65,7 +75,7 @@
     "metadataLicense":
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",
-        "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/"} },
 "_comment":
     {"metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
     "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
@@ -73,4 +83,4 @@
     "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
     "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
     "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-    "none": "If not applicable use (none)"}}
+    "none": "If not applicable use (none)"} }

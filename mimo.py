@@ -45,49 +45,40 @@ def benchmarking(input_data):
         timesteps = range(offset, offset + length + 1)
 
         if i == 1:
-            start = time.perf_counter()
-            urbs_model = create_um(input_data, timesteps)
-            mid = time.perf_counter()
-            oemof_model = create_om(input_data, timesteps)
-            end = time.perf_counter()
+            urbs_model, urbs_time = create_um(input_data, timesteps)
+            oemof_model, oemof_time = create_om(input_data, timesteps)
 
             bench[i] = comparison(urbs_model, oemof_model,
                                   threshold=0.1, benchmark=True)
 
             # setting build time for urbs
-            bench[i][0]['build'] = mid - start
+            bench[i][0]['build'] = urbs_time
             # setting build time for oemof
-            bench[i][1]['build'] = end - mid
+            bench[i][1]['build'] = oemof_time
 
         elif i <= 100 and i % 10 == 0:
-            start = time.perf_counter()
-            urbs_model = create_um(input_data, timesteps)
-            mid = time.perf_counter()
-            oemof_model = create_om(input_data, timesteps)
-            end = time.perf_counter()
+            urbs_model, urbs_time = create_um(input_data, timesteps)
+            oemof_model, oemof_time = create_om(input_data, timesteps)
 
             bench[i] = comparison(urbs_model, oemof_model,
                                   threshold=0.1, benchmark=True)
 
             # setting build time for urbs
-            bench[i][0]['build'] = mid - start
+            bench[i][0]['build'] = urbs_time
             # setting build time for oemof
-            bench[i][1]['build'] = end - mid
+            bench[i][1]['build'] = oemof_time
 
         elif i > 100 and i % 100 == 0:
-            start = time.perf_counter()
-            urbs_model = create_um(input_data, timesteps)
-            mid = time.perf_counter()
-            oemof_model = create_om(input_data, timesteps)
-            end = time.perf_counter()
+            urbs_model, urbs_time = create_um(input_data, timesteps)
+            oemof_model, oemof_time = create_om(input_data, timesteps)
 
             bench[i] = comparison(urbs_model, oemof_model,
                                   threshold=0.1, benchmark=True)
 
             # setting build time for urbs
-            bench[i][0]['build'] = mid - start
+            bench[i][0]['build'] = urbs_time
             # setting build time for oemof
-            bench[i][1]['build'] = end - mid
+            bench[i][1]['build'] = oemof_time
 
         else:
             pass
@@ -168,7 +159,9 @@ def create_um(input_data, timesteps):
     """
     # create model
     print('CREATING urbs MODEL')
+    start = time.perf_counter()
     model = urbs.create_model(input_data, 1, timesteps)
+    end = time.perf_counter()
 
     # solve model and read results
     optim = SolverFactory('glpk')
@@ -178,7 +171,7 @@ def create_um(input_data, timesteps):
     filename = os.path.join(os.path.dirname(__file__), 'mimo_urbs.lp')
     model.write(filename, io_options={'symbolic_solver_labels': True})
 
-    return model
+    return model, end - start
 
 
 ###############################################################################
@@ -199,7 +192,9 @@ def create_om(input_data, timesteps):
     """
     # create oemof energy system
     print('CREATING oemof MODEL')
+    start = time.perf_counter()
     es, model = oemofm.create_model(input_data, timesteps)
+    end = time.perf_counter()
 
     # solve model and read results
     model.solve(solver='glpk',
@@ -222,7 +217,7 @@ def create_om(input_data, timesteps):
     es.results['main'] = outputlib.processing.results(model)
     es.dump(dpath=None, filename=None)
 
-    return model
+    return model, end - start
 
 
 if __name__ == '__main__':
@@ -230,10 +225,10 @@ if __name__ == '__main__':
     connection = False
 
     # benchmarking
-    benchmark = False
+    benchmark = True
 
     # input file
-    input_file = 'mimo.xlsx'
+    input_file = 'germany.xlsx'
 
     # simulation timesteps
     (offset, length) = (0, 10)  # time step selection
@@ -291,7 +286,7 @@ if __name__ == '__main__':
     # comparing
     else:
         print('COMPARING-------------------------------------------')
-        urbs_model = create_um(input_data, timesteps)
-        oemof_model = create_om(input_data, timesteps)
+        urbs_model, urbs_time = create_um(input_data, timesteps)
+        oemof_model, oemof_time = create_om(input_data, timesteps)
         comparison(urbs_model, oemof_model, threshold=0.1)
         print('COMPARING-COMPLETED---------------------------------')

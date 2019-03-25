@@ -225,10 +225,10 @@ if __name__ == '__main__':
     connection = False
 
     # benchmarking
-    benchmark = True
+    benchmark = False
 
     # input file
-    input_file = 'germany.xlsx'
+    input_file = 'mimo.xlsx'
 
     # simulation timesteps
     (offset, length) = (0, 10)  # time step selection

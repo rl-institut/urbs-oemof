@@ -76,10 +76,13 @@ class Site:
                                 ep_costs=self.transformer[t][0],
                                 maximum=self.transformer[t][1],
                                 existing=self.transformer[t][2]),
-                            variable_costs=self.transformer[t][3]*self.weight)},
+                            variable_costs=self.transformer[t][3]*self.weight,
+                            emission=self.transformer[t][4]*self.weight)},
                 outputs={bus['b_Elec'+'_'+self.name]: solph.Flow()},
-                conversion_factors={bus['b_Elec'+'_'+self.name]:
-                                    self.transformer[t][4]})
+                conversion_factors={bus['b_'+t+'_'+self.name]:
+                                    self.transformer[t][5],
+                                    bus['b_Elec'+'_'+self.name]:
+                                    self.transformer[t][6]})
 
         # create sink (input: elec only)
         for sn in self.sink:
@@ -238,7 +241,7 @@ def create_model(data, timesteps=None):
          source={components: variable_cost},
          rsource={components: (data, annuity, max-cap, existing-cap)},
          transformer={components: (annuity, max-cap, existing-cap, var-cost,
-                                   conversion_factor)},
+                                   conversion_factor, )},
          sink={components: data}
          storage={components: (annuity, max-cap-p, existing-cap-p, var-cost-p,
                                annuity, max-cap-c, existing-cap-c, var-cost-c,
@@ -292,6 +295,8 @@ def create_model(data, timesteps=None):
                 data['process']['cap-up'][site].filter(like=item).values[0],
                 data['process']['inst-cap'][site].filter(like=item).values[0],
                 data['process']['var-cost'][site].filter(like=item).values[0],
+                data['process_commodity']['ratio'].filter(like=item).filter(like='CO2').values[0],
+                data['process_commodity']['ratio'].filter(like=item).filter(like='In').values[0],
                 data['process_commodity']['ratio'].filter(like=item).filter(like='Elec').values[0])
 
         # Sink Dict
@@ -401,6 +406,11 @@ def create_model(data, timesteps=None):
             model,
             model.InvestmentFlow.invest[b0, l0],
             model.InvestmentFlow.invest[b1, l1])
+
+    # add emission constraint
+    if not math.isinf(data['global_prop']['value']['CO2 limit']):
+        limit = data['global_prop']['value']['CO2 limit']
+        solph.constraints.emission_limit(model, limit=limit)
 
     return es, model
 

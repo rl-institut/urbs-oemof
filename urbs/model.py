@@ -166,7 +166,7 @@ def create_model(data, dt=1, timesteps=None, dual=False):
         within=m.sit*m.sto*m.com,
         initialize=m.sto_ep_ratio.index,
         doc='storages with given energy to power ratio')
-        
+
     # Variables
 
     # costs
@@ -260,14 +260,6 @@ def create_model(data, dt=1, timesteps=None, dual=False):
         m.tm, m.com_tuples,
         rule=res_vertex_rule,
         doc='storage + transmission + process + source == demand')
-    m.res_stock_step = pyomo.Constraint(
-        m.tm, m.com_tuples,
-        rule=res_stock_step_rule,
-        doc='stock commodity input per step <= commodity.maxperstep')
-    m.res_stock_total = pyomo.Constraint(
-        m.com_tuples,
-        rule=res_stock_total_rule,
-        doc='total stock commodity input <= commodity.max')
 
     # process
     m.def_process_capacity = pyomo.Constraint(
@@ -363,7 +355,7 @@ def create_model(data, dt=1, timesteps=None, dual=False):
         m.sto_ep_ratio_tuples,
         rule=def_storage_energy_power_ratio_rule,
         doc='storage capacity = storage power * storage E2P ratio')
-        
+
     # costs
     m.def_costs = pyomo.Constraint(
         m.cost_type,
@@ -424,35 +416,7 @@ def res_vertex_rule(m, tm, sit, com, com_type):
     return power_surplus == 0
 
 
-# stock commodity purchase == commodity consumption, according to
-# commodity_balance of current (time step, site, commodity);
-# limit stock commodity use per time step
-def res_stock_step_rule(m, tm, sit, com, com_type):
-    if com not in m.com_stock:
-        return pyomo.Constraint.Skip
-    else:
-        return (m.e_co_stock[tm, sit, com, com_type] <=
-                m.dt * m.commodity_dict['maxperhour'][(sit, com, com_type)])
-
-
-# limit stock commodity use in total (scaled to annual consumption, thanks
-# to m.weight)
-def res_stock_total_rule(m, sit, com, com_type):
-    if com not in m.com_stock:
-        return pyomo.Constraint.Skip
-    else:
-        # calculate total consumption of commodity com
-        total_consumption = 0
-        for tm in m.tm:
-            total_consumption += (
-                m.e_co_stock[tm, sit, com, com_type])
-        total_consumption *= m.weight
-        return (total_consumption <=
-                m.commodity_dict['max'][(sit, com, com_type)])
-
-
 # process
-
 
 # process capacity == new capacity + existing capacity
 def def_process_capacity_rule(m, sit, pro):
@@ -606,10 +570,13 @@ def res_initial_and_final_storage_state_var_rule(m, t, sit, sto, com):
     return (m.e_sto_con[m.t[1], sit, sto, com] <=
             m.e_sto_con[m.t[len(m.t)], sit, sto, com])
 
+
 def def_storage_energy_power_ratio_rule(m, sit, sto, com):
     return (m.cap_sto_c[sit, sto, com] ==
-            m.cap_sto_p[sit, sto, com] * m.storage_dict['ep-ratio'][(sit, sto, com)])
-            
+            m.cap_sto_p[sit, sto, com] *
+            m.storage_dict['ep-ratio'][(sit, sto, com)])
+
+
 # total CO2 output <= Global CO2 limit
 def res_global_co2_limit_rule(m):
     if math.isinf(m.global_prop.loc['CO2 limit', 'value']):

@@ -241,7 +241,8 @@ def create_model(data, timesteps=None):
          source={components: variable_cost},
          rsource={components: (data, annuity, max-cap, existing-cap)},
          transformer={components: (annuity, max-cap, existing-cap, var-cost,
-                                   conversion_factor, )},
+                                   emission_factor, in-conversion_factor,
+                                   out-conversion_factor)},
          sink={components: data}
          storage={components: (annuity, max-cap-p, existing-cap-p, var-cost-p,
                                annuity, max-cap-c, existing-cap-c, var-cost-c,

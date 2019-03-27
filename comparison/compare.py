@@ -510,7 +510,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         # x-Axis (timesteps)
         i = np.array(i)
 
-        for key in urbs_values.keys():
+        for key in urbs_values:
             # y-Axis (values)
             u[key] = np.array(urbs_values[key])
             o[key] = np.array(oemof_values[key])
@@ -524,9 +524,9 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         # plot specs
         plt.xlabel('Timesteps [h]')
         plt.ylabel('Flow [MWh]')
-        plt.title(site+' '+name)
+        plt.title(site+' '+name, y=1.02)
         plt.grid(True)
-        plt.tight_layout(rect=[0,0,0.7,1])
+        plt.tight_layout(rect=[0,0,0.72,1])
         plt.legend(bbox_to_anchor=(1.025, 1), loc=2, borderaxespad=0)
         # plt.show()
 

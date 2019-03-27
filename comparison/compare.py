@@ -482,7 +482,9 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
 
         # tick names
-        plt.xticks(i_pos, list(map((site+' to ').__add__, list(u.keys()))))
+        x_ticks = list(map((' to ').__add__, list(u.keys())))
+        x_ticks_new = [ticks.replace('-', '-\n') for ticks in x_ticks]
+        plt.xticks(i_pos, x_ticks_new, fontsize=6)
 
         # plot specs
         plt.xlabel('Lines')
@@ -508,7 +510,7 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         # x-Axis (timesteps)
         i = np.array(i)
 
-        for key in urbs_values.keys():
+        for key in urbs_values:
             # y-Axis (values)
             u[key] = np.array(urbs_values[key])
             o[key] = np.array(oemof_values[key])
@@ -522,9 +524,10 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         # plot specs
         plt.xlabel('Timesteps [h]')
         plt.ylabel('Flow [MWh]')
-        plt.title(site+' '+name)
+        plt.title(site+' '+name, y=1.02)
         plt.grid(True)
-        plt.legend()
+        plt.tight_layout(rect=[0,0,0.72,1])
+        plt.legend(bbox_to_anchor=(1.025, 1), loc=2, borderaxespad=0)
         # plt.show()
 
         # save plot

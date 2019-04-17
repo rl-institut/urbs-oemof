@@ -379,14 +379,13 @@ def create_model(data, timesteps=None):
         if math.isnan(data['storage']['ep-ratio'][site].filter(like='Pump').values[0]):
             continue
         else:
-            pwr = es.groups['storage_Pump_'+sites[site][0]]
             el = es.groups['b_Elec_'+sites[site][0]]
-            cap = es.groups['storage_Pump_'+sites[site][0]]
+            sto = es.groups['storage_Pump_'+sites[site][0]]
 
             solph.constraints.equate_variables(
                 model,
-                model.GenericInvestmentStorageBlock.invest[pwr],
-                model.InvestmentFlow.invest[el, cap],
+                model.InvestmentFlow.invest[el, sto],
+                model.GenericInvestmentStorageBlock.invest[sto],
                 factor1=data['storage']['ep-ratio'][site].filter(like='Pump').values[0])
 
     # add transmission lines symmetry constraint

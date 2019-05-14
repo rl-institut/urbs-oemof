@@ -39,7 +39,7 @@ def benchmarking(input_data):
     bench = {}
 
     # [1,10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900,1000]
-    for i in range(1, 1001):
+    for i in range(1, 8761):
         # simulation timesteps
         (offset, length) = (0, i)  # time step selection
         timesteps = range(offset, offset + length + 1)
@@ -68,7 +68,19 @@ def benchmarking(input_data):
             # setting build time for oemof
             bench[i][1]['build'] = oemof_time
 
-        elif i > 100 and i % 100 == 0:
+        elif i > 100 and i <= 1000 and i % 100 == 0:
+            urbs_model, urbs_time = create_um(input_data, timesteps)
+            oemof_model, oemof_time = create_om(input_data, timesteps)
+
+            bench[i] = comparison(urbs_model, oemof_model,
+                                  threshold=0.1, benchmark=True)
+
+            # setting build time for urbs
+            bench[i][0]['build'] = urbs_time
+            # setting build time for oemof
+            bench[i][1]['build'] = oemof_time
+
+        elif i > 1000 and i % 2190 == 0:
             urbs_model, urbs_time = create_um(input_data, timesteps)
             oemof_model, oemof_time = create_om(input_data, timesteps)
 
@@ -221,72 +233,13 @@ def create_om(input_data, timesteps):
 
 
 if __name__ == '__main__':
-    # connection to OEP
-    connection = False
+    bench = {}
+    bench[0] = [float(line.rstrip('\n')) for line in open('urbs_gurobi.txt')]
+    bench[1] = [float(line.rstrip('\n')) for line in open('oemof_gurobi.txt')]
+    
 
-    # benchmarking
-    benchmark = False
+    bench['r_grb'] = {}
+    for i in range(0,len(bench[0])):
+        bench['r_grb'][i] = bench[0][i] / bench[1][i]
 
-    # input file
-    input_file = 'mimo.xlsx'
-
-    # simulation timesteps
-    (offset, length) = (0, 10)  # time step selection
-    timesteps = range(offset, offset + length + 1)
-
-    # load data
-    data = conn.read_data(input_file)
-
-    # establish connection to OEP
-    if connection:
-        # config for OEP
-        username, token = open("config.ini", "r").readlines()
-
-        # create engine
-        engine, metadata = conn.connect_oep(username, token)
-        print('OEP Connection established')
-
-        # create table
-        table = {}
-        input_data = {}
-        for key in data:
-            # normalize data for database
-            data[key] = conn.normalize(data[key], key)
-
-            # setup table
-            table['mimo_'+key] = conn.setup_table('mimo_'+key,
-                                                  schema_name='sandbox',
-                                                  metadata=metadata)
-            """
-            # upload to OEP
-            table['mimo_'+key] = conn.upload_to_oep(data[key],
-                                                    table['mimo_'+key],
-                                                    engine, metadata)
-            """
-            # download from OEP
-            input_data[key] = conn.get_df(engine, table['mimo_'+key])
-
-            # denormalize data for models
-            input_data[key] = conn.denormalize(input_data[key], key)
-
-        # write data
-        input_data = conn.write_data(input_data)
-
-    else:
-        # write data
-        input_data = data
-        input_data = conn.write_data(input_data)
-
-    # benchmarking
-    if benchmark:
-        print('BENCHMARKING----------------------------------------')
-        benchmarking(input_data)
-        print('BENCHMARKING-COMPLETED------------------------------')
-
-    # comparing
-    else:
-        print('COMPARING-------------------------------------------')
-        urbs_model, urbs_time = create_um(input_data, timesteps)
-        oemof_model, oemof_time = create_om(input_data, timesteps)
-        comparison(urbs_model, oemof_model, threshold=0.1)
-        print('COMPARING-COMPLETED---------------------------------')
+    comp.process_benchmark(bench['r_grb'])

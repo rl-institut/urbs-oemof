@@ -539,27 +539,28 @@ def process_benchmark(benchmark_data):
     # result directory
     result_dir = prepare_result_directory('benchmark')
 
-    for item in ['obj', 'cpu', 'memory', 'const', 'build']:
+    for item in ['cpu']:
         # create figure
         fig = plt.figure()
 
         # x-Axis (timesteps)
-        ts = np.array(list(benchmark_data.keys()))
+        ts = np.array([1,10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900,1000,2190,4380,6570,8760])
 
         # y-Axis (values)
         u = []
-        o = []
-        for i in ts:
-            u.append(benchmark_data[i][0][item])
-            o.append(benchmark_data[i][1][item])
-        u_array = np.array(u)
-        o_array = np.array(o)
+        for i in benchmark_data:
+            u.append(benchmark_data[i])
+        #o = []
 
+        u_array = np.array(u)
+        #o_array = np.array(benchmark_data[1])
+        #import pdb; pdb.set_trace()
         # draw plots
-        plt.plot(ts, u_array, label='urbs', linestyle='None', marker='x')
+        plt.plot(ts, u_array, label='r_grb', linestyle='None', marker='x')
         plt.ticklabel_format(axis='y')
-        plt.plot(ts, o_array, label='oemof', linestyle='None', marker='.')
-        plt.ticklabel_format(axis='y')
+        #plt.plot(ts, o_array, label='oemof', linestyle='None', marker='.')
+        #plt.ticklabel_format(axis='y')
+        plt.xscale('log')
 
         # plot specs
         plt.xlabel('Timesteps [h]')
@@ -579,10 +580,13 @@ def process_benchmark(benchmark_data):
         elif item is 'build':
             plt.ylabel('Build Time [secs]')
             plt.title('Model Build Time')
+        else:
+            plt.ylabel('xxx')
+            plt.title('xxx')
         plt.grid(True)
         plt.legend()
-        #plt.show()
-
+        plt.show()
+        import pdb; pdb.set_trace()
         # save plot
-        fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
+        #fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
         plt.close(fig)

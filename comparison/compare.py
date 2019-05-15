@@ -539,54 +539,55 @@ def process_benchmark(benchmark_data):
     # result directory
     result_dir = prepare_result_directory('benchmark')
 
-    for item in ['cpu']:
+    for item in ['obj']:
         # create figure
-        fig = plt.figure()
+        fig, ax = plt.subplots()
 
         # x-Axis (timesteps)
-        ts = np.array([1,10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900,1000,2190,4380,6570,8760])
+        ts = np.array([1,10,20,30,40,50,60,70,80,90,100,
+                       200,300,400,500,600,700,800,900,1000,
+                       2190,4380,6570,8760])
 
         # y-Axis (values)
-        u = []
+        r = []
+        average = 0
         for i in benchmark_data:
-            u.append(benchmark_data[i])
-        #o = []
+            r.append(benchmark_data[i])
+            average += benchmark_data[i]
 
-        u_array = np.array(u)
-        #o_array = np.array(benchmark_data[1])
-        #import pdb; pdb.set_trace()
+        average = average / 24
+        #average = [average]
+
+        avg = []
+        for i in benchmark_data:
+            avg.append(average)
+
+        r_array = np.array(r)
+        avg_array = np.array(avg)
+
         # draw plots
-        plt.plot(ts, u_array, label='r_grb', linestyle='None', marker='x')
+        plt.plot(ts, r_array, label='r_grb', linestyle='None', marker='x')
         plt.ticklabel_format(axis='y')
-        #plt.plot(ts, o_array, label='oemof', linestyle='None', marker='.')
-        #plt.ticklabel_format(axis='y')
+        plt.plot(ts, avg_array, label='r_avg_grb', linestyle='-', marker='None')
+        plt.ticklabel_format(axis='y')
+
         plt.xscale('log')
+        log = [1,10,20,50,100,200,500,1000,2190,4380,8760]
+        ax.set_xticks(log)
+        ax.set_xticklabels(log)
+        #plt.yticks(list(plt.yticks()[0]) + average)
 
         # plot specs
         plt.xlabel('Timesteps [h]')
 
         if item is 'obj':
-            plt.ylabel('Objective Value [€]')
-            plt.title('Objective Values')
-        elif item is 'cpu':
-            plt.ylabel('CPU Time [secs]')
-            plt.title('Solver CPU Time')
-        elif item is 'memory':
-            plt.ylabel('Memory [Mb]')
-            plt.title('Solver Memory Used')
-        elif item is 'const':
-            plt.ylabel('Constraint')
-            plt.title('Model Constraint Amount')
-        elif item is 'build':
-            plt.ylabel('Build Time [secs]')
-            plt.title('Model Build Time')
-        else:
-            plt.ylabel('xxx')
-            plt.title('xxx')
+            plt.ylabel('r')
+            plt.title('Ratio of the Solver CPU Times (urbs/oemof)')
+
         plt.grid(True)
         plt.legend()
         plt.show()
-        import pdb; pdb.set_trace()
+
         # save plot
         #fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
         plt.close(fig)

@@ -255,3 +255,4 @@ if __name__ == '__main__':
     comp.r_graph(bench['r_grb'], 'gurobi')
     comp.r_graph(bench['r_glpk'], 'glpk')
     comp.ratio_graph(bench)
+    comp.process_benchmark(bench)

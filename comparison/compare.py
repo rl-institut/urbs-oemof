@@ -631,3 +631,55 @@ def ratio_graph(benchmark_data):
     plt.legend()
     plt.show()
     plt.close(fig)
+
+
+def process_benchmark(benchmark_data):
+    for item in ['cpu']:
+        # create figure
+        fig = plt.figure()
+
+        # x-Axis (timesteps)
+        ts = np.array([1,10,20,30,40,50,60,70,80,90,100,
+                   200,300,400,500,600,700,800,900,1000,
+                   2190,4380,6570,8760])
+
+        # y-Axis (values)
+        u = []
+        o = []
+        for i in benchmark_data['ratio_urbs']:
+            u.append(benchmark_data['u_glpk'][i])
+            o.append(benchmark_data['o_glpk'][i])
+        u_array = np.array(u)
+        o_array = np.array(o)
+
+        # draw plots
+        plt.plot(ts, u_array, label='urbs', linestyle='None', marker='x')
+        plt.ticklabel_format(axis='y')
+        plt.plot(ts, o_array, label='oemof', linestyle='None', marker='.')
+        plt.ticklabel_format(axis='y')
+
+        # plot specs
+        plt.xlabel('Timesteps [h]')
+
+        if item is 'obj':
+            plt.ylabel('Objective Value [€]')
+            plt.title('Objective Values')
+        elif item is 'cpu':
+            plt.ylabel('CPU Time [secs]')
+            plt.title('Solver CPU Time')
+        elif item is 'memory':
+            plt.ylabel('Memory [Mb]')
+            plt.title('Solver Memory Used')
+        elif item is 'const':
+            plt.ylabel('Constraint')
+            plt.title('Model Constraint Amount')
+        elif item is 'build':
+            plt.ylabel('Build Time [secs]')
+            plt.title('Model Build Time')
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+        # save plot
+        #fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
+        plt.close(fig)

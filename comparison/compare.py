@@ -535,59 +535,99 @@ def draw_graph(site, i, urbs_values, oemof_values, name):
         plt.close(fig)
 
 
-def process_benchmark(benchmark_data):
-    # result directory
-    result_dir = prepare_result_directory('benchmark')
+def r_graph(benchmark_data, solver_name):
+    # create figure
+    fig, ax = plt.subplots()
 
-    for item in ['obj']:
-        # create figure
-        fig, ax = plt.subplots()
+    # x-Axis (timesteps)
+    ts = np.array([1,10,20,30,40,50,60,70,80,90,100,
+                   200,300,400,500,600,700,800,900,1000,
+                   2190,4380,6570,8760])
 
-        # x-Axis (timesteps)
-        ts = np.array([1,10,20,30,40,50,60,70,80,90,100,
-                       200,300,400,500,600,700,800,900,1000,
-                       2190,4380,6570,8760])
+    # y-Axis (values)
+    r = []
+    average = 0
+    for i in benchmark_data:
+        r.append(benchmark_data[i])
+        average += benchmark_data[i]
 
-        # y-Axis (values)
-        r = []
-        average = 0
-        for i in benchmark_data:
-            r.append(benchmark_data[i])
-            average += benchmark_data[i]
+    average = average / 24
 
-        average = average / 24
-        #average = [average]
+    avg = []
+    for i in benchmark_data:
+        avg.append(average)
 
-        avg = []
-        for i in benchmark_data:
-            avg.append(average)
+    r_array = np.array(r)
+    avg_array = np.array(avg)
 
-        r_array = np.array(r)
-        avg_array = np.array(avg)
+    # draw plots
+    plt.plot(ts, r_array, label='Parameter r', linestyle='None', marker='x')
+    plt.ticklabel_format(axis='y')
+    plt.plot(ts, avg_array, label='Avg Parameter r', linestyle='-', marker='None')
+    plt.ticklabel_format(axis='y')
 
-        # draw plots
-        plt.plot(ts, r_array, label='r_grb', linestyle='None', marker='x')
-        plt.ticklabel_format(axis='y')
-        plt.plot(ts, avg_array, label='r_avg_grb', linestyle='-', marker='None')
-        plt.ticklabel_format(axis='y')
+    # plot specs
+    plt.xlabel('Timesteps [h]')
+    plt.ylabel('Parameter r')
+    plt.xscale('log')
 
-        plt.xscale('log')
-        log = [1,10,20,50,100,200,500,1000,2190,4380,8760]
-        ax.set_xticks(log)
-        ax.set_xticklabels(log)
-        #plt.yticks(list(plt.yticks()[0]) + average)
+    log = [1,10,20,50,100,200,500,1000,2190,4380,8760]
+    ax.set_xticks(log)
+    ax.set_xticklabels(log)
 
-        # plot specs
-        plt.xlabel('Timesteps [h]')
+    if solver_name == 'gurobi':
+        plt.title('urbs/oemof [Gurobi]')
+    elif solver_name == 'glpk':
+        plt.title('urbs/oemof [GLPK]')
 
-        if item is 'obj':
-            plt.ylabel('r')
-            plt.title('Ratio of the Solver CPU Times (urbs/oemof)')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+    plt.close(fig)
 
-        plt.grid(True)
-        plt.legend()
-        plt.show()
 
-        # save plot
-        #fig.savefig(os.path.join(result_dir, 'comp_'+item+'.png'), dpi=300)
-        plt.close(fig)
+def ratio_graph(benchmark_data):
+    # create figure
+    fig, ax = plt.subplots()
+
+    # x-Axis (timesteps)
+    ts = np.array([1,10,20,30,40,50,60,70,80,90,100,
+                   200,300,400,500,600,700,800,900,1000,
+                   2190,4380,6570,8760])
+
+    # y-Axis (values)
+    ratio_urbs = []
+    ratio_oemof = []
+    for i in benchmark_data['ratio_urbs']:
+        ratio_urbs.append(benchmark_data['ratio_urbs'][i])
+        ratio_oemof.append(benchmark_data['ratio_oemof'][i])
+
+    ru_array = np.array(ratio_urbs)
+    ro_array = np.array(ratio_oemof)
+    ones = np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                     1,1,1,1])
+
+
+
+    # draw plots
+    plt.plot(ts, ru_array, label='urbs', linestyle='None', marker='x')
+    plt.ticklabel_format(axis='y')
+    plt.plot(ts, ro_array, label='oemof', linestyle='None', marker='.')
+    plt.ticklabel_format(axis='y')
+    plt.plot(ts, ones, label='Ratio = 1', linestyle='-', marker='None')
+    plt.ticklabel_format(axis='y')
+
+    # plot specs
+    plt.xlabel('Timesteps [h]')
+    plt.ylabel('Ratio')
+    plt.xscale('log')
+    plt.title('Gurobi/GLPK')
+
+    log = [1,10,20,50,100,200,500,1000,2190,4380,8760]
+    ax.set_xticks(log)
+    ax.set_xticklabels(log)
+
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+    plt.close(fig)

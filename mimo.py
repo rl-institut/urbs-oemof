@@ -234,12 +234,24 @@ def create_om(input_data, timesteps):
 
 if __name__ == '__main__':
     bench = {}
-    bench[0] = [float(line.rstrip('\n')) for line in open('urbs_gurobi.txt')]
-    bench[1] = [float(line.rstrip('\n')) for line in open('oemof_gurobi.txt')]
+    bench['u_grb'] = [float(line.rstrip('\n')) for line in open('urbs_gurobi.txt')]
+    bench['o_grb'] = [float(line.rstrip('\n')) for line in open('oemof_gurobi.txt')]
+    bench['u_glpk'] = [float(line.rstrip('\n')) for line in open('urbs_glpk.txt')]
+    bench['o_glpk'] = [float(line.rstrip('\n')) for line in open('oemof_glpk.txt')]
     
 
     bench['r_grb'] = {}
-    for i in range(0,len(bench[0])):
-        bench['r_grb'][i] = bench[0][i] / bench[1][i]
+    bench['r_glpk'] = {}
+    for i in range(0,len(bench['u_grb'])):
+        bench['r_grb'][i] = bench['u_grb'][i] / bench['o_grb'][i]
+        bench['r_glpk'][i] = bench['u_glpk'][i] / bench['o_glpk'][i]
 
-    comp.process_benchmark(bench['r_grb'])
+    bench['ratio_urbs'] = {}
+    bench['ratio_oemof'] = {}
+    for i in range(0,len(bench['u_grb'])):
+        bench['ratio_urbs'][i] = bench['u_grb'][i] / bench['u_glpk'][i]
+        bench['ratio_oemof'][i] = bench['o_grb'][i] / bench['o_glpk'][i]
+
+    comp.r_graph(bench['r_grb'], 'gurobi')
+    comp.r_graph(bench['r_glpk'], 'glpk')
+    comp.ratio_graph(bench)

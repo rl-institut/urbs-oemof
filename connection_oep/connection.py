@@ -170,6 +170,22 @@ def setup_table(table_name, schema_name='sandbox',
             sa.Column('north_hydro', sa.Float()),
             schema=schema_name)
 
+    if table_name == 'mimo_results':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('id', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
+            sa.Column('model', sa.VARCHAR(50)),
+            sa.Column('version', sa.VARCHAR(50)),
+            sa.Column('region', sa.VARCHAR(50)),
+            sa.Column('variable', sa.VARCHAR(50)),
+            sa.Column('value', sa.Float()),
+            sa.Column('unit', sa.VARCHAR(50)),
+            sa.Column('aggregation', sa.Boolean),
+            sa.Column('updated', sa.DateTime),
+            schema=schema_name)
+
     return table
 
 

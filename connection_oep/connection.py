@@ -170,7 +170,7 @@ def setup_table(table_name, schema_name='sandbox',
             sa.Column('north_hydro', sa.Float()),
             schema=schema_name)
 
-    if table_name == 'mimo_results':
+    if table_name == 'mimo_result':
         table = sa.Table(
             table_name,
             metadata,

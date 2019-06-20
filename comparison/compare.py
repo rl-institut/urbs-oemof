@@ -135,6 +135,11 @@ def compare_storages(urbs_model, oemof_model, threshold):
     sto_pwr_df = {}
     sto_cap_df = {}
 
+    # output dictionaries
+    sto = {}
+    sto['urbs'] = {}
+    sto['oemof'] = {}
+
     for sit in urbs_model.sit:
         # plot init
         iterations = []
@@ -166,6 +171,14 @@ def compare_storages(urbs_model, oemof_model, threshold):
         # output template
         print('----------------------------------------------------')
         print('i', '\t', 'Storage', sit, '\t', '(urbs - oemof)')
+
+        # output data
+        sto['urbs'][sit] = [urbs_model.cap_sto_c_new[(sit, 'Pump', 'Elec')](),
+                            urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]()]
+        sto['oemof'][sit] = [sto_cap_df[sit][(('storage_Pump_'+sit, 'None'),
+                               'invest')],
+                             sto_pwr_df[sit][(('b_Elec_'+sit, 'storage_Pump_'+sit),
+                                  'invest')]]
 
         # storage power
         if abs(urbs_model.cap_sto_p_new[(sit, 'Pump', 'Elec')]() -
@@ -223,8 +236,9 @@ def compare_storages(urbs_model, oemof_model, threshold):
 
         # plot
         draw_graph(sit, iterations, urbs_values, oemof_values, 'Storage')
+        print('----------------------------------------------------')
 
-    return print('----------------------------------------------------')
+    return sto['urbs'], sto['oemof']
 
 
 def compare_transmission(urbs_model, oemof_model, threshold):
@@ -235,6 +249,11 @@ def compare_transmission(urbs_model, oemof_model, threshold):
     # transmission dictionaries
     tra_df = {}
     tra_cap_df = {}
+
+    # output dictionaries
+    tra = {}
+    tra['urbs'] = {}
+    tra['oemof'] = {}
 
     for sit in urbs_model.sit:
         # plot init
@@ -268,6 +287,11 @@ def compare_transmission(urbs_model, oemof_model, threshold):
                     pass
 
         for sit_out in out:
+            # output data
+            tra['urbs'][sit+sit_out] = urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]()
+            tra['oemof'][sit+sit_out] = tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
+                                                        'invest')]
+
             if abs(urbs_model.cap_tra_new[(sit, sit_out, 'hvac', 'Elec')]() -
                    tra_cap_df[sit][(('b_Elec_'+sit, 'line_'+sit+'_'+sit_out),
                                     'invest')]) >= threshold:
@@ -307,8 +331,9 @@ def compare_transmission(urbs_model, oemof_model, threshold):
 
         # plot
         draw_graph(sit, sit_outs, urbs_values, oemof_values, 'Transmission')
+        print('----------------------------------------------------')
 
-    return print('----------------------------------------------------')
+    return tra['urbs'], tra['oemof']
 
 
 def compare_process(urbs_model, oemof_model, threshold):
@@ -323,6 +348,11 @@ def compare_process(urbs_model, oemof_model, threshold):
     # f process dictionaries
     pro_r_df = {}
     pro_cap_r_df = {}
+
+    # output dictionaries
+    pros = {}
+    pros['urbs'] = {}
+    pros['oemof'] = {}
 
     for sit in urbs_model.sit:
         # nf process list
@@ -367,6 +397,11 @@ def compare_process(urbs_model, oemof_model, threshold):
             # nf process capacity
             pro_cap_df[sit] = results_con['scalars']
 
+            # output data
+            pros['urbs'][sit+pro] = urbs_model.cap_pro_new[(sit, pro+' plant')]()
+            pros['oemof'][sit+pro] = pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
+                                                    'invest')]
+
             if abs(urbs_model.cap_pro_new[(sit, pro+' plant')]() -
                    pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
                                    'invest')]) >= threshold:
@@ -400,6 +435,12 @@ def compare_process(urbs_model, oemof_model, threshold):
 
         # get f process capacity variable values
         for ren in ren_list:
+
+            # output data
+            pros['urbs'][sit+ren] = urbs_model.cap_pro_new[(sit, pro+' plant')]()
+            pros['oemof'][sit+ren] = pro_cap_df[sit][(('b_'+pro+'_'+sit, 'pp_'+pro+'_'+sit),
+                                                    'invest')]
+
             # f process capacity
             if abs(urbs_model.cap_pro_new[(sit, ren+' plant')]() -
                    pro_cap_r_df[sit][(('rs_'+ren+'_'+sit, 'b_Elec_'+sit),
@@ -427,8 +468,9 @@ def compare_process(urbs_model, oemof_model, threshold):
 
         # plot
         draw_graph(sit, iterations, urbs_values, oemof_values, 'Process (fPP)')
+        print('----------------------------------------------------')
 
-    return print('----------------------------------------------------')
+    return pros['urbs'], pros['oemof']
 
 
 def draw_graph(site, i, urbs_values, oemof_values, name):

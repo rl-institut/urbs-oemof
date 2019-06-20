@@ -5,6 +5,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+
 Base = declarative_base()
 
 
@@ -170,6 +171,24 @@ def setup_table(table_name, schema_name='sandbox',
             sa.Column('north_hydro', sa.Float()),
             schema=schema_name)
 
+<<<<<<< Updated upstream
+=======
+    if table_name == 'mimo_result':
+        table = sa.Table(
+            table_name,
+            metadata,
+            sa.Column('id', sa.Integer, primary_key=True,
+                      autoincrement=True, nullable=False),
+            sa.Column('version', sa.VARCHAR(50)),
+            sa.Column('variable', sa.VARCHAR(50)),
+            sa.Column('urbs_value', sa.Float()),
+            sa.Column('oemof_value', sa.Float()),
+            sa.Column('unit', sa.VARCHAR(50)),
+            sa.Column('aggregation', sa.Boolean),
+            sa.Column('updated', sa.DATETIME),
+            schema=schema_name)
+
+>>>>>>> Stashed changes
     return table
 
 

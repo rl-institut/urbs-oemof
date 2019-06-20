@@ -20,6 +20,7 @@ import connection_oep as conn
 # misc.
 import os
 import time
+import pandas as pd
 
 
 ###############################################################################
@@ -132,9 +133,12 @@ def comparison(u_model, o_model, threshold=0.1, benchmark=False):
 
     # compare model variables
     if len(u_model.tm) >= 2 and not benchmark:
-        sto = comp.compare_storages(u_model, o_model, threshold)
-        tra = comp.compare_transmission(u_model, o_model, threshold)
-        pro = comp.compare_process(u_model, o_model, threshold)
+        urbs['sto'], oemof['sto'] = \
+            comp.compare_storages(u_model, o_model, threshold)
+        urbs['tra'], oemof['tra'] = \
+            comp.compare_transmission(u_model, o_model, threshold)
+        urbs['pro'], oemof['pro'] = \
+            comp.compare_process(u_model, o_model, threshold)
     else:
         pass
 
@@ -288,5 +292,132 @@ if __name__ == '__main__':
         print('COMPARING-------------------------------------------')
         urbs_model, urbs_time = create_um(input_data, timesteps)
         oemof_model, oemof_time = create_om(input_data, timesteps)
-        comparison(urbs_model, oemof_model, threshold=0.1)
+        urbs, oemof = comparison(urbs_model, oemof_model, threshold=0.1)
         print('COMPARING-COMPLETED---------------------------------')
+
+        # send results to OEP
+        if connection:
+            output = {'urbs': 
+                         {'storage_capacity_mid': urbs['sto']['Mid'][0],
+                          'storage_capacity_south': urbs['sto']['South'][0],
+                          'storage_capacity_north': urbs['sto']['North'][0],
+                          'storage_power_mid': urbs['sto']['Mid'][0],
+                          'storage_power_south': urbs['sto']['South'][0],
+                          'storage_power_north': urbs['sto']['North'][0],
+                          'transmission_capacity_mid_south': urbs['tra']['MidSouth'],
+                          'transmission_capacity_mid_north': urbs['tra']['MidNorth'],
+                          'transmission_capacity_south_mid': urbs['tra']['SouthMid'],
+                          'transmission_capacity_south_north': urbs['tra']['SouthNorth'],
+                          'transmission_capacity_north_south': urbs['tra']['NorthSouth'],
+                          'transmission_capacity_north_mid': urbs['tra']['NorthMid'],
+                          'process_capacity_mid_biomass': urbs['pro']['MidBiomass'],
+                          'process_capacity_mid_coal': urbs['pro']['MidCoal'],
+                          'process_capacity_mid_gas': urbs['pro']['MidGas'],
+                          'process_capacity_mid_lignite': urbs['pro']['MidLignite'],
+                          'process_capacity_mid_hydro': urbs['pro']['MidHydro'],
+                          'process_capacity_mid_solar': urbs['pro']['MidSolar'],
+                          'process_capacity_mid_wind': urbs['pro']['MidWind'],
+                          'process_capacity_south_biomass': urbs['pro']['SouthBiomass'],
+                          'process_capacity_south_coal': urbs['pro']['SouthCoal'],
+                          'process_capacity_south_gas': urbs['pro']['SouthGas'],
+                          'process_capacity_south_lignite': urbs['pro']['SouthLignite'],
+                          'process_capacity_south_hydro': urbs['pro']['SouthHydro'],
+                          'process_capacity_south_solar': urbs['pro']['SouthSolar'],
+                          'process_capacity_south_wind': urbs['pro']['SouthWind'],
+                          'process_capacity_north_biomass': urbs['pro']['NorthBiomass'],
+                          'process_capacity_north_coal': urbs['pro']['NorthCoal'],
+                          'process_capacity_north_gas': urbs['pro']['NorthGas'],
+                          'process_capacity_north_lignite': urbs['pro']['NorthLignite'],
+                          'process_capacity_north_hydro': urbs['pro']['NorthHydro'],
+                          'process_capacity_north_solar': urbs['pro']['NorthSolar'],
+                          'process_capacity_north_wind': urbs['pro']['NorthWind']
+                         },
+                      'oemof': 
+                         {'storage_capacity_mid': oemof['sto']['Mid'][0],
+                          'storage_capacity_south': oemof['sto']['South'][0],
+                          'storage_capacity_north': oemof['sto']['North'][0],
+                          'storage_power_mid': oemof['sto']['Mid'][0],
+                          'storage_power_south': oemof['sto']['South'][0],
+                          'storage_power_north': oemof['sto']['North'][0],
+                          'transmission_capacity_mid_south': oemof['tra']['MidSouth'],
+                          'transmission_capacity_mid_north': oemof['tra']['MidNorth'],
+                          'transmission_capacity_south_mid': oemof['tra']['SouthMid'],
+                          'transmission_capacity_south_north': oemof['tra']['SouthNorth'],
+                          'transmission_capacity_north_south': oemof['tra']['NorthSouth'],
+                          'transmission_capacity_north_mid': oemof['tra']['NorthMid'],
+                          'process_capacity_mid_biomass': oemof['pro']['MidBiomass'],
+                          'process_capacity_mid_coal': oemof['pro']['MidCoal'],
+                          'process_capacity_mid_gas': oemof['pro']['MidGas'],
+                          'process_capacity_mid_lignite': oemof['pro']['MidLignite'],
+                          'process_capacity_mid_hydro': oemof['pro']['MidHydro'],
+                          'process_capacity_mid_solar': oemof['pro']['MidSolar'],
+                          'process_capacity_mid_wind': oemof['pro']['MidWind'],
+                          'process_capacity_south_biomass': oemof['pro']['SouthBiomass'],
+                          'process_capacity_south_coal': oemof['pro']['SouthCoal'],
+                          'process_capacity_south_gas': oemof['pro']['SouthGas'],
+                          'process_capacity_south_lignite': oemof['pro']['SouthLignite'],
+                          'process_capacity_south_hydro': oemof['pro']['SouthHydro'],
+                          'process_capacity_south_solar': oemof['pro']['SouthSolar'],
+                          'process_capacity_south_wind': oemof['pro']['SouthWind'],
+                          'process_capacity_north_biomass': oemof['pro']['NorthBiomass'],
+                          'process_capacity_north_coal': oemof['pro']['NorthCoal'],
+                          'process_capacity_north_gas': oemof['pro']['NorthGas'],
+                          'process_capacity_north_lignite': oemof['pro']['NorthLignite'],
+                          'process_capacity_north_hydro': oemof['pro']['NorthHydro'],
+                          'process_capacity_north_solar': oemof['pro']['NorthSolar'],
+                          'process_capacity_north_wind': oemof['pro']['NorthWind']
+                         }
+                     }
+
+            output_df = pd.DataFrame(output)
+            output_df = (output_df.assign(variable=output_df.index)
+                                  .assign(unit='')
+                                  .assign(version='v0.1')
+                                  .assign(aggregation=False)
+                                  .assign(updated=pd.Timestamp.now())
+                                  .rename(columns={'urbs': 'urbs_value', 'oemof': 'oemof_value'})
+                                  .reset_index(drop=True))
+            unit = {'storage_capacity_mid': 'MWh',
+                    'storage_capacity_south': 'MWh',
+                    'storage_capacity_north': 'MWh',
+                    'storage_power_mid': 'MW',
+                    'storage_power_south': 'MW',
+                    'storage_power_north': 'MW',
+                    'transmission_capacity_mid_south': 'MW',
+                    'transmission_capacity_mid_north': 'MW',
+                    'transmission_capacity_south_mid': 'MW',
+                    'transmission_capacity_south_north': 'MW',
+                    'transmission_capacity_north_south': 'MW',
+                    'transmission_capacity_north_mid': 'MW',
+                    'process_capacity_mid_biomass': 'MW',
+                    'process_capacity_mid_coal': 'MW',
+                    'process_capacity_mid_gas': 'MW',
+                    'process_capacity_mid_lignite': 'MW',
+                    'process_capacity_mid_hydro': 'MW',
+                    'process_capacity_mid_solar': 'MW',
+                    'process_capacity_mid_wind': 'MW',
+                    'process_capacity_south_biomass': 'MW',
+                    'process_capacity_south_coal': 'MW',
+                    'process_capacity_south_gas': 'MW',
+                    'process_capacity_south_lignite': 'MW',
+                    'process_capacity_south_hydro': 'MW',
+                    'process_capacity_south_solar': 'MW',
+                    'process_capacity_south_wind': 'MW',
+                    'process_capacity_north_biomass': 'MW',
+                    'process_capacity_north_coal': 'MW',
+                    'process_capacity_north_gas': 'MW',
+                    'process_capacity_north_lignite': 'MW',
+                    'process_capacity_north_hydro': 'MW',
+                    'process_capacity_north_solar': 'MW',
+                    'process_capacity_north_wind': 'MW'}
+            output_df['unit'] = output_df['variable'].map(unit)
+            output_df = output_df[['version', 'variable', 'urbs_value', 'oemof_value',
+                                   'unit', 'aggregation', 'updated']]
+
+            # upload to OEP
+            out_table = conn.setup_table('mimo_result', schema_name='sandbox',
+                                     metadata=metadata)
+            out_table = conn.upload_to_oep(output_df, out_table, engine, metadata)
+            
+        else:
+            pass
